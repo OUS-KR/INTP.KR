@@ -11,10 +11,11 @@
     {
       "type": "user-article",
       "path": "articles/example",
-      "created_at": "2025-06-20T17:25:08+09:00",
       "files": [
-        "index.html"
-      ]
+        "index.html",
+        "content.json"
+      ],
+      "created_at": "2025-06-23T05:03:17+09:00"
     }
   ]
 }
