@@ -1,15 +1,6 @@
 {
   "list": [
     {
-      "type": "user-short-url",
-      "path": "links/intp-kr",
-      "files": [
-        "index.html",
-        "content.json"
-      ],
-      "created_at": "2025-06-23T04:52:54+09:00"
-    },
-    {
       "type": "user-article",
       "path": "articles/example",
       "files": [
@@ -17,6 +8,15 @@
         "content.json"
       ],
       "created_at": "2025-06-23T05:03:17+09:00"
+    },
+    {
+      "type": "user-short-url",
+      "path": "links/intp-kr",
+      "files": [
+        "index.html",
+        "content.json"
+      ],
+      "created_at": "2025-06-23T05:04:55+09:00"
     }
   ]
 }
