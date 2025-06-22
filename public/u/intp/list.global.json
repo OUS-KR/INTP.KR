@@ -17,6 +17,15 @@
         "content.json"
       ],
       "created_at": "2025-06-23T05:04:55+09:00"
+    },
+    {
+      "type": "user-article",
+      "path": "",
+      "files": [
+        "index.html",
+        "content.json"
+      ],
+      "created_at": "2025-06-23T05:20:49+09:00"
     }
   ]
 }
