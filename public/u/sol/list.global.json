@@ -68,6 +68,15 @@
         "21e05f6c-3d39-4bb8-be19-3921f62751ff.png"
       ],
       "created_at": "2025-09-27T23:59:24+09:00"
+    },
+    {
+      "type": "user-article",
+      "path": "songs",
+      "files": [
+        "index.html",
+        "content.json"
+      ],
+      "created_at": "2025-09-28T00:10:52+09:00"
     }
   ]
 }
