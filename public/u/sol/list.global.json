@@ -29,6 +29,15 @@
         "a07a7aa0-d9a5-47f0-b92d-9c2653d76af0.png"
       ],
       "created_at": "2025-09-27T21:56:26+09:00"
+    },
+    {
+      "type": "user-article",
+      "path": "sns",
+      "files": [
+        "index.html",
+        "content.json"
+      ],
+      "created_at": "2025-09-27T21:59:04+09:00"
     }
   ]
 }
