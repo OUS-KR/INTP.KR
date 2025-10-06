@@ -10,7 +10,7 @@
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
         <div class="nav-right-section">
-            <nav class="nav-links">
+            <nav class="nav-links" id="nav-links">
                 <a href="/u/tests/info-characteristics/">특징</a>
                 <a href="/u/tests/info-careers/">커리어</a>
                 <a href="/u/tests/info-cognitive-functions/">인지기능</a>
@@ -18,15 +18,15 @@
                 <a href="/u/tests/info-relationships/">인간관계</a>
                 <a href="/u/tests/test-logic-quiz/">퀴즈</a>
             </nav>
-            <div id="theme-switcher" class="theme-switcher">🌙</div>
-            <div id="hamburger" class="hamburger">☰</div>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
         </div>
     </header>
     <div id="quiz-container" class="container">
         <div id="start-area">
             <h1>INTP 논리력 퀴즈</h1>
             <p>나는 얼마나 INTP 성향에 가까울까?<br>간단한 퀴즈를 통해 당신의 논리적 사고 성향을 알아보세요!</p>
-            <button id="start-btn">퀴즈 시작하기</button>
+            <button id="start-btn" class="btn btn-primary">퀴즈 시작하기</button>
         </div>
 
         <div id="quiz-area" class="hidden">
@@ -39,9 +39,9 @@
 
         <div id="result-area" class="hidden">
             <div class="result-card">
-                <h2 class="result-title">퀴즈 결과</h2>
+                <h2 id="result-title" class="result-title"></h2>
                 <p id="result-text"></p>
-                <button id="retry-btn">다시하기</button>
+                <button id="retry-btn" class="btn btn-primary">다시하기</button>
             </div>
         </div>
     </div>
@@ -56,6 +56,7 @@
         const retryBtn = document.getElementById('retry-btn');
         const questionEl = document.getElementById('question');
         const answersEl = document.getElementById('answers');
+        const resultTitleEl = document.getElementById('result-title');
         const resultTextEl = document.getElementById('result-text');
         const progressBar = document.getElementById('progress-bar');
 
@@ -134,7 +135,6 @@
             score += answerScore;
             selectedButton.classList.add('selected');
             
-            // Disable all buttons after selection
             const answerButtons = answersEl.querySelectorAll('button');
             answerButtons.forEach(button => button.disabled = true);
 
@@ -167,12 +167,12 @@
                 resultTitle = '합리적인 실용주의자';
                 resultMessage = 'INTP보다는 다른 성향에 가까워 보입니다. 당신은 논리만큼이나 사람들과의 관계, 현실적인 실행도 중요하게 생각하는군요.';
             }
-            resultArea.querySelector('.result-title').innerText = resultTitle;
+            resultTitleEl.innerText = resultTitle;
             resultTextEl.innerText = resultMessage;
         }
 
         function updateProgressBar() {
-            const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            const progress = (currentQuestionIndex / quizData.length) * 100;
             progressBar.style.width = `${progress}%`;
         }
     </script>

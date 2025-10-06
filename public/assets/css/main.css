@@ -11,6 +11,9 @@
     --nav-border: #e0e0e0;
     --nav-link-color: #555;
     --nav-link-hover: #3498db;
+    --btn-primary-bg: #3498db;
+    --btn-primary-text: #fff;
+    --btn-primary-hover: #2980b9;
     --table-header-bg: #34495e;
     --shadow-color: rgba(0,0,0,0.05);
 }
@@ -27,6 +30,8 @@
     --nav-border: #4a6278;
     --nav-link-color: #bdc3c7;
     --nav-link-hover: #5dade2;
+    --btn-primary-bg: #5dade2;
+    --btn-primary-hover: #8ecaf9;
     --table-header-bg: #2c3e50;
     --shadow-color: rgba(0,0,0,0.2);
 }
@@ -55,12 +60,16 @@ body {
 .main-nav {
     background-color: var(--nav-bg);
     border-bottom: 1px solid var(--nav-border);
-    padding: 15px 30px;
+    padding: 0 30px;
+    height: 70px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 4px var(--shadow-color);
     transition: background-color 0.3s, border-bottom 0.3s;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .main-nav .logo {
@@ -70,8 +79,17 @@ body {
     text-decoration: none;
 }
 
+.nav-right-section {
+    display: flex;
+    align-items: center;
+}
+
+.main-nav .nav-links {
+    display: flex;
+}
+
 .main-nav .nav-links a {
-    margin-left: 20px;
+    margin-left: 25px;
     text-decoration: none;
     color: var(--nav-link-color);
     font-weight: 500;
@@ -82,28 +100,27 @@ body {
     color: var(--nav-link-hover);
 }
 
-/* --- Navigation --- */
-.nav-right-section {
-    display: flex;
-    align-items: center;
-}
-
-/* Theme-switcher */
 .theme-switcher {
     cursor: pointer;
     font-size: 1.5em;
-    margin-left: 20px;
+    margin-left: 25px;
+    background: none;
+    border: none;
+    color: var(--text-color);
 }
 
-/* Hamburger Menu */
 .hamburger {
     display: none;
     cursor: pointer;
     font-size: 1.8em;
-    margin-left: 20px;
+    margin-left: 15px;
+    background: none;
+    border: none;
+    color: var(--text-color);
 }
 
-@media (max-width: 768px) {
+/* Responsive Navigation */
+@media (max-width: 850px) {
     .main-nav .nav-links {
         display: none;
         position: absolute;
@@ -114,6 +131,7 @@ body {
         flex-direction: column;
         width: 100%;
         box-shadow: 0 4px 8px var(--shadow-color);
+        border-top: 1px solid var(--nav-border);
     }
 
     .main-nav .nav-links.active {
@@ -122,7 +140,7 @@ body {
 
     .main-nav .nav-links a {
         margin: 0;
-        padding: 15px;
+        padding: 18px;
         text-align: center;
         border-bottom: 1px solid var(--nav-border);
     }
@@ -177,14 +195,6 @@ h3 {
 /* Card Colors */
 .info-card { border-left-color: #16a085; }
 .info-card .card-title { color: #16a085; }
-
-.function-card.ti-card { border-left-color: #3498db; }
-.function-card.ne-card { border-left-color: #9b59b6; }
-.function-card.si-card { border-left-color: #1abc9c; }
-.function-card.fe-card { border-left-color: #e74c3c; }
-
-.subtype-card.w4-card { border-top-color: #9b59b6; border-left: none; border-top-width: 5px; }
-.subtype-card.w6-card { border-top-color: #2980b9; border-left: none; border-top-width: 5px; }
 
 .relationship-card { border-left-color: #f39c12; }
 
@@ -259,11 +269,31 @@ h3 {
     background-color: #3c5a70;
 }
 
-
 .content-card h3 {
     margin-top: 0;
     font-size: 1.4em;
     color: var(--h-color);
+}
+
+/* --- Buttons --- */
+.btn {
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+}
+
+.btn-primary:hover {
+    background-color: var(--btn-primary-hover);
+    transform: translateY(-2px);
 }
 
 /* --- Quiz Page --- */
@@ -282,12 +312,31 @@ h3 {
 #progress-bar {
     width: 0%;
     height: 100%;
-    background-color: #3498db;
+    background-color: var(--nav-link-hover);
     border-radius: 5px;
     transition: width 0.5s ease-in-out;
 }
 
-#quiz-area button.selected {
+#answers button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid var(--card-border);
+    border-radius: 5px;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+#answers button:hover {
+    border-color: var(--nav-link-hover);
+    color: var(--nav-link-hover);
+}
+
+#answers button.selected {
     background-color: #2ecc71;
     color: white;
     border-color: #2ecc71;
