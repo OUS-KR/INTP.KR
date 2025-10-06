@@ -42,7 +42,7 @@
 
                     data.forEach(item => {
                         const card = document.createElement('a');
-                        card.href = `..${item.path}`;
+                        card.href = item.path;
                         card.className = 'content-card';
 
                         const type = document.createElement('span');
