@@ -16,7 +16,7 @@
                 <a href="/u/tests/info-cognitive-functions/">인지기능</a>
                 <a href="/u/tests/info-subtypes/">하위유형</a>
                 <a href="/u/tests/info-relationships/">인간관계</a>
-                <a href="/u/tests/test-logic-quiz/">퀴즈</a>
+                <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
             </nav>
             <button id="theme-switcher" class="theme-switcher">🌙</button>
             <button id="hamburger" class="hamburger">☰</button>
@@ -26,44 +26,38 @@
         <h1>INTP 콘텐츠 허브</h1>
         <p style="text-align:center;">INTP에 대한 모든 것. 다양한 정보와 테스트를 탐색해 보세요.</p>
         
-        <div id="content-grid" class="content-grid"></div>
+        <div id="content-grid" class="content-grid">
+            <a href="/u/tests/info-characteristics/" class="content-card">
+                <span class="card-type info">정보</span>
+                <h3>INTP 특징 분석: 논리적인 사색가</h3>
+            </a>
+            <a href="/u/tests/info-careers/" class="content-card">
+                <span class="card-type info">정보</span>
+                <h3>INTP 커리어와 성장: 직업, 환경, 생산성 팁</h3>
+            </a>
+            <a href="/u/tests/info-cognitive-functions/" class="content-card">
+                <span class="card-type info">정보</span>
+                <h3>INTP 인지기능 분석 (Ti, Ne, Si, Fe)</h3>
+            </a>
+            <a href="/u/tests/info-subtypes/" class="content-card">
+                <span class="card-type info">정보</span>
+                <h3>INTP와 에니어그램 하위유형</h3>
+            </a>
+            <a href="/u/tests/info-relationships/" class="content-card">
+                <span class="card-type info">정보</span>
+                <h3>INTP 인간관계: 연애, 우정, 그리고 궁합</h3>
+            </a>
+            <a href="/u/tests/test-logic-quiz/" class="content-card">
+                <span class="card-type test">테스트</span>
+                <h3>INTP 논리력 퀴즈</h3>
+            </a>
+            <a href="/u/tests/test-relationship-style/" class="content-card">
+                <span class="card-type test">테스트</span>
+                <h3>INTP 연애 스타일 테스트</h3>
+            </a>
+        </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('./list.global.json')
-                .then(response => response.json())
-                .then(data => {
-                    const grid = document.getElementById('content-grid');
-                    if(data.length === 0) {
-                        grid.innerHTML = '<p>아직 준비된 콘텐츠가 없습니다.</p>';
-                        return;
-                    }
-
-                    data.forEach(item => {
-                        const card = document.createElement('a');
-                        card.href = item.path;
-                        card.className = 'content-card';
-
-                        const type = document.createElement('span');
-                        type.className = `card-type ${item.type}`;
-                        type.textContent = item.type === 'info' ? '정보' : '테스트';
-
-                        const title = document.createElement('h3');
-                        title.textContent = item.title;
-
-                        card.appendChild(type);
-                        card.appendChild(title);
-                        grid.appendChild(card);
-                    });
-                })
-                .catch(error => {
-                    console.error('콘텐츠 목록을 불러오는 데 실패했습니다:', error);
-                    const grid = document.getElementById('content-grid');
-                    grid.innerHTML = '<p>콘텐츠를 불러오는 데 문제가 발생했습니다.</p>';
-                });
-        });
-    </script>
     <script src="/assets/js/main.js" defer></script>
 </body>
 </html>
