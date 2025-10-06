@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTP 논리력 퀴즈</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+    <header class="main-nav">
+        <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <nav class="nav-links">
+            <a href="/u/tests/info-characteristics/">특징</a>
+            <a href="/u/tests/info-careers/">커리어</a>
+            <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+            <a href="/u/tests/info-subtypes/">하위유형</a>
+            <a href="/u/tests/info-relationships/">인간관계</a>
+            <a href="/u/tests/test-logic-quiz/">퀴즈</a>
+        </nav>
+    </header>
+    <div class="container">
+        <div id="start-area">
+            <h1>INTP 논리력 퀴즈</h1>
+            <p>나는 얼마나 INTP 성향에 가까울까?<br>간단한 퀴즈를 통해 당신의 논리적 사고 성향을 알아보세요!</p>
+            <button id="start-btn">퀴즈 시작하기</button>
+        </div>
+
+        <div id="quiz-area" class="hidden">
+            <div id="question"></div>
+            <div id="answers"></div>
+        </div>
+
+        <div id="result-area" class="hidden">
+            <h2>퀴즈 결과</h2>
+            <p id="result-text"></p>
+            <button id="retry-btn">다시하기</button>
+        </div>
+    </div>
+
+    <script>
+        const startArea = document.getElementById('start-area');
+        const quizArea = document.getElementById('quiz-area');
+        const resultArea = document.getElementById('result-area');
+        const startBtn = document.getElementById('start-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const questionEl = document.getElementById('question');
+        const answersEl = document.getElementById('answers');
+        const resultTextEl = document.getElementById('result-text');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const quizData = [
+            {
+                question: '친구가 "나 우울해서 머리 잘랐어"라고 한다면 당신의 첫 반응은?',
+                answers: [
+                    { text: '머리 자르는 것과 우울한 게 무슨 논리적 상관관계야? 원인 분석이 필요해.', score: 10 },
+                    { text: '무슨 일 있었어? 너 괜찮아? 많이 힘들었구나.', score: 1 },
+                    { text: '오, 어떤 스타일로 잘랐어? 사진 보여줘! 잘 어울린다!', score: 5 }
+                ]
+            },
+            {
+                question: '새로운 프로젝트를 시작할 때 당신의 첫 단계는?',
+                answers: [
+                    { text: '일단 관련된 모든 자료와 정보를 수집하고 전체 구조부터 파악한다.', score: 10 },
+                    { text: '팀원들과 역할을 분담하고 구체적인 실행 계획과 일정을 짠다.', score: 1 },
+                    { text: '가장 흥미로워 보이는 부분부터 일단 부딪혀본다.', score: 5 }
+                ]
+            },
+            {
+                question: '당신이 생각하는 \'완벽한 휴일\'이란?',
+                answers: [
+                    { text: '아무에게도 방해받지 않고 하루종일 흥미로운 주제에 대해 파고드는 것.', score: 10 },
+                    { text: '친한 친구들이나 가족과 만나 즐거운 시간을 보내는 것.', score: 1 },
+                    { text: '새로운 장소를 여행하며 다양한 경험과 영감을 얻는 것.', score: 5 }
+                ]
+            },
+            {
+                question: '누군가 "이건 원래 이렇게 하는 거야"라고 말한다면 당신의 생각은?',
+                answers: [
+                    { text: '"왜?" 그 방법이 최선인지, 더 효율적인 방법은 없는지 의문을 가진다.', score: 10 },
+                    { text: '아, 그렇구나. 기존의 방식에는 이유가 있겠지. 하고 일단 따른다.', score: 1 },
+                    { text: '다른 방법도 시도해보면 더 재밌을 것 같은데? 라고 제안한다.', score: 5 }
+                ]
+            },
+            {
+                question: '영화나 책의 결말이 마음에 들지 않을 때 당신은?',
+                answers: [
+                    { text: '나라면 이렇게 끝냈을 텐데... 머릿속으로 대안적인 결말을 10개쯤 구상한다.', score: 10 },
+                    { text: '결말이 좀 아쉽네. 하고 그냥 넘어간다.', score: 1 },
+                    { text: '다른 사람들은 어떻게 생각하는지 인터넷 커뮤니티에 검색해본다.', score: 5 }
+                ]
+            }
+        ];
+
+        startBtn.addEventListener('click', startQuiz);
+        retryBtn.addEventListener('click', startQuiz);
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            startArea.classList.add('hidden');
+            resultArea.classList.add('hidden');
+            quizArea.classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionEl.innerText = currentQuestion.question;
+            answersEl.innerHTML = '';
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.addEventListener('click', () => selectAnswer(answer.score));
+                answersEl.appendChild(button);
+            });
+        }
+
+        function selectAnswer(answerScore) {
+            score += answerScore;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            let resultMessage = '';
+            if (score >= 40) {
+                resultMessage = '결과: 뼛속까지 논리적인 사색가! 당신은 INTP의 사고방식을 완벽하게 탑재했군요. 세상의 모든 것에 "왜?"를 던지는 당신은 진정한 탐구자입니다.';
+            } else if (score >= 25) {
+                resultMessage = '결과: 논리와 가능성을 탐험하는 당신, INTP 성향이 강하게 나타납니다. 합리적인 사고를 즐기지만, 때로는 현실과 타협할 줄도 아는군요.';
+            } else {
+                resultMessage = '결과: 합리적인 당신, 하지만 INTP보다는 다른 성향에 가까워 보입니다. 당신은 논리만큼이나 사람들과의 관계, 현실적인 실행도 중요하게 생각하는군요.';
+            }
+            resultTextEl.innerText = resultMessage;
+        }
+    </script>
+</body>
+</html>

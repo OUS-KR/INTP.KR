@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTP 정보 및 심리 테스트</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+    <header class="main-nav">
+        <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <nav class="nav-links">
+            <a href="/u/tests/info-characteristics/">특징</a>
+            <a href="/u/tests/info-careers/">커리어</a>
+            <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+            <a href="/u/tests/info-subtypes/">하위유형</a>
+            <a href="/u/tests/info-relationships/">인간관계</a>
+            <a href="/u/tests/test-logic-quiz/">퀴즈</a>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>INTP 콘텐츠 허브</h1>
+        <p style="text-align:center;">INTP에 대한 모든 것. 다양한 정보와 테스트를 탐색해 보세요.</p>
+        
+        <div id="content-grid" class="content-grid"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('./list.global.json')
+                .then(response => response.json())
+                .then(data => {
+                    const grid = document.getElementById('content-grid');
+                    if(data.length === 0) {
+                        grid.innerHTML = '<p>아직 준비된 콘텐츠가 없습니다.</p>';
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const card = document.createElement('a');
+                        card.href = `..${item.path}`;
+                        card.className = 'content-card';
+
+                        const type = document.createElement('span');
+                        type.className = `card-type ${item.type}`;
+                        type.textContent = item.type === 'info' ? '정보' : '테스트';
+
+                        const title = document.createElement('h3');
+                        title.textContent = item.title;
+
+                        card.appendChild(type);
+                        card.appendChild(title);
+                        grid.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('콘텐츠 목록을 불러오는 데 실패했습니다:', error);
+                    const grid = document.getElementById('content-grid');
+                    grid.innerHTML = '<p>콘텐츠를 불러오는 데 문제가 발생했습니다.</p>';
+                });
+        });
+    </script>
+</body>
+</html>
