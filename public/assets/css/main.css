@@ -1,56 +1,141 @@
 
+:root {
+    --bg-color: #f4f7f6;
+    --text-color: #333;
+    --h-color: #2c3e50;
+    --h-border-color: #7f8c8d;
+    --container-bg: #fff;
+    --card-bg: #f9f9f9;
+    --card-border: #e0e0e0;
+    --nav-bg: #fff;
+    --nav-border: #e0e0e0;
+    --nav-link-color: #555;
+    --nav-link-hover: #3498db;
+    --table-header-bg: #34495e;
+    --shadow-color: rgba(0,0,0,0.05);
+}
+
+[data-theme='dark'] {
+    --bg-color: #2c3e50;
+    --text-color: #ecf0f1;
+    --h-color: #ecf0f1;
+    --h-border-color: #95a5a6;
+    --container-bg: #34495e;
+    --card-bg: #4a6278;
+    --card-border: #5d7c99;
+    --nav-bg: #34495e;
+    --nav-border: #4a6278;
+    --nav-link-color: #bdc3c7;
+    --nav-link-hover: #5dade2;
+    --table-header-bg: #2c3e50;
+    --shadow-color: rgba(0,0,0,0.2);
+}
+
 body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f4f7f6;
+    color: var(--text-color);
+    background-color: var(--bg-color);
     margin: 0;
     padding: 0;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
     max-width: 800px;
     margin: 40px auto;
-    background-color: #fff;
+    background-color: var(--container-bg);
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 8px var(--shadow-color);
+    transition: background-color 0.3s;
 }
 
 /* --- Navigation --- */
 .main-nav {
-    background-color: #fff;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid var(--nav-border);
     padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: background-color 0.3s, border-bottom 0.3s;
 }
 
 .main-nav .logo {
     font-size: 1.5em;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--h-color);
     text-decoration: none;
 }
 
 .main-nav .nav-links a {
     margin-left: 20px;
     text-decoration: none;
-    color: #555;
+    color: var(--nav-link-color);
     font-weight: 500;
     transition: color 0.3s;
 }
 
 .main-nav .nav-links a:hover {
-    color: #3498db;
+    color: var(--nav-link-hover);
+}
+
+/* --- Navigation --- */
+.nav-right-section {
+    display: flex;
+    align-items: center;
+}
+
+/* Theme-switcher */
+.theme-switcher {
+    cursor: pointer;
+    font-size: 1.5em;
+    margin-left: 20px;
+}
+
+/* Hamburger Menu */
+.hamburger {
+    display: none;
+    cursor: pointer;
+    font-size: 1.8em;
+    margin-left: 20px;
+}
+
+@media (max-width: 768px) {
+    .main-nav .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: var(--nav-bg);
+        flex-direction: column;
+        width: 100%;
+        box-shadow: 0 4px 8px var(--shadow-color);
+    }
+
+    .main-nav .nav-links.active {
+        display: flex;
+    }
+
+    .main-nav .nav-links a {
+        margin: 0;
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid var(--nav-border);
+    }
+
+    .hamburger {
+        display: block;
+    }
 }
 
 
 /* --- Headings --- */
 h1, h2, h3 {
-    color: #2c3e50;
+    color: var(--h-color);
 }
 
 h1 {
@@ -61,25 +146,26 @@ h1 {
 
 h2 {
     font-size: 2em;
-    border-bottom: 2px solid #7f8c8d;
+    border-bottom: 2px solid var(--h-border-color);
     padding-bottom: 10px;
     margin-top: 40px;
 }
 
 h3 {
     font-size: 1.5em;
-    color: #34495e;
+    color: var(--h-color);
     margin-top: 30px;
 }
 
 /* --- Cards --- */
 .card {
-    background-color: #f9f9f9;
-    border: 1px solid #e0e0e0;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-left-width: 5px;
     padding: 20px;
     margin: 20px 0;
     border-radius: 5px;
+    transition: background-color 0.3s, border 0.3s;
 }
 
 .card-title {
@@ -111,13 +197,13 @@ h3 {
 
 .comparison-table th, .comparison-table td,
 .compatibility-table th, .compatibility-table td {
-    border: 1px solid #ddd;
+    border: 1px solid var(--card-border);
     padding: 12px;
     text-align: left;
 }
 
 .comparison-table th, .compatibility-table th {
-    background-color: #34495e;
+    background-color: var(--table-header-bg);
     color: white;
     text-align: center;
 }
@@ -131,19 +217,19 @@ h3 {
 }
 
 .content-card {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
+    background-color: var(--container-bg);
+    border: 1px solid var(--card-border);
     border-radius: 8px;
     padding: 20px;
     text-decoration: none;
-    color: #333;
-    transition: box-shadow 0.3s, transform 0.3s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    color: var(--text-color);
+    transition: box-shadow 0.3s, transform 0.3s, background-color 0.3s;
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .content-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px var(--shadow-color);
 }
 
 .content-card .card-type {
@@ -165,9 +251,60 @@ h3 {
     color: #3498db;
 }
 
+[data-theme='dark'] .content-card .card-type.info {
+    background-color: #3d5a53;
+}
+
+[data-theme='dark'] .content-card .card-type.test {
+    background-color: #3c5a70;
+}
+
+
 .content-card h3 {
     margin-top: 0;
     font-size: 1.4em;
-    color: #2c3e50;
+    color: var(--h-color);
 }
+
+/* --- Quiz Page --- */
+#quiz-container {
+    transition: opacity 0.5s ease-in-out;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 10px;
+    background-color: var(--card-border);
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: #3498db;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+
+#quiz-area button.selected {
+    background-color: #2ecc71;
+    color: white;
+    border-color: #2ecc71;
+}
+
+#result-area .result-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 30px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+#result-area .result-title {
+    font-size: 1.8em;
+    color: var(--nav-link-hover);
+    margin-bottom: 10px;
+}
+
 

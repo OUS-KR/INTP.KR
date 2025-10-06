@@ -9,16 +9,20 @@
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
-        <nav class="nav-links">
-            <a href="/u/tests/info-characteristics/">특징</a>
-            <a href="/u/tests/info-careers/">커리어</a>
-            <a href="/u/tests/info-cognitive-functions/">인지기능</a>
-            <a href="/u/tests/info-subtypes/">하위유형</a>
-            <a href="/u/tests/info-relationships/">인간관계</a>
-            <a href="/u/tests/test-logic-quiz/">퀴즈</a>
-        </nav>
+        <div class="nav-right-section">
+            <nav class="nav-links">
+                <a href="/u/tests/info-characteristics/">특징</a>
+                <a href="/u/tests/info-careers/">커리어</a>
+                <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                <a href="/u/tests/info-subtypes/">하위유형</a>
+                <a href="/u/tests/info-relationships/">인간관계</a>
+                <a href="/u/tests/test-logic-quiz/">퀴즈</a>
+            </nav>
+            <div id="theme-switcher" class="theme-switcher">🌙</div>
+            <div id="hamburger" class="hamburger">☰</div>
+        </div>
     </header>
-    <div class="container">
+    <div id="quiz-container" class="container">
         <div id="start-area">
             <h1>INTP 논리력 퀴즈</h1>
             <p>나는 얼마나 INTP 성향에 가까울까?<br>간단한 퀴즈를 통해 당신의 논리적 사고 성향을 알아보세요!</p>
@@ -26,18 +30,25 @@
         </div>
 
         <div id="quiz-area" class="hidden">
+            <div class="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
             <div id="question"></div>
             <div id="answers"></div>
         </div>
 
         <div id="result-area" class="hidden">
-            <h2>퀴즈 결과</h2>
-            <p id="result-text"></p>
-            <button id="retry-btn">다시하기</button>
+            <div class="result-card">
+                <h2 class="result-title">퀴즈 결과</h2>
+                <p id="result-text"></p>
+                <button id="retry-btn">다시하기</button>
+            </div>
         </div>
     </div>
 
+    <script src="/assets/js/main.js" defer></script>
     <script>
+        const quizContainer = document.getElementById('quiz-container');
         const startArea = document.getElementById('start-area');
         const quizArea = document.getElementById('quiz-area');
         const resultArea = document.getElementById('result-area');
@@ -46,6 +57,7 @@
         const questionEl = document.getElementById('question');
         const answersEl = document.getElementById('answers');
         const resultTextEl = document.getElementById('result-text');
+        const progressBar = document.getElementById('progress-bar');
 
         let currentQuestionIndex = 0;
         let score = 0;
@@ -99,46 +111,69 @@
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
-            startArea.classList.add('hidden');
             resultArea.classList.add('hidden');
+            startArea.classList.add('hidden');
             quizArea.classList.remove('hidden');
             showQuestion();
         }
 
         function showQuestion() {
+            updateProgressBar();
             const currentQuestion = quizData[currentQuestionIndex];
             questionEl.innerText = currentQuestion.question;
             answersEl.innerHTML = '';
             currentQuestion.answers.forEach(answer => {
                 const button = document.createElement('button');
                 button.innerText = answer.text;
-                button.addEventListener('click', () => selectAnswer(answer.score));
+                button.addEventListener('click', (e) => selectAnswer(answer.score, e.target));
                 answersEl.appendChild(button);
             });
         }
 
-        function selectAnswer(answerScore) {
+        function selectAnswer(answerScore, selectedButton) {
             score += answerScore;
-            currentQuestionIndex++;
-            if (currentQuestionIndex < quizData.length) {
-                showQuestion();
-            } else {
-                showResult();
-            }
+            selectedButton.classList.add('selected');
+            
+            // Disable all buttons after selection
+            const answerButtons = answersEl.querySelectorAll('button');
+            answerButtons.forEach(button => button.disabled = true);
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    quizContainer.style.opacity = 0;
+                    setTimeout(() => {
+                        showQuestion();
+                        quizContainer.style.opacity = 1;
+                    }, 400);
+                } else {
+                    showResult();
+                }
+            }, 500);
         }
 
         function showResult() {
             quizArea.classList.add('hidden');
             resultArea.classList.remove('hidden');
+            let resultTitle = '';
             let resultMessage = '';
             if (score >= 40) {
-                resultMessage = '결과: 뼛속까지 논리적인 사색가! 당신은 INTP의 사고방식을 완벽하게 탑재했군요. 세상의 모든 것에 "왜?"를 던지는 당신은 진정한 탐구자입니다.';
+                resultTitle = '뼛속까지 논리적인 사색가';
+                resultMessage = '당신은 INTP의 사고방식을 완벽하게 탑재했군요. 세상의 모든 것에 "왜?"를 던지는 당신은 진정한 탐구자입니다.';
             } else if (score >= 25) {
-                resultMessage = '결과: 논리와 가능성을 탐험하는 당신, INTP 성향이 강하게 나타납니다. 합리적인 사고를 즐기지만, 때로는 현실과 타협할 줄도 아는군요.';
+                resultTitle = '논리와 가능성을 탐험하는 분석가';
+                resultMessage = 'INTP 성향이 강하게 나타납니다. 합리적인 사고를 즐기지만, 때로는 현실과 타협할 줄도 아는군요.';
             } else {
-                resultMessage = '결과: 합리적인 당신, 하지만 INTP보다는 다른 성향에 가까워 보입니다. 당신은 논리만큼이나 사람들과의 관계, 현실적인 실행도 중요하게 생각하는군요.';
+                resultTitle = '합리적인 실용주의자';
+                resultMessage = 'INTP보다는 다른 성향에 가까워 보입니다. 당신은 논리만큼이나 사람들과의 관계, 현실적인 실행도 중요하게 생각하는군요.';
             }
+            resultArea.querySelector('.result-title').innerText = resultTitle;
             resultTextEl.innerText = resultMessage;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
         }
     </script>
 </body>

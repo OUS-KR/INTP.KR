@@ -10,21 +10,25 @@
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
-        <nav class="nav-links">
-            <a href="/u/tests/info-characteristics/">특징</a>
-            <a href="/u/tests/info-careers/">커리어</a>
-            <a href="/u/tests/info-cognitive-functions/">인지기능</a>
-            <a href="/u/tests/info-subtypes/">하위유형</a>
-            <a href="/u/tests/info-relationships/">인간관계</a>
-            <a href="/u/tests/test-logic-quiz/">퀴즈</a>
-        </nav>
+        <div class="nav-right-section">
+            <nav class="nav-links">
+                <a href="/u/tests/info-characteristics/">특징</a>
+                <a href="/u/tests/info-careers/">커리어</a>
+                <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                <a href="/u/tests/info-subtypes/">하위유형</a>
+                <a href="/u/tests/info-relationships/">인간관계</a>
+                <a href="/u/tests/test-logic-quiz/">퀴즈</a>
+            </nav>
+            <div id="theme-switcher" class="theme-switcher">🌙</div>
+            <div id="hamburger" class="hamburger">☰</div>
+        </div>
     </header>
     <div class="container">
         <h1>INTP 인지기능 심층 분석</h1>
         <p style="text-align:center;">INTP의 사고방식을 이해하는 열쇠, 4가지 인지기능(Ti, Ne, Si, Fe)을 파헤쳐 봅니다.</p>
 
-        <div id="ti" class="function-card ti-card">
-            <div class="function-title ti-title">1. 주기능: 내향 사고 (Ti)</div>
+        <div id="ti" class="card info-card">
+            <div class="card-title">🧠 주기능: 내향 사고 (Ti)</div>
             <p><strong>"정확한 분석과 논리의 체계"</strong><br>INTP의 가장 핵심적인 기능으로, 세상을 이해하는 기본 운영체제입니다. 정보를 자신만의 내적 논리 시스템에 맞춰 분석하고, 원리의 핵심을 파고들어 일관된 이해를 추구합니다.</p>
             <h3>주요 특징</h3>
             <ul>
@@ -44,8 +48,8 @@
             </ul>
         </div>
 
-        <div id="ne" class="function-card ne-card">
-            <div class="function-title ne-title">2. 부기능: 외향 직관 (Ne)</div>
+        <div id="ne" class="card info-card">
+            <div class="card-title">💡 부기능: 외향 직관 (Ne)</div>
             <p><strong>"무한한 가능성의 탐색"</strong><br>INTP의 창의력과 상상력의 원천입니다. 외부 세계로부터 정보를 받아들여 다양한 아이디어와 가능성을 탐색하고, 연관성 없어 보이는 것들 사이에서 새로운 연결고리를 찾아냅니다.</p>
             <h3>주요 특징</h3>
             <ul>
@@ -65,8 +69,8 @@
             </ul>
         </div>
 
-        <div id="si" class="function-card si-card">
-            <div class="function-title si-title">3. 3차 기능: 내향 감각 (Si)</div>
+        <div id="si" class="card info-card">
+            <div class="card-title">💾 3차 기능: 내향 감각 (Si)</div>
             <p><strong>"과거 경험과 데이터의 저장소"</strong><br>과거의 경험과 그에 따른 감각적 세부 사항을 내면에 저장하고 활용하는 기능입니다. 나이가 들면서 발달하며 INTP에게 안정감을 제공합니다.</p>
             <h3>주요 특징</h3>
             <ul>
@@ -86,8 +90,8 @@
             </ul>
         </div>
 
-        <div id="fe" class="function-card fe-card">
-            <div class="function-title fe-title">4. 열등 기능: 외향 감정 (Fe)</div>
+        <div id="fe" class="card info-card">
+            <div class="card-title">❤️ 열등 기능: 외향 감정 (Fe)</div>
             <p><strong>"관계와 조화에 대한 미숙한 열망"</strong><br>타인의 감정을 인식하고 집단의 조화를 추구하는 기능입니다. INTP에게 가장 미숙한 열등 기능으로, 사회적 상황이나 감정 표현에 어려움을 겪는 원인이 됩니다.</p>
             <h3>주요 특징</h3>
             <ul>
@@ -108,5 +112,6 @@
             </ul>
         </div>
     </div>
+    <script src="/assets/js/main.js" defer></script>
 </body>
 </html>
