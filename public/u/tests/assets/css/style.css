@@ -5,6 +5,7 @@ body {
     line-height: 1.6;
     background-color: #1a1a1a; /* Dark background */
     color: #e0e0e0; /* Light text */
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
@@ -21,6 +22,7 @@ body {
     border-bottom: 1px solid #444;
     position: relative;
     z-index: 1000;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .site-header .container {
@@ -33,6 +35,7 @@ body {
     margin: 0;
     font-size: 1.8em;
     color: #fff;
+    transition: color 0.3s;
 }
 
 .main-nav ul {
@@ -76,6 +79,7 @@ body {
     list-style: none;
     min-width: 200px;
     margin-top: 10px;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .main-nav .dropdown:hover .dropdown-menu {
@@ -98,25 +102,51 @@ body {
     color: #fff;
 }
 
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    background: none;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    font-size: 1.2em;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.theme-toggle-btn:hover {
+    background-color: #333;
+}
 
 /* Hero Section */
-.hero {
+.hero, .page-title-section {
     background-color: #222;
     text-align: center;
     padding: 80px 0;
+    transition: background-color 0.3s;
 }
 
-.hero h2 {
+.page-title-section {
+    padding: 60px 0;
+}
+
+.hero h2, .page-title-section .section-title {
     font-size: 2.8em;
     margin-bottom: 10px;
     color: #fff;
+    transition: color 0.3s;
 }
 
-.hero p {
+.page-title-section .section-title { font-size: 2.2em; }
+
+.hero p, .page-title-section p {
     font-size: 1.2em;
     margin-bottom: 30px;
     color: #b0b0b0;
+    transition: color 0.3s;
 }
+
+.page-title-section p { margin: 0; }
 
 .btn {
     text-decoration: none;
@@ -155,13 +185,15 @@ body {
     gap: 30px;
 }
 
-.card {
+.card, .meme-item {
     background-color: #2c2c2c;
     border: 1px solid #444;
     border-radius: 8px;
     padding: 25px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s, border-color 0.3s;
 }
+
+.meme-item { padding: 0; text-align: center; overflow: hidden; }
 
 .card:hover {
     transform: translateY(-5px);
@@ -174,9 +206,13 @@ body {
     color: #4a90e2;
 }
 
-.card p {
+.card p, .meme-item .meme-caption {
     color: #b0b0b0;
+    transition: color 0.3s;
 }
+
+.meme-item .meme-caption { padding: 15px; margin: 0; font-style: italic; }
+.meme-item img { max-width: 100%; height: auto; display: block; }
 
 .read-more {
     text-decoration: none;
@@ -194,23 +230,6 @@ body {
     cursor: not-allowed;
 }
 
-/* Page Title Section for subpages */
-.page-title-section {
-    background-color: #222;
-    text-align: center;
-    padding: 60px 0;
-}
-
-.page-title-section .section-title {
-    margin-bottom: 10px;
-}
-
-.page-title-section p {
-    font-size: 1.2em;
-    color: #b0b0b0;
-    margin: 0;
-}
-
 /* Article Styles */
 .article-container {
     max-width: 800px; /* More readable line width for articles */
@@ -223,40 +242,15 @@ body {
     margin-bottom: 20px;
     border-bottom: 2px solid #444;
     padding-bottom: 10px;
+    transition: border-color 0.3s;
 }
 
-.article-container article p, .article-container article li {
+.article-container article p,
+.article-container article li {
     font-size: 1.1em;
     line-height: 1.8;
     color: #ccc;
-}
-
-/* Meme Gallery Styles */
-.meme-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.meme-item {
-    background-color: #2c2c2c;
-    border: 1px solid #444;
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-}
-
-.meme-item img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-.meme-item .meme-caption {
-    padding: 15px;
-    margin: 0;
-    font-style: italic;
-    color: #b0b0b0;
+    transition: color 0.3s;
 }
 
 /* Footer */
@@ -267,13 +261,86 @@ body {
     padding: 30px 0;
     margin-top: 60px;
     border-top: 1px solid #444;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-.site-footer a {
-    color: #ccc;
-    text-decoration: none;
+/* --- Light Mode Overrides --- */
+body.light-mode {
+    background-color: #f4f7f9;
+    color: #333;
 }
 
-.site-footer a:hover {
+body.light-mode .site-header,
+body.light-mode .site-footer {
+    background-color: #fff;
+    border-color: #e9ecef;
+}
+
+body.light-mode .site-title,
+body.light-mode .main-nav a,
+body.light-mode .article-container article p,
+body.light-mode .article-container article li {
+    color: #333;
+}
+
+body.light-mode .main-nav a:hover,
+body.light-mode .site-footer a:hover {
     color: #4a90e2;
+}
+
+body.light-mode .hero,
+body.light-mode .page-title-section {
+    background-color: #e9ecef;
+}
+
+body.light-mode .hero h2,
+body.light-mode .section-title {
+    color: #2c3e50;
+}
+
+body.light-mode .hero p,
+body.light-mode .page-title-section p {
+    color: #555;
+}
+
+body.light-mode .card,
+body.light-mode .meme-item {
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+body.light-mode .card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+body.light-mode .card p,
+body.light-mode .meme-item .meme-caption {
+    color: #555;
+}
+
+body.light-mode .article-container article h3 {
+    border-color: #dee2e6;
+}
+
+body.light-mode .theme-toggle-btn {
+    border-color: #ccc;
+    color: #333;
+}
+
+body.light-mode .theme-toggle-btn:hover {
+    background-color: #f0f0f0;
+}
+
+body.light-mode .main-nav .dropdown-menu {
+    background-color: #fff;
+    border-color: #e9ecef;
+}
+
+body.light-mode .main-nav .dropdown-menu a {
+    color: #333;
+}
+
+body.light-mode .main-nav .dropdown-menu a:hover {
+    background-color: #4a90e2;
+    color: #fff;
 }
