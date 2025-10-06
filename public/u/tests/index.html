@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTP 성향 테스트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        #quiz-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            overflow: hidden;
+            text-align: center;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e9ecef;
+        }
+        .progress-bar {
+            width: 0;
+            height: 10px;
+            background-color: #4a90e2;
+            transition: width 0.3s ease;
+        }
+        #quiz-content, #result-content {
+            padding: 30px 40px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            min-height: 50px;
+        }
+        .answers {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .answer {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .answer:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        #result-container {
+            display: none;
+        }
+        .result-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+        .result-analysis {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div id="quiz-content">
+            <h2 id="quiz-title">INTP 성향 테스트</h2>
+            <p class="question" id="question"></p>
+            <ul class="answers" id="answers"></ul>
+        </div>
+        <div id="result-container">
+             <div id="result-content">
+                <h2>테스트 결과</h2>
+                <div class="result-text" id="result-text"></div>
+                <p class="result-analysis" id="result-analysis"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "친구가 감정적인 고민을 털어놓을 때, 당신의 첫 반응은?",
+                answers: [
+                    { text: "문제의 원인을 분석하고 논리적인 해결책을 제시한다.", value: 10 },
+                    { text: "따뜻한 말로 위로하며 감정적으로 공감해준다.", value: 0 }
+                ]
+            },
+            {
+                question: "새로운 이론이나 복잡한 시스템에 대한 설명을 들었을 때, 당신은?",
+                answers: [
+                    { text: "흥미를 느끼며, 그 원리와 구조를 파고들고 싶어한다.", value: 10 },
+                    { text: "지루하게 느껴지며, 현실적인 활용법에 더 관심이 간다.", value: 0 }
+                ]
+            },
+            {
+                question: "주말 계획을 세울 때, 당신의 스타일은?",
+                answers: [
+                    { text: "계획에 얽매이지 않고 그 순간의 기분과 흥미에 따라 즉흥적으로 보낸다.", value: 10 },
+                    { text: "미리 갈 곳, 할 일을 정해두고 체계적으로 움직이는 것을 선호한다.", value: 0 }
+                ]
+            },
+            {
+                question: "혼자만의 시간이 생겼을 때, 주로 무엇을 하는가?",
+                answers: [
+                    { text: "평소 궁금했던 주제를 깊이 탐구하거나, 상상의 나래를 펼친다.", value: 10 },
+                    { text: "친구를 만나거나, 활동적인 취미를 즐기며 에너지를 얻는다.", value: 0 }
+                ]
+            },
+            {
+                question: "대화 중 상대방의 말에 논리적 오류가 있다면?",
+                answers: [
+                    { text: "정확한 사실을 위해 즉시 지적하고 바로잡는다.", value: 10 },
+                    { text: "분위기를 생각해 일단 넘어가거나, 나중에 조심스럽게 이야기한다.", value: 0 }
+                ]
+            },
+            {
+                question: "관심사가 비슷한 소수의 사람들과 깊은 대화를 나누는 것과, 여러 사람과 어울리는 파티 중 하나를 골라야 한다면?",
+                answers: [
+                    { text: "소수의 사람들과 깊은 대화를 나누는 것", value: 10 },
+                    { text: "여러 사람과 어울리는 파티", value: 0 }
+                ]
+            },
+            {
+                question: "어떤 일을 시작하기 전에 당신은?",
+                answers: [
+                    { text: "완벽한 계획과 이해가 선행되어야 해서, 시작이 다소 늦어지는 편이다.", value: 10 },
+                    { text: "일단 시작하고 부딪히면서 해결해 나가는 편이다.", value: 0 }
+                ]
+            },
+            {
+                question: "정해진 규칙이나 관습을 따라야 하는 상황이라면?",
+                answers: [
+                    { text: "그것이 비논리적이라고 생각되면, 의문을 제기하거나 따르지 않을 방법을 찾는다.", value: 10 },
+                    { text: "사회적 약속이므로, 별다른 의문 없이 따른다.", value: 0 }
+                ]
+            },
+            {
+                question: "새로운 프로젝트를 시작하는 것과, 진행 중인 프로젝트를 마무리하는 것 중 더 끌리는 것은?",
+                answers: [
+                    { text: "새로운 아이디어로 새 프로젝트를 시작하는 것", value: 10 },
+                    { text: "진행 중인 프로젝트를 꼼꼼하게 마무리 짓는 것", value: 0 }
+                ]
+            },
+            {
+                question: "당신이 더 중요하게 생각하는 가치는?",
+                answers: [
+                    { text: "정확성과 객관적인 진실", value: 10 },
+                    { text: "사람들과의 조화와 협력", value: 0 }
+                ]
+            },
+            {
+                question: "머릿속에 떠오른 독창적인 아이디어를 다른 사람에게 설명할 때, 당신은?",
+                answers: [
+                    { text: "내 생각의 복잡한 과정을 설명하는 데 어려움을 느끼거나, 사람들이 이해하지 못할 거라고 생각한다.", value: 10 },
+                    { text: "다른 사람들이 이해하기 쉽게 잘 풀어서 설명하는 데 능숙하다.", value: 0 }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let intpScore = 0;
+
+        const quizTitle = document.getElementById('quiz-title');
+        const questionEl = document.getElementById('question');
+        const answersEl = document.getElementById('answers');
+        const quizContentEl = document.getElementById('quiz-content');
+        const resultContainerEl = document.getElementById('result-container');
+        const resultTextEl = document.getElementById('result-text');
+        const resultAnalysisEl = document.getElementById('result-analysis');
+        const progressBar = document.getElementById('progressBar');
+
+        function loadQuiz() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionEl.innerText = currentQuestion.question;
+            answersEl.innerHTML = '';
+            currentQuestion.answers.forEach(answer => {
+                const li = document.createElement('li');
+                li.classList.add('answer');
+                li.innerText = answer.text;
+                li.addEventListener('click', () => selectAnswer(answer.value));
+                answersEl.appendChild(li);
+            });
+            updateProgressBar();
+        }
+
+        function selectAnswer(value) {
+            intpScore += value;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuiz();
+            } else {
+                showResults();
+            }
+        }
+        
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function showResults() {
+            quizContentEl.style.display = 'none';
+            resultContainerEl.style.display = 'block';
+            
+            const maxScore = quizData.length * 10;
+            const finalPercentage = Math.round((intpScore / maxScore) * 100);
+            progressBar.style.width = '100%';
+
+            resultTextEl.innerText = `당신의 INTP 성향은 ${finalPercentage}% 입니다.`;
+
+            let analysis = '';
+            if (finalPercentage >= 80) {
+                analysis = "당신은 전형적인 '논리적인 사색가', INTP의 특성을 강하게 가지고 있습니다. 복잡한 문제를 분석하고, 지적 호기심을 채우는 데에서 큰 즐거움을 느끼는군요. 때로는 너무 생각에 깊이 빠져 현실을 놓치기도 하지만, 당신의 독창적인 아이디어는 세상을 새로운 관점에서 보게 만듭니다.";
+            } else if (finalPercentage >= 50) {
+                analysis = "당신은 INTP의 성향을 상당 부분 가지고 있습니다. 논리적이고 분석적인 사고를 즐기지만, 필요에 따라 현실적인 감각을 발휘할 줄도 아는군요. 지적인 토론을 즐기면서도, 사람들과의 관계를 원만하게 유지하는 균형 잡힌 모습을 보입니다.";
+            } else {
+                analysis = "당신은 INTP보다는 다른 성향이 더 강하게 나타나는 것 같습니다. 논리적인 분석보다는 감정적인 공감이나 현실적인 실행을 더 중요하게 생각할 수 있습니다. 하지만 누구나 여러 성향을 함께 가지고 있답니다. 이 테스트는 재미로 즐겨주세요!";
+            }
+            resultAnalysisEl.innerText = analysis;
+        }
+
+        loadQuiz();
+    </script>
+</body>
+</html>
