@@ -221,29 +221,26 @@
             { type: 'balanced', budget: 2000000, satisfaction_target: 280, text: '예산(2,000,000원)과 만족도(280)를 모두 만족시키세요!' },
         ];
         const traits = [
-            { name: '미식가', description: '모든 'food' 타입 만족도 +10', effect: (item) => { if(item.type === 'food') item.satisfaction += 10; return item; } },
-            { name: '예술 애호가', description: '모든 'art' 타입 만족도 +10', effect: (item) => { if(item.type === 'art') item.satisfaction += 10; return item; } },
-            { name: '쇼핑광', description: '모든 'shopping' 타입 만족도 +10', effect: (item) => { if(item.type === 'shopping') item.satisfaction += 10; return item; } },
-            { name: '프로 절약러', description: '모든 비용 10% 감소', effect: (item) => { item.cost = Math.round(item.cost * 0.9); return item; } },
+            { name: '미식가', description: '모든 'food' 타입 만족도 +10', effect: (item) => { if(item.type === 'food') item.satisfaction += 10; } },
+            { name: '예술 애호가', description: '모든 'art' 타입 만족도 +10', effect: (item) => { if(item.type === 'art') item.satisfaction += 10; } },
+            { name: '쇼핑광', description: '모든 'shopping' 타입 만족도 +10', effect: (item) => { if(item.type === 'shopping') item.satisfaction += 10; } },
+            { name: '프로 절약러', description: '모든 비용 10% 감소', effect: (item) => { item.cost = Math.round(item.cost * 0.9); } },
         ];
         const events = [
-            { name: '항공권 특가 세일!', description: '모든 항공편 비용 20% 할인!', effect: (item, cat) => { if(cat === 'flight') item.cost = Math.round(item.cost * 0.8); return item; } },
-            { name: '국제 푸드 페스티벌', description: '모든 'food' 타입 만족도 +15', effect: (item) => { if(item.type === 'food') item.satisfaction += 15; return item; } },
-            { name: '블랙 프라이데이', description: '모든 'shopping' 타입 비용 20% 감소', effect: (item) => { if(item.type === 'shopping') item.cost = Math.round(item.cost * 0.8); return item; } },
+            { name: '항공권 특가 세일!', description: '모든 항공편 비용 20% 할인!', effect: (item, cat) => { if(cat === 'flight') item.cost = Math.round(item.cost * 0.8); } },
+            { name: '국제 푸드 페스티벌', description: '모든 'food' 타입 만족도 +15', effect: (item) => { if(item.type === 'food') item.satisfaction += 15; } },
+            { name: '블랙 프라이데이', description: '모든 'shopping' 타입 비용 20% 감소', effect: (item) => { if(item.type === 'shopping') item.cost = Math.round(item.cost * 0.8); } },
         ];
 
         // Game State
         let currentGoal, currentTrait, currentEvent, currentGameItems, selectedItems;
 
         function startNewGame() {
-            // 1. Reset state
             selectedItems = {};
             messageElement.textContent = '';
-
-            // 2. Deep copy item pool to avoid modifying original data
+            
             let tempItemPool = JSON.parse(JSON.stringify(itemPool));
 
-            // 3. Select and apply random event (33% chance of no event)
             currentEvent = Math.random() < 0.67 ? events[Math.floor(Math.random() * events.length)] : null;
             if (currentEvent) {
                 for (const category in tempItemPool) {
@@ -251,18 +248,15 @@
                 }
             }
 
-            // 4. Select items for the current game
             currentGameItems = {};
             for (const category in tempItemPool) {
                 const shuffled = tempItemPool[category].sort(() => 0.5 - Math.random());
                 currentGameItems[category] = shuffled.slice(0, Math.min(shuffled.length, 4));
             }
 
-            // 5. Select goal and trait
             currentGoal = goals[Math.floor(Math.random() * goals.length)];
             currentTrait = Math.random() < 0.67 ? traits[Math.floor(Math.random() * traits.length)] : null;
 
-            // 6. Render everything
             renderGoal();
             renderItems();
             updateSummary();
@@ -317,10 +311,9 @@
             
             let tempSelectedItems = JSON.parse(JSON.stringify(selectedItems));
 
-            // Apply trait effects for summary display
             if (currentTrait) {
                  for (const category in tempSelectedItems) {
-                    tempSelectedItems[category] = currentTrait.effect(tempSelectedItems[category]);
+                    currentTrait.effect(tempSelectedItems[category]);
                 }
             }
 
@@ -349,10 +342,9 @@
             }
             
             let tempSelectedItems = JSON.parse(JSON.stringify(selectedItems));
-            // Apply trait effects for final evaluation
             if (currentTrait) {
                  for (const category in tempSelectedItems) {
-                    tempSelectedItems[category] = currentTrait.effect(tempSelectedItems[category]);
+                    currentTrait.effect(tempSelectedItems[category]);
                 }
             }
 
