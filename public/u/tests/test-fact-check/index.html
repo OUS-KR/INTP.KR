@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INTP 연애 스타일 테스트</title>
+    <title>INTP 팩트체크 퀴즈</title>
     <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 <body>
@@ -41,9 +40,9 @@
     </header>
     <div id="quiz-container" class="container">
         <div id="start-area">
-            <h1>INTP 연애 스타일 테스트</h1>
-            <p>논리적인 INTP는 사랑에 빠지면 어떤 모습일까?<br>간단한 퀴즈를 통해 당신의 연애 스타일을 알아보세요!</p>
-            <button id="start-btn" class="btn btn-primary">테스트 시작하기</button>
+            <h1>INTP 팩트체크 퀴즈</h1>
+            <p>진실과 거짓을 가려내는 것을 즐기는 당신을 위한 퀴즈!<br>세상에 알려진 흥미로운 사실들의 진위 여부를 판단해보세요.</p>
+            <button id="start-btn" class="btn btn-primary">퀴즈 시작하기</button>
         </div>
 
         <div id="quiz-area" class="hidden">
@@ -82,83 +81,73 @@
 
         const quizData = [
             {
-                question: '데이트 계획을 세울 때 당신의 스타일은?',
+                question: '금붕어의 기억력은 3초이다.',
                 answers: [
-                    { text: '상황에 따라 유연하게. 즉흥적으로 흥미로운 곳에 가는 것을 선호.', score: 10 },
-                    { text: '맛집, 카페, 동선을 고려한 최적의 코스를 미리 분석하고 계획.', score: 5 },
-                    { text: '상대방이 원하는 곳이라면 어디든 좋아.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '연인과 감정적인 갈등이 생겼을 때, 당신의 첫 반응은?',
+                question: '사람은 뇌의 10%만 사용한다.',
                 answers: [
-                    { text: '문제의 원인이 무엇인지, 누가 잘못했는지 논리적으로 따져본다.', score: 10 },
-                    { text: '일단 상대방의 감정이 진정될 때까지 기다린다.', score: 5 },
-                    { text: '즉시 사과하고 상대방의 기분을 풀어주려고 노력한다.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '당신이 생각하는 최고의 애정 표현은?',
+                question: '순수한 물은 전기를 전도한다.',
                 answers: [
-                    { text: '상대방의 문제를 해결해주거나, 지적 호기심을 채워주는 것.', score: 10 },
-                    { text: '함께 시간을 보내며, 같은 공간에 있는 것만으로도 충분.', score: 5 },
-                    { text: '사랑한다는 말을 자주 해주고, 스킨십을 통해 표현하는 것.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '연인이 당신의 개인적인 취미 시간에 대해 서운함을 표현한다면?',
+                question: '번개는 같은 장소에 두 번 치지 않는다.',
                 answers: [
-                    { text: '개인의 시간은 존중받아야 함을 논리적으로 설명한다.', score: 10 },
-                    { text: '서운해하지 않도록 취미 시간을 조금 줄이고, 함께할 시간을 늘린다.', score: 5 },
-                    { text: '연인이 서운하지 않도록 내 취미를 포기할 수도 있다.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '연인에게 어떤 선물을 주는 것을 선호하는가?',
+                question: '땅콩은 견과류이다.',
                 answers: [
-                    { text: '상대방이 평소에 필요하다고 말했던, 실용적인 기능의 제품.', score: 10 },
-                    { text: '나의 취향과 생각이 담긴, 특별한 의미가 있는 책이나 물건.', score: 5 },
-                    { text: '연인이 직접 고른 선물 또는 로맨틱한 꽃다발.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '연인과 함께하는 여행을 계획한다면?',
+                question: '에베레스트 산은 해수면 기준으로 지구에서 가장 높은 산이다.',
                 answers: [
-                    { text: '가서 뭐 할지 정하지 않고, 자유롭게 탐험하는 여행.', score: 10 },
-                    { text: '주요 명소와 맛집을 중심으로 효율적인 동선을 계획하는 여행.', score: 5 },
-                    { text: '편안한 숙소에서 함께 휴식을 취하는 여유로운 여행.', score: 1 }
+                    { text: '진실', score: 10 },
+                    { text: '거짓', score: 0 }
                 ]
             },
             {
-                question: '연인이 사소한 일로 하루 종일 힘들어할 때 당신은?',
+                question: '카멜레온은 주변 환경에 맞춰 몸 색깔을 바꾼다.',
                 answers: [
-                    { text: '그것이 왜 힘든 일인지 이해하기 어려워, 논리적으로 별일 아니라고 설명한다.', score: 10 },
-                    { text: '이야기를 들어주며, 기분이 나아질 만한 다른 활동을 제안한다.', score: 5 },
-                    { text: '무조건 상대방의 편이 되어 함께 공감하고 위로해준다.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '기념일을 챙기는 것에 대한 당신의 생각은?',
+                question: '바이킹은 뿔이 달린 투구를 썼다.',
                 answers: [
-                    { text: '상업적이고 형식적인 날일 뿐, 크게 의미를 두지 않는다.', score: 10 },
-                    { text: '상대방이 원한다면 챙기지만, 꼭 필요하다고 생각하지는 않는다.', score: 5 },
-                    { text: '관계를 더욱 특별하게 만들어주는 소중한 날이라고 생각한다.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '연인과 가장 하고 싶은 데이트는?',
+                question: '만리장성은 우주에서 맨눈으로 볼 수 있다.',
                 answers: [
-                    { text: '서로 흥미 있는 다큐멘터리를 보고 밤새도록 토론하기.', score: 10 },
-                    { text: '조용한 카페에 앉아 각자 책을 읽거나 작업하기.', score: 5 },
-                    { text: '사람들이 많은 핫플레이스에 가서 맛있는 음식을 먹기.', score: 1 }
+                    { text: '진실', score: 0 },
+                    { text: '거짓', score: 10 }
                 ]
             },
             {
-                question: '당신은 연인에게 당신의 모든 것을 공유하는 편인가?',
+                question: '뜨거운 물이 차가운 물보다 더 빨리 언다. (음펨바 효과)',
                 answers: [
-                    { text: '아니, 아무리 가까워도 나만의 생각과 공간은 반드시 필요하다.', score: 10 },
-                    { text: '대부분 공유하지만, 굳이 말할 필요가 없는 부분은 남겨둔다.', score: 5 },
-                    { text: '모든 것을 공유하고, 상대방의 모든 것도 알고 싶다.', score: 1 }
+                    { text: '진실', score: 10 },
+                    { text: '거짓', score: 0 }
                 ]
             }
         ];
@@ -175,14 +164,11 @@
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
-            
             resultTitleEl.innerText = '';
             resultTextEl.innerText = '';
-            
             startArea.style.display = 'none';
             quizArea.style.display = 'block';
             resultArea.style.display = 'none';
-            
             showQuestion();
         }
 
@@ -202,14 +188,12 @@
         function selectAnswer(answerScore, selectedButton) {
             score += answerScore;
             selectedButton.classList.add('selected');
-            
             const answerButtons = answersEl.querySelectorAll('button');
             answerButtons.forEach(button => button.disabled = true);
 
             setTimeout(() => {
                 currentQuestionIndex++;
                 updateProgressBar();
-
                 if (currentQuestionIndex < quizData.length) {
                     quizContainer.style.opacity = 0;
                     setTimeout(() => {
@@ -228,14 +212,14 @@
             let resultTitle = '';
             let resultMessage = '';
             if (score >= 80) {
-                resultTitle = '독립적인 탐험가';
-                resultMessage = '당신은 연애에서도 자유로운 영혼입니다. 상대방을 존중하고 개인의 시간을 중시하지만, 때로는 감정 표현에 서툴러 오해를 살 수 있습니다. 당신의 지적인 매력과 솔직함이 최고의 무기입니다.';
+                resultTitle = '진정한 팩트체커';
+                resultMessage = `당신은 ${score/10}개의 진실을 가려냈습니다! 뛰어난 통찰력으로 세상의 허상을 꿰뚫어보는군요. 당신의 지적 탐구심을 응원합니다.`;
             } else if (score >= 50) {
-                resultTitle = '논리적인 동반자';
-                resultMessage = '당신은 연인에게 헌신적인 해결사입니다. 감정적인 위로보다는 실질적인 도움을 주는 것을 선호하며, 안정적인 관계 속에서 지적인 교감을 나눌 때 가장 큰 행복을 느낍니다.';
+                resultTitle = '예리한 분석가';
+                resultMessage = `당신은 ${score/10}개의 진실을 가려냈습니다. 대부분의 사실을 정확히 알고 있지만, 몇 가지 흥미로운 함정에 빠졌군요. 지식의 빈틈을 채우는 즐거움을 느껴보세요.`;
             } else {
-                resultTitle = '따뜻한 분석가';
-                resultMessage = '당신은 INTP의 논리력과 따뜻한 마음을 동시에 가졌습니다. 상대방의 감정을 고려하여 행동하고, 사랑을 표현하는 데에도 노력하는 로맨틱한 면모를 가지고 있습니다.';
+                resultTitle = '호기심 많은 탐험가';
+                resultMessage = `당신은 ${score/10}개의 진실을 가려냈습니다. 세상에는 아직 당신이 발견할 흥미로운 사실들이 많이 남아있습니다. 이 퀴즈가 지적 여정의 시작이 되기를!`;
             }
             resultTitleEl.innerText = resultTitle;
             resultTextEl.innerText = resultMessage;
