@@ -5,15 +5,183 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>추상적 사고 게임</title>
     <link rel="stylesheet" href="/assets/css/main.css">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .puzzle-area {
+            margin-bottom: 20px;
+        }
+        .sequence-container, .options-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .sequence-item, .option-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 2em;
+        }
+        .option-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .option-item:hover {
+            background-color: var(--card-border);
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: var(--h-color);
+            min-height: 30px;
+        }
+        #next-puzzle-btn {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            background-color: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+    </style>
 </head>
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-system-building/">가상 시스템 구축</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
     <div class="container">
         <h1>추상적 사고 게임</h1>
-        <p style="text-align:center;">게임이 곧 출시될 예정입니다. 기대해주세요!</p>
+        <p style="text-align:center;">주어진 수열의 패턴을 파악하고 다음에 올 항목을 맞춰보세요.</p>
+        
+        <div class="game-container">
+            <div class="puzzle-area">
+                <div class="sequence-container" id="sequence-container"></div>
+                <div style="font-size: 2em; margin: 0 10px;">→</div>
+                <div class="options-container" id="options-container"></div>
+            </div>
+            <div id="message" class="message"></div>
+            <button id="next-puzzle-btn" style="display: none;">다음 문제</button>
+        </div>
     </div>
+
     <script src="/assets/js/main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sequenceContainer = document.getElementById('sequence-container');
+            const optionsContainer = document.getElementById('options-container');
+            const messageElement = document.getElementById('message');
+            const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
+
+            const puzzles = [
+                { sequence: ['→', '↑', '←', '↓'], options: ['→', '↑', '←'], answer: '→' },
+                { sequence: ['1', '2', '4', '8'], options: ['12', '16', '32'], answer: '16' },
+                { sequence: ['A', 'C', 'E', 'G'], options: ['H', 'I', 'J'], answer: 'I' },
+                { sequence: ['●', '○', '●', '○'], options: ['●', '○', '◎'], answer: '●' },
+                { sequence: ['Z', 'Y', 'X', 'W'], options: ['V', 'U', 'T'], answer: 'V' },
+                { sequence: ['1', '4', '9', '16'], options: ['20', '25', '36'], answer: '25' },
+                { sequence: ['↑', '↗', '→', '↘'], options: ['↓', '↙', '←'], answer: '↓' },
+                { sequence: ['B', 'E', 'H', 'K'], options: ['L', 'M', 'N'], answer: 'N' },
+            ];
+
+            let currentPuzzleIndex = 0;
+
+            function loadPuzzle() {
+                const puzzle = puzzles[currentPuzzleIndex];
+                sequenceContainer.innerHTML = '';
+                optionsContainer.innerHTML = '';
+                messageElement.textContent = '';
+                nextPuzzleBtn.style.display = 'none';
+
+                puzzle.sequence.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'sequence-item';
+                    el.textContent = item;
+                    sequenceContainer.appendChild(el);
+                });
+
+                puzzle.options.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'option-item';
+                    el.textContent = item;
+                    el.addEventListener('click', () => checkAnswer(item));
+                    optionsContainer.appendChild(el);
+                });
+            }
+
+            function checkAnswer(selectedOption) {
+                const puzzle = puzzles[currentPuzzleIndex];
+                if (selectedOption === puzzle.answer) {
+                    messageElement.textContent = '정답입니다! 역시 INTP시군요.';
+                    messageElement.style.color = 'var(--success-color)';
+                    nextPuzzleBtn.style.display = 'block';
+                } else {
+                    messageElement.textContent = '아쉽네요. 다른 관점에서 생각해 보세요.';
+                    messageElement.style.color = 'var(--error-color)';
+                }
+                // Disable further clicks
+                document.querySelectorAll('.option-item').forEach(el => {
+                    el.style.pointerEvents = 'none';
+                });
+            }
+
+            nextPuzzleBtn.addEventListener('click', () => {
+                currentPuzzleIndex = (currentPuzzleIndex + 1) % puzzles.length;
+                loadPuzzle();
+            });
+
+            loadPuzzle();
+        });
+    </script>
 </body>
 </html>

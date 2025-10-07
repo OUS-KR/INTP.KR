@@ -5,15 +5,200 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>미로 챌린지</title>
     <link rel="stylesheet" href="/assets/css/main.css">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #maze-container {
+            display: grid;
+            border: 2px solid var(--card-border);
+        }
+        .maze-cell {
+            width: 25px;
+            height: 25px;
+        }
+        .wall {
+            background-color: var(--h-color);
+        }
+        .path {
+            background-color: var(--card-bg);
+        }
+        .player {
+            background-color: #3498db;
+        }
+        .start {
+            background-color: #2ecc71;
+        }
+        .end {
+            background-color: #e74c3c;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            margin: 5px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background-color: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+            cursor: pointer;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: var(--h-color);
+            min-height: 30px;
+        }
+    </style>
 </head>
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-system-building/">가상 시스템 구축</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
     <div class="container">
         <h1>미로 챌린지</h1>
-        <p style="text-align:center;">게임이 곧 출시될 예정입니다. 기대해주세요!</p>
+        <p style="text-align:center;">키보드나 버튼을 이용해 파란색 플레이어를 목적지(붉은색)까지 이동시키세요.</p>
+        
+        <div class="game-container">
+            <div id="maze-container"></div>
+            <div class="controls">
+                <button id="up-btn">↑</button>
+                <div>
+                    <button id="left-btn">←</button>
+                    <button id="down-btn">↓</button>
+                    <button id="right-btn">→</button>
+                </div>
+            </div>
+            <div id="message" class="message"></div>
+        </div>
     </div>
+
     <script src="/assets/js/main.js" defer></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const mazeContainer = document.getElementById('maze-container');
+        const messageElement = document.getElementById('message');
+
+        const maze = [
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
+            [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
+        ];
+
+        const playerPosition = { x: 1, y: 0 };
+        const startPosition = { x: 1, y: 0 };
+        const endPosition = { x: 11, y: 8 };
+
+        function drawMaze() {
+            mazeContainer.innerHTML = '';
+            mazeContainer.style.gridTemplateColumns = `repeat(${maze[0].length}, 25px)`;
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'maze-cell';
+                    if (x === playerPosition.x && y === playerPosition.y) {
+                        cell.classList.add('player');
+                    } else if (maze[y][x] === 1) {
+                        cell.classList.add('wall');
+                    } else if (maze[y][x] === 0) {
+                        cell.classList.add('path');
+                    }
+                     if (x === startPosition.x && y === startPosition.y) {
+                        cell.classList.add('start');
+                    }
+                    if (x === endPosition.x && y === endPosition.y) {
+                        cell.classList.add('end');
+                    }
+                    mazeContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = playerPosition.x + dx;
+            const newY = playerPosition.y + dy;
+
+            if (newY >= 0 && newY < maze.length && newX >= 0 && newX < maze[0].length && maze[newY][newX] !== 1) {
+                playerPosition.x = newX;
+                playerPosition.y = newY;
+                drawMaze();
+
+                if (playerPosition.x === endPosition.x && playerPosition.y === endPosition.y) {
+                    messageElement.textContent = '성공! 미로를 탈출했습니다.';
+                    document.removeEventListener('keydown', handleKeyDown);
+                }
+            }
+        }
+        
+        function handleKeyDown(e) {
+            switch (e.key) {
+                case 'ArrowUp': movePlayer(0, -1); break;
+                case 'ArrowDown': movePlayer(0, 1); break;
+                case 'ArrowLeft': movePlayer(-1, 0); break;
+                case 'ArrowRight': movePlayer(1, 0); break;
+            }
+        }
+
+        document.getElementById('up-btn').addEventListener('click', () => movePlayer(0, -1));
+        document.getElementById('down-btn').addEventListener('click', () => movePlayer(0, 1));
+        document.getElementById('left-btn').addEventListener('click', () => movePlayer(-1, 0));
+        document.getElementById('right-btn').addEventListener('click', () => movePlayer(1, 0));
+        
+        document.addEventListener('keydown', handleKeyDown);
+
+        drawMaze();
+    });
+    </script>
 </body>
 </html>
