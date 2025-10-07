@@ -48,17 +48,29 @@
             flex: 1;
             font-weight: bold;
         }
-        .allocation-item input[type="number"] {
-            width: 60px;
-            padding: 8px;
+        .allocation-input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .allocation-input-group button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
             border: 1px solid var(--card-border);
-            border-radius: 5px;
             background-color: var(--container-bg);
             color: var(--text-color);
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        .allocation-item span {
+        .allocation-input-group button:hover {
+            background-color: var(--card-border);
+        }
+        .allocation-input-group span {
             width: 40px;
-            text-align: right;
+            text-align: center;
+            font-weight: bold;
         }
         .controls button {
             width: 100%;
@@ -70,6 +82,13 @@
             font-size: 1.2em;
             font-weight: bold;
             color: var(--h-color);
+            text-align: center;
+        }
+        .event-message {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #e74c3c; /* Red for events */
+            font-weight: bold;
             text-align: center;
         }
         .result-details {
@@ -138,16 +157,28 @@
             <div class="allocation-controls">
                 <p>남은 포인트: <span id="remaining-points">10</span></p>
                 <div class="allocation-item">
-                    <label for="study-points">지식 탐구 (지식↑, 에너지↓):</label>
-                    <input type="number" id="study-points" value="0" min="0" max="10">
+                    <label>지식 탐구 (지식↑, 에너지↓):</label>
+                    <div class="allocation-input-group">
+                        <button class="minus-btn" data-target="study">-</button>
+                        <span id="study-points-display">0</span>
+                        <button class="plus-btn" data-target="study">+</button>
+                    </div>
                 </div>
                 <div class="allocation-item">
-                    <label for="work-points">현실 적응 (돈↑, 에너지↓):</label>
-                    <input type="number" id="work-points" value="0" min="0" max="10">
+                    <label>현실 적응 (돈↑, 에너지↓):</label>
+                    <div class="allocation-input-group">
+                        <button class="minus-btn" data-target="work">-</button>
+                        <span id="work-points-display">0</span>
+                        <button class="plus-btn" data-target="work">+</button>
+                    </div>
                 </div>
                 <div class="allocation-item">
-                    <label for="rest-points">에너지 충전 (에너지↑):</label>
-                    <input type="number" id="rest-points" value="0" min="0" max="10">
+                    <label>에너지 충전 (에너지↑):</label>
+                    <div class="allocation-input-group">
+                        <button class="minus-btn" data-target="rest">-</button>
+                        <span id="rest-points-display">0</span>
+                        <button class="plus-btn" data-target="rest">+</button>
+                    </div>
                 </div>
             </div>
 
@@ -156,6 +187,7 @@
                 <button id="restart-btn" class="btn btn-primary" style="display:none;">다시 시작</button>
             </div>
             <div id="message" class="message"></div>
+            <div id="event-message" class="event-message"></div>
             <div id="result-details" class="result-details" style="display:none;"></div>
         </div>
     </div>
@@ -169,12 +201,13 @@
             const energyElement = document.getElementById('energy');
             const satisfactionElement = document.getElementById('satisfaction');
             const remainingPointsElement = document.getElementById('remaining-points');
-            const studyPointsInput = document.getElementById('study-points');
-            const workPointsInput = document.getElementById('work-points');
-            const restPointsInput = document.getElementById('rest-points');
+            const studyPointsDisplay = document.getElementById('study-points-display');
+            const workPointsDisplay = document.getElementById('work-points-display');
+            const restPointsDisplay = document.getElementById('rest-points-display');
             const nextTurnBtn = document.getElementById('next-turn-btn');
             const restartBtn = document.getElementById('restart-btn');
             const messageElement = document.getElementById('message');
+            const eventMessageElement = document.getElementById('event-message');
             const resultDetailsElement = document.getElementById('result-details');
 
             let turn = 1;
@@ -185,7 +218,19 @@
             const MAX_TURNS = 10;
             const MAX_POINTS_PER_TURN = 10;
 
-            const inputs = [studyPointsInput, workPointsInput, restPointsInput];
+            const allocation = { study: 0, work: 0, rest: 0 };
+            const allocationDisplays = { study: studyPointsDisplay, work: workPointsDisplay, rest: restPointsDisplay };
+
+            const randomEvents = [
+                { type: 'positive', message: '새로운 아이디어 발견! 지식 +10', effect: (s) => { s.knowledge += 10; } },
+                { type: 'positive', message: '뜻밖의 수입! 돈 +15', effect: (s) => { s.money += 15; } },
+                { type: 'positive', message: '완벽한 휴식! 에너지 +20', effect: (s) => { s.energy += 20; } },
+                { type: 'negative', message: '과도한 몰입으로 에너지 소모! 에너지 -15', effect: (s) => { s.energy -= 15; } },
+                { type: 'negative', message: '예상치 못한 지출! 돈 -10', effect: (s) => { s.money -= 10; } },
+                { type: 'neutral', message: '흥미로운 다큐멘터리 시청. 시간 소모.', effect: (s) => { /* no direct stat change */ } },
+                { type: 'positive', message: '오랜 고민 끝에 문제 해결! 지식 +20', effect: (s) => { s.knowledge += 20; } },
+                { type: 'negative', message: '사회생활의 피로. 에너지 -10', effect: (s) => { s.energy -= 10; } },
+            ];
 
             function initGame() {
                 turn = 1;
@@ -193,30 +238,23 @@
                 money = 0;
                 energy = 100;
                 satisfaction = 0;
-                studyPointsInput.value = 0;
-                workPointsInput.value = 0;
-                restPointsInput.value = 0;
+                allocation.study = 0;
+                allocation.work = 0;
+                allocation.rest = 0;
                 messageElement.textContent = '';
+                eventMessageElement.textContent = '';
                 resultDetailsElement.style.display = 'none';
                 nextTurnBtn.style.display = 'block';
                 restartBtn.style.display = 'none';
-                inputs.forEach(input => {
-                    input.disabled = false;
-                    input.addEventListener('input', updateRemainingPoints);
-                });
+                document.querySelectorAll('.minus-btn, .plus-btn').forEach(btn => btn.disabled = false);
                 updateUI();
             }
 
             function updateRemainingPoints() {
-                let allocated = parseInt(studyPointsInput.value) + parseInt(workPointsInput.value) + parseInt(restPointsInput.value);
+                let allocated = allocation.study + allocation.work + allocation.rest;
                 remainingPointsElement.textContent = MAX_POINTS_PER_TURN - allocated;
-                if (MAX_POINTS_PER_TURN - allocated < 0) {
-                    messageElement.textContent = '포인트가 초과되었습니다!';
-                    nextTurnBtn.disabled = true;
-                } else {
-                    messageElement.textContent = '';
-                    nextTurnBtn.disabled = false;
-                }
+                messageElement.textContent = '';
+                nextTurnBtn.disabled = (allocated !== MAX_POINTS_PER_TURN);
             }
 
             function updateUI() {
@@ -225,42 +263,69 @@
                 moneyElement.textContent = money;
                 energyElement.textContent = energy;
                 satisfactionElement.textContent = calculateSatisfaction();
+                studyPointsDisplay.textContent = allocation.study;
+                workPointsDisplay.textContent = allocation.work;
+                restPointsDisplay.textContent = allocation.rest;
                 updateRemainingPoints();
             }
 
             function calculateSatisfaction() {
-                // Simple satisfaction formula: balance of knowledge, money, and energy
                 // INTPs might value knowledge more, but need some money and energy to function.
-                return Math.floor(knowledge * 0.5 + money * 0.3 + energy * 0.2);
+                return Math.floor(knowledge * 0.6 + money * 0.2 + energy * 0.2);
+            }
+
+            function handleAllocationChange(type, delta) {
+                let currentAllocated = allocation.study + allocation.work + allocation.rest;
+                if (delta > 0 && currentAllocated >= MAX_POINTS_PER_TURN) {
+                    messageElement.textContent = '남은 포인트가 없습니다!';
+                    return;
+                }
+                if (delta < 0 && allocation[type] <= 0) {
+                    return;
+                }
+                allocation[type] += delta;
+                updateUI();
+            }
+
+            function triggerRandomEvent() {
+                const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+                eventMessageElement.textContent = `[이벤트] ${event.message}`;
+                event.effect({ knowledge, money, energy }); // Pass current stats object
+                // Ensure energy and money don't go below 0
+                energy = Math.max(0, energy);
+                money = Math.max(0, money);
             }
 
             function nextTurn() {
-                let study = parseInt(studyPointsInput.value);
-                let work = parseInt(workPointsInput.value);
-                let rest = parseInt(restPointsInput.value);
-                let allocated = study + work + rest;
+                let allocated = allocation.study + allocation.work + allocation.rest;
 
                 if (allocated !== MAX_POINTS_PER_TURN) {
                     messageElement.textContent = `총 ${MAX_POINTS_PER_TURN} 포인트를 정확히 배분해야 합니다! (현재 ${allocated})`;
                     return;
                 }
 
-                // Apply effects
-                knowledge += study * 5;
-                money += work * 3;
-                energy -= (study * 2 + work * 3);
-                energy += rest * 5;
+                triggerRandomEvent(); // Trigger event at the start of the turn
+
+                // Apply effects with energy impact
+                const energyFactor = (energy < 20) ? 0.5 : 1; // Actions less effective if energy is low
+
+                knowledge += allocation.study * 5 * energyFactor;
+                money += allocation.work * 3 * energyFactor;
+                energy -= (allocation.study * 2 + allocation.work * 3);
+                energy += allocation.rest * 5;
 
                 // Ensure energy doesn't go below 0 or above 100
                 energy = Math.max(0, Math.min(100, energy));
+                knowledge = Math.max(0, knowledge); // Knowledge shouldn't go negative
+                money = Math.max(0, money); // Money shouldn't go negative
 
                 turn++;
                 if (turn > MAX_TURNS) {
                     endGame();
                 } else {
-                    studyPointsInput.value = 0;
-                    workPointsInput.value = 0;
-                    restPointsInput.value = 0;
+                    allocation.study = 0;
+                    allocation.work = 0;
+                    allocation.rest = 0;
                     updateUI();
                 }
             }
@@ -269,9 +334,10 @@
                 satisfaction = calculateSatisfaction();
                 satisfactionElement.textContent = satisfaction;
                 messageElement.textContent = '게임 종료! 당신의 INTP 라이프 만족도는?';
+                eventMessageElement.textContent = '';
                 nextTurnBtn.style.display = 'none';
                 restartBtn.style.display = 'block';
-                inputs.forEach(input => input.disabled = true);
+                document.querySelectorAll('.minus-btn, .plus-btn').forEach(btn => btn.disabled = true);
 
                 let resultText = `최종 지식: ${knowledge}, 최종 돈: ${money}, 최종 에너지: ${energy}.`;
                 if (satisfaction >= 400) {
@@ -287,7 +353,13 @@
 
             nextTurnBtn.addEventListener('click', nextTurn);
             restartBtn.addEventListener('click', initGame);
-            inputs.forEach(input => input.addEventListener('input', updateRemainingPoints));
+
+            document.querySelectorAll('.plus-btn').forEach(button => {
+                button.addEventListener('click', (e) => handleAllocationChange(e.target.dataset.target, 1));
+            });
+            document.querySelectorAll('.minus-btn').forEach(button => {
+                button.addEventListener('click', (e) => handleAllocationChange(e.target.dataset.target, -1));
+            });
 
             initGame();
         });
