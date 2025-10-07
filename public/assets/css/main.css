@@ -120,7 +120,7 @@ body {
 }
 
 /* Responsive Navigation */
-@media (max-width: 850px) {
+@media (max-width: 992px) {
     .main-nav .nav-links {
         display: none;
         position: absolute;
