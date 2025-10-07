@@ -15,10 +15,11 @@
         #maze-container {
             display: grid;
             border: 2px solid var(--card-border);
+            background-color: var(--h-color);
         }
         .maze-cell {
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
         }
         .wall {
             background-color: var(--h-color);
@@ -28,6 +29,7 @@
         }
         .player {
             background-color: #3498db;
+            border-radius: 50%;
         }
         .start {
             background-color: #2ecc71;
@@ -37,6 +39,9 @@
         }
         .controls {
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .controls button {
             width: 50px;
@@ -54,6 +59,13 @@
             font-size: 1.2em;
             color: var(--h-color);
             min-height: 30px;
+        }
+        #reset-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            width: auto;
+            height: auto;
+            font-size: 1em;
         }
     </style>
 </head>
@@ -115,6 +127,7 @@
                 </div>
             </div>
             <div id="message" class="message"></div>
+            <button id="reset-btn">새로운 미로 생성</button>
         </div>
     </div>
 
@@ -123,42 +136,75 @@
     document.addEventListener('DOMContentLoaded', () => {
         const mazeContainer = document.getElementById('maze-container');
         const messageElement = document.getElementById('message');
+        const resetBtn = document.getElementById('reset-btn');
 
-        const maze = [
-            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
-            [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-            [1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
-            [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-            [1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1],
-            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
-        ];
+        const cols = 21; // Must be odd
+        const rows = 15; // Must be odd
+        let maze = [];
+        let playerPosition = { x: 1, y: 1 };
+        const startPosition = { x: 1, y: 1 };
+        const endPosition = { x: cols - 2, y: rows - 2 };
+        let gameEnded = false;
 
-        const playerPosition = { x: 1, y: 0 };
-        const startPosition = { x: 1, y: 0 };
-        const endPosition = { x: 11, y: 8 };
+        function generateMaze() {
+            gameEnded = false;
+            messageElement.textContent = '';
+            playerPosition = { x: startPosition.x, y: startPosition.y };
+            
+            // Initialize maze with walls
+            maze = Array.from({ length: rows }, () => Array(cols).fill(1));
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function carve(cx, cy) {
+                const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+                shuffle(directions);
+
+                for (const [dx, dy] of directions) {
+                    const nx = cx + dx * 2;
+                    const ny = cy + dy * 2;
+
+                    if (ny >= 0 && ny < rows && nx >= 0 && nx < cols && maze[ny][nx] === 1) {
+                        maze[cy + dy][cx + dx] = 0;
+                        maze[ny][nx] = 0;
+                        carve(nx, ny);
+                    }
+                }
+            }
+
+            maze[startPosition.y][startPosition.x] = 0;
+            carve(startPosition.x, startPosition.y);
+            
+            // Ensure start and end are clear
+            maze[startPosition.y][startPosition.x] = 0;
+            maze[endPosition.y][endPosition.x] = 0;
+
+            drawMaze();
+            document.addEventListener('keydown', handleKeyDown);
+        }
 
         function drawMaze() {
             mazeContainer.innerHTML = '';
-            mazeContainer.style.gridTemplateColumns = `repeat(${maze[0].length}, 25px)`;
-            for (let y = 0; y < maze.length; y++) {
-                for (let x = 0; x < maze[y].length; x++) {
+            mazeContainer.style.gridTemplateColumns = `repeat(${cols}, 20px)`;
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
                     const cell = document.createElement('div');
                     cell.className = 'maze-cell';
                     if (x === playerPosition.x && y === playerPosition.y) {
                         cell.classList.add('player');
+                    } else if (x === startPosition.x && y === startPosition.y) {
+                        cell.classList.add('start');
+                    } else if (x === endPosition.x && y === endPosition.y) {
+                        cell.classList.add('end');
                     } else if (maze[y][x] === 1) {
                         cell.classList.add('wall');
-                    } else if (maze[y][x] === 0) {
+                    } else {
                         cell.classList.add('path');
-                    }
-                     if (x === startPosition.x && y === startPosition.y) {
-                        cell.classList.add('start');
-                    }
-                    if (x === endPosition.x && y === endPosition.y) {
-                        cell.classList.add('end');
                     }
                     mazeContainer.appendChild(cell);
                 }
@@ -166,16 +212,18 @@
         }
 
         function movePlayer(dx, dy) {
+            if (gameEnded) return;
             const newX = playerPosition.x + dx;
             const newY = playerPosition.y + dy;
 
-            if (newY >= 0 && newY < maze.length && newX >= 0 && newX < maze[0].length && maze[newY][newX] !== 1) {
+            if (newY >= 0 && newY < rows && newX >= 0 && newX < cols && maze[newY][newX] !== 1) {
                 playerPosition.x = newX;
                 playerPosition.y = newY;
                 drawMaze();
 
                 if (playerPosition.x === endPosition.x && playerPosition.y === endPosition.y) {
                     messageElement.textContent = '성공! 미로를 탈출했습니다.';
+                    gameEnded = true;
                     document.removeEventListener('keydown', handleKeyDown);
                 }
             }
@@ -194,10 +242,9 @@
         document.getElementById('down-btn').addEventListener('click', () => movePlayer(0, 1));
         document.getElementById('left-btn').addEventListener('click', () => movePlayer(-1, 0));
         document.getElementById('right-btn').addEventListener('click', () => movePlayer(1, 0));
+        resetBtn.addEventListener('click', generateMaze);
         
-        document.addEventListener('keydown', handleKeyDown);
-
-        drawMaze();
+        generateMaze();
     });
     </script>
 </body>
