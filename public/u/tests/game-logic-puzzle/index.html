@@ -3,17 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>논리 퍼즐</title>
+    <title>논리 퍼즐 (Lights Out)</title>
     <link rel="stylesheet" href="/assets/css/main.css">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-template-rows: repeat(5, 50px);
+            gap: 5px;
+            border: 2px solid var(--h-color);
+            padding: 5px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+        }
+        .light {
+            width: 50px;
+            height: 50px;
+            background-color: var(--card-border); /* OFF state */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .light.on {
+            background-color: #f1c40f; /* ON state - yellow */
+            box-shadow: 0 0 8px #f1c40f;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--h-color);
+        }
+    </style>
 </head>
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-system-building/">가상 시스템 구축</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
     <div class="container">
-        <h1>논리 퍼즐</h1>
-        <p style="text-align:center;">게임이 곧 출시될 예정입니다. 기대해주세요!</p>
+        <h1>논리 퍼즐 (Lights Out)</h1>
+        <p style="text-align:center;">모든 불을 꺼보세요! 불을 클릭하면 해당 불과 인접한 불들의 상태가 바뀝니다.</p>
+        
+        <div class="game-container">
+            <div id="game-board" class="board"></div>
+            <div class="controls">
+                <button id="new-game-btn" class="btn btn-primary">새 게임</button>
+            </div>
+            <div id="message" class="message"></div>
+        </div>
     </div>
+
     <script src="/assets/js/main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const boardElement = document.getElementById('game-board');
+            const newGameBtn = document.getElementById('new-game-btn');
+            const messageElement = document.getElementById('message');
+            const BOARD_SIZE = 5;
+            let board = [];
+
+            function createBoard() {
+                boardElement.innerHTML = '';
+                board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(0));
+                
+                // Generate a solvable initial state by making random moves
+                for (let i = 0; i < BOARD_SIZE * BOARD_SIZE / 2; i++) { // Roughly half the lights on
+                    const r = Math.floor(Math.random() * BOARD_SIZE);
+                    const c = Math.floor(Math.random() * BOARD_SIZE);
+                    toggleLights(r, c, false); // Don't update UI during setup
+                }
+
+                renderBoard();
+                messageElement.textContent = '';
+            }
+
+            function renderBoard() {
+                boardElement.innerHTML = '';
+                for (let r = 0; r < BOARD_SIZE; r++) {
+                    for (let c = 0; c < BOARD_SIZE; c++) {
+                        const light = document.createElement('div');
+                        light.classList.add('light');
+                        if (board[r][c] === 1) {
+                            light.classList.add('on');
+                        }
+                        light.dataset.row = r;
+                        light.dataset.col = c;
+                        light.addEventListener('click', handleLightClick);
+                        boardElement.appendChild(light);
+                    }
+                }
+            }
+
+            function handleLightClick(event) {
+                if (messageElement.textContent === '모든 불을 껐습니다! 축하합니다!') return; // Game over
+
+                const r = parseInt(event.target.dataset.row);
+                const c = parseInt(event.target.dataset.col);
+                toggleLights(r, c, true);
+                checkWin();
+            }
+
+            function toggleLights(r, c, updateUI) {
+                const neighbors = [
+                    [r, c], // clicked light
+                    [r - 1, c], // top
+                    [r + 1, c], // bottom
+                    [r, c - 1], // left
+                    [r, c + 1]  // right
+                ];
+
+                neighbors.forEach(([nr, nc]) => {
+                    if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
+                        board[nr][nc] = 1 - board[nr][nc]; // Toggle 0 to 1, 1 to 0
+                        if (updateUI) {
+                            const lightElement = boardElement.querySelector(`[data-row="${nr}"][data-col="${nc}"]`);
+                            lightElement.classList.toggle('on');
+                        }
+                    }
+                });
+            }
+
+            function checkWin() {
+                const allOff = board.every(row => row.every(light => light === 0));
+                if (allOff) {
+                    messageElement.textContent = '모든 불을 껐습니다! 축하합니다!';
+                    boardElement.querySelectorAll('.light').forEach(light => light.removeEventListener('click', handleLightClick));
+                }
+            }
+
+            newGameBtn.addEventListener('click', createBoard);
+
+            createBoard(); // Initialize game on load
+        });
+    </script>
 </body>
 </html>
