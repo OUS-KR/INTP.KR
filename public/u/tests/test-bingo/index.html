@@ -32,11 +32,25 @@
             color: var(--container-bg);
             font-weight: bold;
         }
+        .bingo-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
         #bingo-counter {
-            text-align: center;
             font-size: 1.2em;
             font-weight: bold;
-            margin-bottom: 20px;
+        }
+        #reset-btn {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            background-color: var(--card-border);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -75,7 +89,10 @@
         <h1>INTP 빙고 테스트</h1>
         <p style="text-align:center;">나는 얼마나 INTP일까? 아래 빙고판에서 해당하는 항목을 클릭해 보세요.<br>완성된 빙고판을 캡쳐해서 친구들과 공유해 보세요!</p>
         
-        <div id="bingo-counter">체크된 항목 0/25</div>
+        <div class="bingo-controls">
+            <div id="bingo-counter">체크된 항목 0/25</div>
+            <button id="reset-btn">초기화</button>
+        </div>
         
         <div class="bingo-grid" id="bingo-grid">
             <!-- Bingo items will be inserted here by JavaScript -->
@@ -87,6 +104,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const bingoGrid = document.getElementById('bingo-grid');
             const bingoCounter = document.getElementById('bingo-counter');
+            const resetBtn = document.getElementById('reset-btn');
             let checkedCount = 0;
 
             const bingoItems = [
@@ -128,6 +146,15 @@
                     cell.classList.toggle('checked');
                     updateCounter();
                 });
+            });
+
+            // Reset button logic
+            resetBtn.addEventListener('click', () => {
+                const checkedCells = document.querySelectorAll('.bingo-cell.checked');
+                checkedCells.forEach(cell => {
+                    cell.classList.remove('checked');
+                });
+                updateCounter();
             });
 
             function updateCounter() {
