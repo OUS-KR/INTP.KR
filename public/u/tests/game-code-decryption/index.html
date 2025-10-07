@@ -55,10 +55,10 @@
             width: 50px;
             text-align: center;
         }
-        #hint-btn {
+        #hint-btn, #next-puzzle-btn {
             margin-left: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
+            padding: 12px 24px;
+            font-size: 1.1em;
             border-radius: 5px;
             background-color: var(--btn-primary-bg);
             color: var(--btn-primary-text);
@@ -66,7 +66,7 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        #hint-btn:hover {
+        #hint-btn:hover, #next-puzzle-btn:hover {
             background-color: var(--btn-primary-hover);
         }
         .message {
@@ -74,6 +74,7 @@
             font-size: 1.1em;
             color: var(--h-color);
             text-align: center;
+            min-height: 24px;
         }
     </style>
 </head>
@@ -131,6 +132,7 @@
                 <span id="shift-value">0</span>
                 <button id="shift-plus">+</button>
                 <button id="hint-btn">힌트 보기</button>
+                <button id="next-puzzle-btn" style="display: none;">다음 문제</button>
             </div>
             <div class="decrypted-display" id="decrypted-message"></div>
             <div id="message" class="message"></div>
@@ -146,38 +148,71 @@
             const shiftMinusBtn = document.getElementById('shift-minus');
             const shiftPlusBtn = document.getElementById('shift-plus');
             const hintBtn = document.getElementById('hint-btn');
+            const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
             const messageElement = document.getElementById('message');
 
-            const messages = [
-                { encrypted: "uryyb jbeyq", correct: "hello world", shift: 13 },
-                { encrypted: "khoor zruog", correct: "hello world", shift: 3 },
-                { encrypted: "qeb nrfzh ybtx", correct: "the quick brown fox", shift: 23 },
-                { encrypted: "wklv lv d vhfuhw phvvdjh", correct: "this is a secret message", shift: 3 },
-                { encrypted: "frgh lv ixq", correct: "code is fun", shift: 3 },
-                { encrypted: "l dp dq lqws", correct: "i am an intp", shift: 3 },
+            const plaintexts = [
+                "logic is my playground",
+                "i think therefore i am",
+                "knowledge is power",
+                "question everything",
+                "analysis over emotion",
+                "the architect of ideas",
+                "curiosity is my compass",
+                "patterns emerge from chaos",
+                "a mind is a terrible thing to waste",
+                "introverted intuitive thinking perceiving"
             ];
-            let currentMessageIndex = Math.floor(Math.random() * messages.length);
-            let currentEncryptedMessage = messages[currentMessageIndex].encrypted;
-            let correctShift = messages[currentMessageIndex].shift;
+
+            let currentPlaintext = '';
+            let currentEncryptedMessage = '';
+            let correctShift = 0;
             let currentShift = 0;
 
-            function caesarDecrypt(text, shift) {
+            function caesarCipher(text, shift, mode) {
+                const direction = mode === 'encrypt' ? 1 : -1;
                 return text.split('').map(char => {
                     if (char >= 'a' && char <= 'z') {
-                        return String.fromCharCode(((char.charCodeAt(0) - 'a'.charCodeAt(0) - shift + 26) % 26) + 'a'.charCodeAt(0));
+                        return String.fromCharCode(((char.charCodeAt(0) - 'a'.charCodeAt(0) + (shift * direction) + 26) % 26) + 'a'.charCodeAt(0));
                     } else if (char >= 'A' && char <= 'Z') {
-                        return String.fromCharCode(((char.charCodeAt(0) - 'A'.charCodeAt(0) - shift + 26) % 26) + 'A'.charCodeAt(0));
+                        return String.fromCharCode(((char.charCodeAt(0) - 'A'.charCodeAt(0) + (shift * direction) + 26) % 26) + 'A'.charCodeAt(0));
                     } else {
                         return char;
                     }
                 }).join('');
             }
 
+            function startNewGame() {
+                currentPlaintext = plaintexts[Math.floor(Math.random() * plaintexts.length)];
+                correctShift = Math.floor(Math.random() * 25) + 1; // 1-25
+                currentEncryptedMessage = caesarCipher(currentPlaintext, correctShift, 'encrypt');
+                currentShift = 0;
+                
+                hintBtn.disabled = false;
+                hintBtn.style.display = 'inline-block';
+                nextPuzzleBtn.style.display = 'none';
+                shiftMinusBtn.disabled = false;
+                shiftPlusBtn.disabled = false;
+
+                updateDisplay();
+            }
+
             function updateDisplay() {
                 encryptedMessageElement.textContent = currentEncryptedMessage.toUpperCase();
                 shiftValueElement.textContent = currentShift;
-                decryptedMessageElement.textContent = caesarDecrypt(currentEncryptedMessage, currentShift).toUpperCase();
-                messageElement.textContent = '';
+                const decryptedText = caesarCipher(currentEncryptedMessage, currentShift, 'decrypt');
+                decryptedMessageElement.textContent = decryptedText.toUpperCase();
+                
+                if (decryptedText === currentPlaintext) {
+                    messageElement.textContent = '정답입니다! 훌륭해요!';
+                    hintBtn.disabled = true;
+                    hintBtn.style.display = 'none';
+                    nextPuzzleBtn.style.display = 'inline-block';
+                    shiftMinusBtn.disabled = true;
+                    shiftPlusBtn.disabled = true;
+                } else {
+                    messageElement.textContent = '';
+                }
             }
 
             shiftMinusBtn.addEventListener('click', () => {
@@ -191,12 +226,37 @@
             });
 
             hintBtn.addEventListener('click', () => {
-                messageElement.textContent = `정답 시프트 값은 ${correctShift}입니다!`;
-                currentShift = correctShift;
+                if (currentShift === correctShift) {
+                    messageElement.textContent = '이미 정답에 도달했습니다.';
+                    return;
+                }
+                
+                // Determine the shortest distance (clockwise or counter-clockwise)
+                const diff = correctShift - currentShift;
+                if (Math.abs(diff) <= 13) {
+                     if (diff > 0) {
+                        currentShift++;
+                        messageElement.textContent = '조금 더 큰 값으로 시도해 보세요.';
+                     } else {
+                        currentShift--;
+                        messageElement.textContent = '조금 더 작은 값으로 시도해 보세요.';
+                     }
+                } else {
+                    if (diff > 0) {
+                        currentShift--;
+                        messageElement.textContent = '조금 더 작은 값으로 시도해 보세요.';
+                    } else {
+                        currentShift++;
+                        messageElement.textContent = '조금 더 큰 값으로 시도해 보세요.';
+                    }
+                }
+                currentShift = (currentShift + 26) % 26;
                 updateDisplay();
             });
 
-            updateDisplay();
+            nextPuzzleBtn.addEventListener('click', startNewGame);
+
+            startNewGame();
         });
     </script>
 </body>
