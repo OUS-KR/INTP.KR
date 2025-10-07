@@ -37,31 +37,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Dropdown Menu --- //
-    const dropdowns = document.querySelectorAll('.nav-item.dropdown');
-
-    dropdowns.forEach(dropdown => {
-        const toggle = dropdown.querySelector('.dropdown-toggle');
-        if (toggle) {
-            toggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Close other open dropdowns
-                document.querySelectorAll('.nav-item.dropdown.show').forEach(openDropdown => {
-                    if (openDropdown !== dropdown) {
-                        openDropdown.classList.remove('show');
-                    }
-                });
-                dropdown.classList.toggle('show');
-            });
-        }
-    });
-
-    // Close dropdowns if clicking outside
-    window.addEventListener('click', (e) => {
-        if (!e.target.matches('.dropdown-toggle')) {
-            document.querySelectorAll('.nav-item.dropdown.show').forEach(openDropdown => {
-                openDropdown.classList.remove('show');
-            });
-        }
-    });
+    
 });

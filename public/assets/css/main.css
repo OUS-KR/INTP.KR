@@ -149,7 +149,7 @@ body {
     text-align: center;
 }
 
-.nav-item.dropdown.show .dropdown-menu {
+.nav-item.dropdown:hover .dropdown-menu {
     display: block;
 }
 
