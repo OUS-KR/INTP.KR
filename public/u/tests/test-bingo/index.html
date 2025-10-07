@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTP 빙고 테스트</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <style>
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 30px 0;
+        }
+        .bingo-cell {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 0.9em;
+            padding: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            user-select: none;
+        }
+        .bingo-cell.checked {
+            background-color: var(--h-color);
+            color: var(--container-bg);
+            font-weight: bold;
+        }
+        #bingo-counter {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-nav">
+        <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 테스트</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
+    </header>
+    <div class="container">
+        <h1>INTP 빙고 테스트</h1>
+        <p style="text-align:center;">나는 얼마나 INTP일까? 아래 빙고판에서 해당하는 항목을 클릭해 보세요.<br>완성된 빙고판을 캡쳐해서 친구들과 공유해 보세요!</p>
+        
+        <div id="bingo-counter">체크된 항목 0/25</div>
+        
+        <div class="bingo-grid" id="bingo-grid">
+            <!-- Bingo items will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script src="/assets/js/main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bingoGrid = document.getElementById('bingo-grid');
+            const bingoCounter = document.getElementById('bingo-counter');
+            let checkedCount = 0;
+
+            const bingoItems = [
+                '밤샘 구글링',
+                '"그게 왜?" 입에 달고 삼',
+                'MBTI 과몰입',
+                '10개 아이디어 내고 1개 실행',
+                '내적 논쟁으로 밤새움',
+                '카톡 1 안 없애고 미리보기로 봄',
+                '분석하다가 원래 목적 까먹음',
+                '친구가 고민상담하면 해결책 제시',
+                '"흥미로운데?"',
+                '효율성 집착',
+                '혼자 있는게 제일 편함',
+                '의미없는 규칙 극혐',
+                '갑자기 특정 주제에 꽂힘',
+                '감정 표현 서투름',
+                '위키/나무위키 탐방',
+                '"일단 알겠는데..."',
+                '약속 직전에 취소하고 싶음',
+                '머릿속으로 시뮬레이션 100번',
+                '뜬구름 잡는 소리 자주 들음',
+                '맞춤법/띄어쓰기 거슬림',
+                '같은 책/영화 여러 번 봄',
+                '논리적으로 반박하고 뿌듯해함',
+                '뒷북 엄청 잘 침',
+                '필요할 때만 연락함',
+                '"사람은 왜 살까" 같은 생각 해봄'
+            ];
+
+            // Create bingo cells
+            bingoItems.forEach(itemText => {
+                const cell = document.createElement('div');
+                cell.classList.add('bingo-cell');
+                cell.textContent = itemText;
+                bingoGrid.appendChild(cell);
+
+                cell.addEventListener('click', () => {
+                    cell.classList.toggle('checked');
+                    updateCounter();
+                });
+            });
+
+            function updateCounter() {
+                checkedCount = document.querySelectorAll('.bingo-cell.checked').length;
+                bingoCounter.textContent = `체크된 항목 ${checkedCount}/25`;
+            }
+        });
+    </script>
+</body>
+</html>
