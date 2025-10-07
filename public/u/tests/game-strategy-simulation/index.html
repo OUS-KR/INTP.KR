@@ -3,17 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>전략 시뮬레이션</title>
+    <title>전략 시뮬레이션 (INTP 라이프)</title>
     <link rel="stylesheet" href="/assets/css/main.css">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .stats-board {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        .stats-board div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--card-border);
+        }
+        .stats-board div:last-child {
+            border-bottom: none;
+        }
+        .allocation-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        .allocation-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .allocation-item label {
+            flex: 1;
+            font-weight: bold;
+        }
+        .allocation-item input[type="number"] {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid var(--card-border);
+            border-radius: 5px;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+        }
+        .allocation-item span {
+            width: 40px;
+            text-align: right;
+        }
+        .controls button {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 10px;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--h-color);
+            text-align: center;
+        }
+        .result-details {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
 </head>
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-system-building/">가상 시스템 구축</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
     <div class="container">
-        <h1>전략 시뮬레이션</h1>
-        <p style="text-align:center;">게임이 곧 출시될 예정입니다. 기대해주세요!</p>
+        <h1>전략 시뮬레이션 (INTP 라이프)</h1>
+        <p style="text-align:center;">10턴 동안 INTP의 삶을 관리하여 최고의 만족도를 달성하세요!<br>매 턴 10 포인트를 지식 탐구, 현실 적응, 에너지 충전에 배분합니다.</p>
+        
+        <div class="game-container">
+            <div class="stats-board">
+                <div>턴: <span id="turn">1</span> / 10</div>
+                <div>지식: <span id="knowledge">0</span></div>
+                <div>돈: <span id="money">0</span></div>
+                <div>에너지: <span id="energy">100</span></div>
+                <div>만족도: <span id="satisfaction">0</span></div>
+            </div>
+
+            <div class="allocation-controls">
+                <p>남은 포인트: <span id="remaining-points">10</span></p>
+                <div class="allocation-item">
+                    <label for="study-points">지식 탐구 (지식↑, 에너지↓):</label>
+                    <input type="number" id="study-points" value="0" min="0" max="10">
+                </div>
+                <div class="allocation-item">
+                    <label for="work-points">현실 적응 (돈↑, 에너지↓):</label>
+                    <input type="number" id="work-points" value="0" min="0" max="10">
+                </div>
+                <div class="allocation-item">
+                    <label for="rest-points">에너지 충전 (에너지↑):</label>
+                    <input type="number" id="rest-points" value="0" min="0" max="10">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="next-turn-btn" class="btn btn-primary">다음 턴</button>
+                <button id="restart-btn" class="btn btn-primary" style="display:none;">다시 시작</button>
+            </div>
+            <div id="message" class="message"></div>
+            <div id="result-details" class="result-details" style="display:none;"></div>
+        </div>
     </div>
+
     <script src="/assets/js/main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const turnElement = document.getElementById('turn');
+            const knowledgeElement = document.getElementById('knowledge');
+            const moneyElement = document.getElementById('money');
+            const energyElement = document.getElementById('energy');
+            const satisfactionElement = document.getElementById('satisfaction');
+            const remainingPointsElement = document.getElementById('remaining-points');
+            const studyPointsInput = document.getElementById('study-points');
+            const workPointsInput = document.getElementById('work-points');
+            const restPointsInput = document.getElementById('rest-points');
+            const nextTurnBtn = document.getElementById('next-turn-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            const messageElement = document.getElementById('message');
+            const resultDetailsElement = document.getElementById('result-details');
+
+            let turn = 1;
+            let knowledge = 0;
+            let money = 0;
+            let energy = 100;
+            let satisfaction = 0;
+            const MAX_TURNS = 10;
+            const MAX_POINTS_PER_TURN = 10;
+
+            const inputs = [studyPointsInput, workPointsInput, restPointsInput];
+
+            function initGame() {
+                turn = 1;
+                knowledge = 0;
+                money = 0;
+                energy = 100;
+                satisfaction = 0;
+                studyPointsInput.value = 0;
+                workPointsInput.value = 0;
+                restPointsInput.value = 0;
+                messageElement.textContent = '';
+                resultDetailsElement.style.display = 'none';
+                nextTurnBtn.style.display = 'block';
+                restartBtn.style.display = 'none';
+                inputs.forEach(input => {
+                    input.disabled = false;
+                    input.addEventListener('input', updateRemainingPoints);
+                });
+                updateUI();
+            }
+
+            function updateRemainingPoints() {
+                let allocated = parseInt(studyPointsInput.value) + parseInt(workPointsInput.value) + parseInt(restPointsInput.value);
+                remainingPointsElement.textContent = MAX_POINTS_PER_TURN - allocated;
+                if (MAX_POINTS_PER_TURN - allocated < 0) {
+                    messageElement.textContent = '포인트가 초과되었습니다!';
+                    nextTurnBtn.disabled = true;
+                } else {
+                    messageElement.textContent = '';
+                    nextTurnBtn.disabled = false;
+                }
+            }
+
+            function updateUI() {
+                turnElement.textContent = turn;
+                knowledgeElement.textContent = knowledge;
+                moneyElement.textContent = money;
+                energyElement.textContent = energy;
+                satisfactionElement.textContent = calculateSatisfaction();
+                updateRemainingPoints();
+            }
+
+            function calculateSatisfaction() {
+                // Simple satisfaction formula: balance of knowledge, money, and energy
+                // INTPs might value knowledge more, but need some money and energy to function.
+                return Math.floor(knowledge * 0.5 + money * 0.3 + energy * 0.2);
+            }
+
+            function nextTurn() {
+                let study = parseInt(studyPointsInput.value);
+                let work = parseInt(workPointsInput.value);
+                let rest = parseInt(restPointsInput.value);
+                let allocated = study + work + rest;
+
+                if (allocated !== MAX_POINTS_PER_TURN) {
+                    messageElement.textContent = `총 ${MAX_POINTS_PER_TURN} 포인트를 정확히 배분해야 합니다! (현재 ${allocated})`;
+                    return;
+                }
+
+                // Apply effects
+                knowledge += study * 5;
+                money += work * 3;
+                energy -= (study * 2 + work * 3);
+                energy += rest * 5;
+
+                // Ensure energy doesn't go below 0 or above 100
+                energy = Math.max(0, Math.min(100, energy));
+
+                turn++;
+                if (turn > MAX_TURNS) {
+                    endGame();
+                } else {
+                    studyPointsInput.value = 0;
+                    workPointsInput.value = 0;
+                    restPointsInput.value = 0;
+                    updateUI();
+                }
+            }
+
+            function endGame() {
+                satisfaction = calculateSatisfaction();
+                satisfactionElement.textContent = satisfaction;
+                messageElement.textContent = '게임 종료! 당신의 INTP 라이프 만족도는?';
+                nextTurnBtn.style.display = 'none';
+                restartBtn.style.display = 'block';
+                inputs.forEach(input => input.disabled = true);
+
+                let resultText = `최종 지식: ${knowledge}, 최종 돈: ${money}, 최종 에너지: ${energy}.`;
+                if (satisfaction >= 400) {
+                    resultText += `\n당신은 이상적인 INTP 라이프를 살았군요! 지적 탐구와 현실 적응의 균형이 훌륭합니다.`;
+                } else if (satisfaction >= 200) {
+                    resultText += `\n나쁘지 않은 INTP 라이프입니다. 조금 더 균형을 찾아보세요.`;
+                } else {
+                    resultText += `\nINTP 라이프는 쉽지 않죠. 다음번엔 더 나은 전략을 세워보세요.`;
+                }
+                resultDetailsElement.textContent = resultText;
+                resultDetailsElement.style.display = 'block';
+            }
+
+            nextTurnBtn.addEventListener('click', nextTurn);
+            restartBtn.addEventListener('click', initGame);
+            inputs.forEach(input => input.addEventListener('input', updateRemainingPoints));
+
+            initGame();
+        });
+    </script>
 </body>
 </html>
