@@ -151,6 +151,8 @@
                 <div>지식: <span id="knowledge">0</span></div>
                 <div>돈: <span id="money">0</span></div>
                 <div>에너지: <span id="energy">100</span></div>
+                <div>호기심: <span id="curiosity">50</span></div>
+                <div>정신 명료도: <span id="mental-clarity">50</span></div>
                 <div>만족도: <span id="satisfaction">0</span></div>
             </div>
 
@@ -180,6 +182,22 @@
                         <button class="plus-btn" data-target="rest">+</button>
                     </div>
                 </div>
+                <div class="allocation-item">
+                    <label>심층 연구 (지식↑, 호기심↑, 에너지↓):</label>
+                    <div class="allocation-input-group">
+                        <button class="minus-btn" data-target="research">-</button>
+                        <span id="research-points-display">0</span>
+                        <button class="plus-btn" data-target="research">+</button>
+                    </div>
+                </div>
+                <div class="allocation-item">
+                    <label>문제 해결 (지식↑, 정신 명료도↑, 에너지↓):</label>
+                    <div class="allocation-input-group">
+                        <button class="minus-btn" data-target="problemSolving">-</button>
+                        <span id="problemSolving-points-display">0</span>
+                        <button class="plus-btn" data-target="problemSolving">+</button>
+                    </div>
+                </div>
             </div>
 
             <div class="controls">
@@ -199,11 +217,17 @@
             const knowledgeElement = document.getElementById('knowledge');
             const moneyElement = document.getElementById('money');
             const energyElement = document.getElementById('energy');
+            const curiosityElement = document.getElementById('curiosity');
+            const mentalClarityElement = document.getElementById('mental-clarity');
             const satisfactionElement = document.getElementById('satisfaction');
             const remainingPointsElement = document.getElementById('remaining-points');
+            
             const studyPointsDisplay = document.getElementById('study-points-display');
             const workPointsDisplay = document.getElementById('work-points-display');
             const restPointsDisplay = document.getElementById('rest-points-display');
+            const researchPointsDisplay = document.getElementById('research-points-display');
+            const problemSolvingPointsDisplay = document.getElementById('problemSolving-points-display');
+
             const nextTurnBtn = document.getElementById('next-turn-btn');
             const restartBtn = document.getElementById('restart-btn');
             const messageElement = document.getElementById('message');
@@ -214,22 +238,32 @@
             let knowledge = 0;
             let money = 0;
             let energy = 100;
+            let curiosity = 50;
+            let mentalClarity = 50;
             let satisfaction = 0;
             const MAX_TURNS = 10;
             const MAX_POINTS_PER_TURN = 10;
 
-            const allocation = { study: 0, work: 0, rest: 0 };
-            const allocationDisplays = { study: studyPointsDisplay, work: workPointsDisplay, rest: restPointsDisplay };
+            const allocation = { study: 0, work: 0, rest: 0, research: 0, problemSolving: 0 };
+            const allocationDisplays = {
+                study: studyPointsDisplay,
+                work: workPointsDisplay,
+                rest: restPointsDisplay,
+                research: researchPointsDisplay,
+                problemSolving: problemSolvingPointsDisplay
+            };
 
             const randomEvents = [
-                { type: 'positive', message: '새로운 아이디어 발견! 지식 +10', effect: (s) => { s.knowledge += 10; } },
+                { type: 'positive', message: '새로운 아이디어 발견! 지식 +10, 호기심 +5', effect: (s) => { s.knowledge += 10; s.curiosity += 5; } },
                 { type: 'positive', message: '뜻밖의 수입! 돈 +15', effect: (s) => { s.money += 15; } },
-                { type: 'positive', message: '완벽한 휴식! 에너지 +20', effect: (s) => { s.energy += 20; } },
+                { type: 'positive', message: '완벽한 휴식! 에너지 +20, 정신 명료도 +10', effect: (s) => { s.energy += 20; s.mentalClarity += 10; } },
                 { type: 'negative', message: '과도한 몰입으로 에너지 소모! 에너지 -15', effect: (s) => { s.energy -= 15; } },
                 { type: 'negative', message: '예상치 못한 지출! 돈 -10', effect: (s) => { s.money -= 10; } },
-                { type: 'neutral', message: '흥미로운 다큐멘터리 시청. 시간 소모.', effect: (s) => { /* no direct stat change */ } },
-                { type: 'positive', message: '오랜 고민 끝에 문제 해결! 지식 +20', effect: (s) => { s.knowledge += 20; } },
-                { type: 'negative', message: '사회생활의 피로. 에너지 -10', effect: (s) => { s.energy -= 10; } },
+                { type: 'neutral', message: '흥미로운 다큐멘터리 시청. 호기심 +5', effect: (s) => { s.curiosity += 5; } },
+                { type: 'positive', message: '오랜 고민 끝에 문제 해결! 지식 +20, 정신 명료도 +10', effect: (s) => { s.knowledge += 20; s.mentalClarity += 10; } },
+                { type: 'negative', message: '사회생활의 피로. 에너지 -10, 정신 명료도 -5', effect: (s) => { s.energy -= 10; s.mentalClarity -= 5; } },
+                { type: 'negative', message: '정보 과부하! 정신 명료도 -10', effect: (s) => { s.mentalClarity -= 10; } },
+                { type: 'positive', message: '새로운 분야에 대한 강한 호기심! 호기심 +15', effect: (s) => { s.curiosity += 15; } },
             ];
 
             function initGame() {
@@ -237,10 +271,14 @@
                 knowledge = 0;
                 money = 0;
                 energy = 100;
+                curiosity = 50;
+                mentalClarity = 50;
                 satisfaction = 0;
                 allocation.study = 0;
                 allocation.work = 0;
                 allocation.rest = 0;
+                allocation.research = 0;
+                allocation.problemSolving = 0;
                 messageElement.textContent = '';
                 eventMessageElement.textContent = '';
                 resultDetailsElement.style.display = 'none';
@@ -251,7 +289,7 @@
             }
 
             function updateRemainingPoints() {
-                let allocated = allocation.study + allocation.work + allocation.rest;
+                let allocated = allocation.study + allocation.work + allocation.rest + allocation.research + allocation.problemSolving;
                 remainingPointsElement.textContent = MAX_POINTS_PER_TURN - allocated;
                 messageElement.textContent = '';
                 nextTurnBtn.disabled = (allocated !== MAX_POINTS_PER_TURN);
@@ -262,20 +300,24 @@
                 knowledgeElement.textContent = knowledge;
                 moneyElement.textContent = money;
                 energyElement.textContent = energy;
+                curiosityElement.textContent = curiosity;
+                mentalClarityElement.textContent = mentalClarity;
                 satisfactionElement.textContent = calculateSatisfaction();
                 studyPointsDisplay.textContent = allocation.study;
                 workPointsDisplay.textContent = allocation.work;
                 restPointsDisplay.textContent = allocation.rest;
+                researchPointsDisplay.textContent = allocation.research;
+                problemSolvingPointsDisplay.textContent = allocation.problemSolving;
                 updateRemainingPoints();
             }
 
             function calculateSatisfaction() {
-                // INTPs might value knowledge more, but need some money and energy to function.
-                return Math.floor(knowledge * 0.6 + money * 0.2 + energy * 0.2);
+                // INTPs might value knowledge and curiosity more, but need money, energy, and mental clarity.
+                return Math.floor(knowledge * 0.4 + money * 0.2 + energy * 0.15 + curiosity * 0.15 + mentalClarity * 0.1);
             }
 
             function handleAllocationChange(type, delta) {
-                let currentAllocated = allocation.study + allocation.work + allocation.rest;
+                let currentAllocated = allocation.study + allocation.work + allocation.rest + allocation.research + allocation.problemSolving;
                 if (delta > 0 && currentAllocated >= MAX_POINTS_PER_TURN) {
                     messageElement.textContent = '남은 포인트가 없습니다!';
                     return;
@@ -290,14 +332,26 @@
             function triggerRandomEvent() {
                 const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
                 eventMessageElement.textContent = `[이벤트] ${event.message}`;
-                event.effect({ knowledge, money, energy }); // Pass current stats object
-                // Ensure energy and money don't go below 0
-                energy = Math.max(0, energy);
-                money = Math.max(0, money);
+                // Create a temporary state object to pass to effect function
+                let tempStats = { knowledge, money, energy, curiosity, mentalClarity };
+                event.effect(tempStats);
+                // Update actual stats from tempStats
+                knowledge = tempStats.knowledge;
+                money = tempStats.money;
+                energy = tempStats.energy;
+                curiosity = tempStats.curiosity;
+                mentalClarity = tempStats.mentalClarity;
+
+                // Ensure stats don't go below 0 or above 100 (for energy/clarity/curiosity)
+                energy = Math.max(0, Math.min(100, energy));
+                curiosity = Math.max(0, Math.min(100, curiosity));
+                mentalClarity = Math.max(0, Math.min(100, mentalClarity));
+                knowledge = Math.max(0, knowledge); 
+                money = Math.max(0, money); 
             }
 
             function nextTurn() {
-                let allocated = allocation.study + allocation.work + allocation.rest;
+                let allocated = allocation.study + allocation.work + allocation.rest + allocation.research + allocation.problemSolving;
 
                 if (allocated !== MAX_POINTS_PER_TURN) {
                     messageElement.textContent = `총 ${MAX_POINTS_PER_TURN} 포인트를 정확히 배분해야 합니다! (현재 ${allocated})`;
@@ -306,18 +360,38 @@
 
                 triggerRandomEvent(); // Trigger event at the start of the turn
 
-                // Apply effects with energy impact
+                // Apply effects with stat impacts
                 const energyFactor = (energy < 20) ? 0.5 : 1; // Actions less effective if energy is low
+                const mentalClarityFactor = (mentalClarity < 20) ? 0.5 : 1; // Knowledge gain reduced if clarity is low
+                const curiosityFactor = (curiosity > 80) ? 1.2 : 1; // Knowledge gain boosted if curiosity is high
 
-                knowledge += allocation.study * 5 * energyFactor;
+                // Study
+                knowledge += allocation.study * 5 * energyFactor * mentalClarityFactor;
+                energy -= allocation.study * 2;
+
+                // Work
                 money += allocation.work * 3 * energyFactor;
-                energy -= (allocation.study * 2 + allocation.work * 3);
+                energy -= allocation.work * 3;
+
+                // Rest
                 energy += allocation.rest * 5;
 
-                // Ensure energy doesn't go below 0 or above 100
+                // Research
+                knowledge += allocation.research * 7 * energyFactor * mentalClarityFactor * curiosityFactor;
+                curiosity += allocation.research * 3;
+                energy -= allocation.research * 4;
+
+                // Problem Solving
+                knowledge += allocation.problemSolving * 6 * energyFactor * mentalClarityFactor;
+                mentalClarity += allocation.problemSolving * 2;
+                energy -= allocation.problemSolving * 3;
+
+                // Ensure stats don't go below 0 or above 100 (for energy/clarity/curiosity)
                 energy = Math.max(0, Math.min(100, energy));
-                knowledge = Math.max(0, knowledge); // Knowledge shouldn't go negative
-                money = Math.max(0, money); // Money shouldn't go negative
+                curiosity = Math.max(0, Math.min(100, curiosity));
+                mentalClarity = Math.max(0, Math.min(100, mentalClarity));
+                knowledge = Math.max(0, knowledge); 
+                money = Math.max(0, money); 
 
                 turn++;
                 if (turn > MAX_TURNS) {
@@ -326,6 +400,8 @@
                     allocation.study = 0;
                     allocation.work = 0;
                     allocation.rest = 0;
+                    allocation.research = 0;
+                    allocation.problemSolving = 0;
                     updateUI();
                 }
             }
@@ -339,7 +415,7 @@
                 restartBtn.style.display = 'block';
                 document.querySelectorAll('.minus-btn, .plus-btn').forEach(btn => btn.disabled = true);
 
-                let resultText = `최종 지식: ${knowledge}, 최종 돈: ${money}, 최종 에너지: ${energy}.`;
+                let resultText = `최종 지식: ${knowledge}, 최종 돈: ${money}, 최종 에너지: ${energy}, 최종 호기심: ${curiosity}, 최종 정신 명료도: ${mentalClarity}.`;
                 if (satisfaction >= 400) {
                     resultText += `\n당신은 이상적인 INTP 라이프를 살았군요! 지적 탐구와 현실 적응의 균형이 훌륭합니다.`;
                 } else if (satisfaction >= 200) {
