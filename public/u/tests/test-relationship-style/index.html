@@ -19,6 +19,10 @@
                 <a href="/u/tests/info-relationships/">인간관계</a>
                 <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
                 <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
             </nav>
             <button id="theme-switcher" class="theme-switcher">🌙</button>
             <button id="hamburger" class="hamburger">☰</button>
@@ -105,6 +109,46 @@
                     { text: '나의 취향과 생각이 담긴, 특별한 의미가 있는 책이나 물건.', score: 5 },
                     { text: '연인이 직접 고른 선물 또는 로맨틱한 꽃다발.', score: 1 }
                 ]
+            },
+            {
+                question: '연인과 함께하는 여행을 계획한다면?',
+                answers: [
+                    { text: '가서 뭐 할지 정하지 않고, 자유롭게 탐험하는 여행.', score: 10 },
+                    { text: '주요 명소와 맛집을 중심으로 효율적인 동선을 계획하는 여행.', score: 5 },
+                    { text: '편안한 숙소에서 함께 휴식을 취하는 여유로운 여행.', score: 1 }
+                ]
+            },
+            {
+                question: '연인이 사소한 일로 하루 종일 힘들어할 때 당신은?',
+                answers: [
+                    { text: '그것이 왜 힘든 일인지 이해하기 어려워, 논리적으로 별일 아니라고 설명한다.', score: 10 },
+                    { text: '이야기를 들어주며, 기분이 나아질 만한 다른 활동을 제안한다.', score: 5 },
+                    { text: '무조건 상대방의 편이 되어 함께 공감하고 위로해준다.', score: 1 }
+                ]
+            },
+            {
+                question: '기념일을 챙기는 것에 대한 당신의 생각은?',
+                answers: [
+                    { text: '상업적이고 형식적인 날일 뿐, 크게 의미를 두지 않는다.', score: 10 },
+                    { text: '상대방이 원한다면 챙기지만, 꼭 필요하다고 생각하지는 않는다.', score: 5 },
+                    { text: '관계를 더욱 특별하게 만들어주는 소중한 날이라고 생각한다.', score: 1 }
+                ]
+            },
+            {
+                question: '연인과 가장 하고 싶은 데이트는?',
+                answers: [
+                    { text: '서로 흥미 있는 다큐멘터리를 보고 밤새도록 토론하기.', score: 10 },
+                    { text: '조용한 카페에 앉아 각자 책을 읽거나 작업하기.', score: 5 },
+                    { text: '사람들이 많은 핫플레이스에 가서 맛있는 음식을 먹기.', score: 1 }
+                ]
+            },
+            {
+                question: '당신은 연인에게 당신의 모든 것을 공유하는 편인가?',
+                answers: [
+                    { text: '아니, 아무리 가까워도 나만의 생각과 공간은 반드시 필요하다.', score: 10 },
+                    { text: '대부분 공유하지만, 굳이 말할 필요가 없는 부분은 남겨둔다.', score: 5 },
+                    { text: '모든 것을 공유하고, 상대방의 모든 것도 알고 싶다.', score: 1 }
+                ]
             }
         ];
 
@@ -114,11 +158,14 @@
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
+            
             resultTitleEl.innerText = '';
             resultTextEl.innerText = '';
             resultArea.classList.add('hidden');
+            
             startArea.classList.add('hidden');
             quizArea.classList.remove('hidden');
+            
             showQuestion();
         }
 
@@ -144,6 +191,8 @@
 
             setTimeout(() => {
                 currentQuestionIndex++;
+                updateProgressBar();
+
                 if (currentQuestionIndex < quizData.length) {
                     quizContainer.style.opacity = 0;
                     setTimeout(() => {
@@ -161,10 +210,10 @@
             resultArea.classList.remove('hidden');
             let resultTitle = '';
             let resultMessage = '';
-            if (score >= 40) {
+            if (score >= 80) {
                 resultTitle = '독립적인 탐험가';
                 resultMessage = '당신은 연애에서도 자유로운 영혼입니다. 상대방을 존중하고 개인의 시간을 중시하지만, 때로는 감정 표현에 서툴러 오해를 살 수 있습니다. 당신의 지적인 매력과 솔직함이 최고의 무기입니다.';
-            } else if (score >= 25) {
+            } else if (score >= 50) {
                 resultTitle = '논리적인 동반자';
                 resultMessage = '당신은 연인에게 헌신적인 해결사입니다. 감정적인 위로보다는 실질적인 도움을 주는 것을 선호하며, 안정적인 관계 속에서 지적인 교감을 나눌 때 가장 큰 행복을 느낍니다.';
             } else {
@@ -176,9 +225,11 @@
         }
 
         function updateProgressBar() {
-            const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            const progress = (currentQuestionIndex / quizData.length) * 100;
             progressBar.style.width = `${progress}%`;
         }
     </script>
+</body>
+</html>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INTP 논리력 퀴즈</title>
+    <title>INTP 스트레스 원인 테스트</title>
     <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 <body>
@@ -29,9 +29,9 @@
     </header>
     <div id="quiz-container" class="container">
         <div id="start-area">
-            <h1>INTP 논리력 퀴즈</h1>
-            <p>나는 얼마나 INTP 성향에 가까울까?<br>간단한 퀴즈를 통해 당신의 논리적 사고 성향을 알아보세요!</p>
-            <button id="start-btn" class="btn btn-primary">퀴즈 시작하기</button>
+            <h1>INTP 스트레스 원인 테스트</h1>
+            <p>당신을 가장 힘들게 하는 것은 무엇일까요?<br>INTP의 스트레스 유발 요인을 알아보세요!</p>
+            <button id="start-btn" class="btn btn-primary">테스트 시작하기</button>
         </div>
 
         <div id="quiz-area" class="hidden">
@@ -70,83 +70,83 @@
 
         const quizData = [
             {
-                question: '친구가 "나 우울해서 머리 잘랐어"라고 한다면 당신의 첫 반응은?',
+                question: '예상치 못한 사회적 모임에 초대받았을 때 당신의 반응은?',
                 answers: [
-                    { text: '머리 자르는 것과 우울한 게 무슨 논리적 상관관계야? 원인 분석이 필요해.', score: 10 },
-                    { text: '무슨 일 있었어? 너 괜찮아? 많이 힘들었구나.', score: 1 },
-                    { text: '오, 어떤 스타일로 잘랐어? 사진 보여줘! 잘 어울린다!', score: 5 }
+                    { text: '참석해야 할지 말지 논리적으로 따져본다.', score: 10 },
+                    { text: '어색한 상황을 피하기 위해 불참을 통보한다.', score: 5 },
+                    { text: '새로운 사람들을 만날 기회라고 생각하고 흔쾌히 참석한다.', score: 1 }
                 ]
             },
             {
-                question: '새로운 프로젝트를 시작할 때 당신의 첫 단계는?',
+                question: '친한 친구가 감정적인 문제로 힘들어하며 당신에게 하소연할 때?',
                 answers: [
-                    { text: '일단 관련된 모든 자료와 정보를 수집하고 전체 구조부터 파악한다.', score: 10 },
-                    { text: '팀원들과 역할을 분담하고 구체적인 실행 계획과 일정을 짠다.', score: 1 },
-                    { text: '가장 흥미로워 보이는 부분부터 일단 부딪혀본다.', score: 5 }
+                    { text: '문제의 핵심을 파악하고 해결책을 제시한다.', score: 10 },
+                    { text: '어떻게 위로해야 할지 몰라 어색하게 듣고만 있다.', score: 5 },
+                    { text: '함께 슬퍼하고 공감하며 감정적으로 지지해준다.', score: 1 }
                 ]
             },
             {
-                question: '당신이 생각하는 \'완벽한 휴일\'이란?',
+                question: '반복적이고 틀에 박힌 업무를 계속해야 할 때 당신은?',
                 answers: [
-                    { text: '아무에게도 방해받지 않고 하루종일 흥미로운 주제에 대해 파고드는 것.', score: 10 },
-                    { text: '친한 친구들이나 가족과 만나 즐거운 시간을 보내는 것.', score: 1 },
-                    { text: '새로운 장소를 여행하며 다양한 경험과 영감을 얻는 것.', score: 5 }
+                    { text: '업무의 효율성을 높일 새로운 방법을 찾아본다.', score: 10 },
+                    { text: '지루함을 느끼지만, 주어진 일이니 묵묵히 해낸다.', score: 5 },
+                    { text: '금방 싫증을 느끼고 다른 흥미로운 일을 찾아 헤맨다.', score: 1 }
                 ]
             },
             {
-                question: '누군가 "이건 원래 이렇게 하는 거야"라고 말한다면 당신의 생각은?',
+                question: '당신의 아이디어가 아무런 논리적 근거 없이 거절당했을 때?',
                 answers: [
-                    { text: '"왜?" 그 방법이 최선인지, 더 효율적인 방법은 없는지 의문을 가진다.', score: 10 },
-                    { text: '아, 그렇구나. 기존의 방식에는 이유가 있겠지. 하고 일단 따른다.', score: 1 },
-                    { text: '다른 방법도 시도해보면 더 재밌을 것 같은데? 라고 제안한다.', score: 5 }
+                    { text: '왜 거절당했는지 납득할 만한 설명을 요구한다.', score: 10 },
+                    { text: '내 아이디어가 부족했나? 하고 스스로를 되돌아본다.', score: 5 },
+                    { text: '상대방의 의견을 존중하고 다음 기회를 노린다.', score: 1 }
                 ]
             },
             {
-                question: '영화나 책의 결말이 마음에 들지 않을 때 당신은?',
+                question: '갑작스러운 변화나 예측 불가능한 상황에 놓였을 때 당신은?',
                 answers: [
-                    { text: '나라면 이렇게 끝냈을 텐데... 머릿속으로 대안적인 결말을 10개쯤 구상한다.', score: 10 },
-                    { text: '결말이 좀 아쉽네. 하고 그냥 넘어간다.', score: 1 },
-                    { text: '다른 사람들은 어떻게 생각하는지 인터넷 커뮤니티에 검색해본다.', score: 5 }
+                    { text: '상황을 분석하고 가능한 모든 시나리오를 예측한다.', score: 10 },
+                    { text: '불안함을 느끼지만, 침착하게 대응하려고 노력한다.', score: 5 },
+                    { text: '혼란스러워하며 어떻게 해야 할지 갈피를 잡지 못한다.', score: 1 }
                 ]
             },
             {
-                question: '관심 없는 주제의 단체 대화가 이어질 때 당신은?',
+                question: '누군가 당신의 개인적인 공간이나 시간을 침해할 때?',
                 answers: [
-                    { text: '조용히 대화에서 빠져나와 내 생각을 한다.', score: 10 },
-                    { text: '열심히 듣는 척하며 고개를 끄덕인다.', score: 5 },
-                    { text: '어떻게든 대화에 끼어들기 위해 노력한다.', score: 1 }
+                    { text: '불쾌감을 느끼고 명확하게 선을 긋는다.', score: 10 },
+                    { text: '속으로는 불편하지만, 겉으로는 티 내지 않으려 노력한다.', score: 5 },
+                    { text: '상대방의 의도를 이해하려 노력하고 맞춰준다.', score: 1 }
                 ]
             },
             {
-                question: '새로운 기술이나 프로그램이 나왔을 때 당신의 반응은?',
+                question: '팀 프로젝트에서 감정적인 갈등이 발생했을 때 당신은?',
                 answers: [
-                    { text: '밤을 새워서라도 직접 써보고 원리를 분석해야 직성이 풀린다.', score: 10 },
-                    { text: '주변 사람들의 사용 후기를 들어보고 괜찮으면 써본다.', score: 5 },
-                    { text: '나와는 상관없는 일이라고 생각한다.', score: 1 }
+                    { text: '감정적인 부분은 배제하고, 문제 해결에 필요한 논리적인 논의를 제안한다.', score: 10 },
+                    { text: '갈등 상황 자체가 불편하여 중재자 역할을 자처한다.', score: 5 },
+                    { text: '갈등을 해결하기 위해 개인적인 대화를 시도한다.', score: 1 }
                 ]
             },
             {
-                question: '당신에게 \'친구\'란 어떤 존재인가?',
+                question: '당신이 생각하는 \'최악의 업무 환경\'은?',
                 answers: [
-                    { text: '지적인 자극을 주고받을 수 있는 대화 상대.', score: 10 },
-                    { text: '힘들 때 감정적으로 기댈 수 있는 사람.', score: 1 },
-                    { text: '함께 재미있는 활동을 하는 사람.', score: 5 }
+                    { text: '비합리적인 규칙과 불필요한 회의가 많은 곳.', score: 10 },
+                    { text: '개인의 의견이 존중받지 못하고, 상명하복만 강요되는 곳.', score: 5 },
+                    { text: '동료들과의 소통이 단절되고, 외롭게 일해야 하는 곳.', score: 1 }
                 ]
             },
             {
-                question: '비효율적인 규칙이나 시스템을 발견했을 때 당신은?',
+                question: '새로운 아이디어를 발표해야 할 때 당신의 가장 큰 걱정은?',
                 answers: [
-                    { text: '더 나은 시스템을 머릿속으로 구상하고, 어떻게 바꿀 수 있을지 고민한다.', score: 10 },
-                    { text: '불편하지만, 규칙은 규칙이니까 그냥 따른다.', score: 1 },
-                    { text: '주변 사람들에게 불평하지만, 딱히 바꾸려 하지는 않는다.', score: 5 }
+                    { text: '내 아이디어가 논리적으로 완벽하지 않을까 봐.', score: 10 },
+                    { text: '사람들이 내 아이디어를 이해하지 못할까 봐.', score: 5 },
+                    { text: '발표하는 과정에서 실수를 할까 봐.', score: 1 }
                 ]
             },
             {
-                question: '당신이 가장 선호하는 학습 방식은?',
+                question: '당신에게 \'휴식\'이란 어떤 의미인가?',
                 answers: [
-                    { text: '혼자서 책이나 자료를 파고들며 원리를 완벽하게 이해하는 것.', score: 10 },
-                    { text: '스터디 그룹에 참여하여 사람들과 토론하며 배우는 것.', score: 5 },
-                    { text: '강의를 듣거나, 전문가가 요약해준 내용을 습득하는 것.', score: 1 }
+                    { text: '아무에게도 방해받지 않고, 흥미로운 지적 탐구에 몰두하는 시간.', score: 10 },
+                    { text: '몸과 마음의 피로를 풀고 재충전하는 시간.', score: 5 },
+                    { text: '사랑하는 사람들과 함께 즐거운 시간을 보내는 것.', score: 1 }
                 ]
             }
         ];
@@ -158,12 +158,10 @@
             currentQuestionIndex = 0;
             score = 0;
             
-            // Clear previous results and hide result area
             resultTitleEl.innerText = '';
             resultTextEl.innerText = '';
             resultArea.classList.add('hidden');
             
-            // Hide start area and show quiz area
             startArea.classList.add('hidden');
             quizArea.classList.remove('hidden');
             
@@ -192,8 +190,8 @@
 
             setTimeout(() => {
                 currentQuestionIndex++;
-                updateProgressBar(); // Update progress after answering
-                
+                updateProgressBar();
+
                 if (currentQuestionIndex < quizData.length) {
                     quizContainer.style.opacity = 0;
                     setTimeout(() => {
@@ -212,14 +210,14 @@
             let resultTitle = '';
             let resultMessage = '';
             if (score >= 80) {
-                resultTitle = '뼛속까지 논리적인 사색가';
-                resultMessage = '당신은 INTP의 사고방식을 완벽하게 탑재했군요. 세상의 모든 것에 "왜?"를 던지는 당신은 진정한 탐구자입니다.';
+                resultTitle = '논리적 분석의 달인';
+                resultMessage = '당신은 INTP의 핵심 특성인 논리적 사고와 분석 능력이 매우 뛰어납니다. 복잡한 문제 앞에서 침착하게 본질을 파고드는 당신은 진정한 사색가입니다.';
             } else if (score >= 50) {
-                resultTitle = '논리와 가능성을 탐험하는 분석가';
-                resultMessage = 'INTP 성향이 강하게 나타납니다. 합리적인 사고를 즐기지만, 때로는 현실과 타협할 줄도 아는군요.';
+                resultTitle = '합리적인 문제 해결사';
+                resultMessage = '당신은 합리적인 사고를 바탕으로 문제를 해결하려는 경향이 강합니다. INTP의 특성을 잘 가지고 있지만, 때로는 현실적인 상황과 타협할 줄도 아는 유연함을 보입니다.';
             } else {
-                resultTitle = '합리적인 실용주의자';
-                resultMessage = 'INTP보다는 다른 성향에 가까워 보입니다. 당신은 논리만큼이나 사람들과의 관계, 현실적인 실행도 중요하게 생각하는군요.';
+                resultTitle = '유연한 사고의 소유자';
+                resultMessage = '당신은 논리적인 사고만큼이나 다양한 관점을 수용하고 유연하게 대처하는 능력이 뛰어납니다. INTP의 특성 외에 다른 성향도 균형 있게 발달한 것으로 보입니다.';
             }
             resultTitleEl.innerText = resultTitle;
             resultTextEl.innerText = resultMessage;
@@ -230,7 +228,5 @@
             progressBar.style.width = `${progress}%`;
         }
     </script>
-</body>
-</html>
 </body>
 </html>
