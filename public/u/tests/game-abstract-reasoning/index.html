@@ -35,14 +35,14 @@
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 8px;
-            font-size: 2em;
+            font-size: 1.5em; /* Adjusted for better fit */
         }
         .sequence-item {
             background-color: rgba(0, 0, 0, 0.1);
         }
         .option-item {
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, color 0.2s;
         }
         .option-item:hover {
             background-color: var(--card-border);
@@ -50,6 +50,8 @@
         .option-item.wrong {
             background-color: var(--error-color);
             color: white;
+            cursor: not-allowed;
+            pointer-events: none;
         }
         .message {
             margin-top: 20px;
@@ -104,7 +106,7 @@
                         <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
                         <a href="/u/tests/game-code-decryption/">암호 해독</a>
                         <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
-                        <a href="/u/tests/game-system-building/">가상 시스템 구축</a>
+                        <a href="/u/tests/game-travel-planner/">가상 시스템 구축</a>
                         <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
                     </div>
                 </div>
@@ -135,29 +137,73 @@
             const messageElement = document.getElementById('message');
             const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
 
-            const puzzles = [
-                { sequence: ['→', '↑', '←', '↓'], options: ['→', '↑', '←'], answer: '→' },
-                { sequence: ['1', '2', '4', '8'], options: ['12', '16', '32'], answer: '16' },
-                { sequence: ['A', 'C', 'E', 'G'], options: ['H', 'I', 'J'], answer: 'I' },
-                { sequence: ['●', '○', '●', '○'], options: ['●', '○', '◎'], answer: '●' },
-                { sequence: ['Z', 'Y', 'X', 'W'], options: ['V', 'U', 'T'], answer: 'V' },
-                { sequence: ['1', '4', '9', '16'], options: ['20', '25', '36'], answer: '25' },
-                { sequence: ['↑', '↗', '→', '↘'], options: ['↓', '↙', '←'], answer: '↓' },
-                { sequence: ['B', 'E', 'H', 'K'], options: ['L', 'M', 'N'], answer: 'N' },
-            ];
+            const shuffle = (array) => {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            };
 
-            let currentPuzzleIndex = 0;
+            const puzzleGenerators = {
+                arithmetic: () => {
+                    const start = Math.floor(Math.random() * 10) + 1;
+                    const diff = Math.floor(Math.random() * 5) + 1;
+                    const sequence = Array.from({ length: 4 }, (_, i) => start + i * diff);
+                    const answer = sequence[3] + diff;
+                    const distractors = [answer + diff, answer - diff, answer + Math.floor(Math.random() * 3) + 1].filter(d => d > 0);
+                    const options = shuffle([answer, ...new Set(distractors)].slice(0, 3));
+                    return { sequence, options, answer };
+                },
+                alphabetical: () => {
+                    const startCode = Math.floor(Math.random() * 20);
+                    const diff = Math.floor(Math.random() * 3) + 1;
+                    const sequence = Array.from({ length: 4 }, (_, i) => String.fromCharCode('A'.charCodeAt(0) + startCode + i * diff));
+                    const answer = String.fromCharCode('A'.charCodeAt(0) + startCode + 4 * diff);
+                    const distractors = [String.fromCharCode(answer.charCodeAt(0) + diff), String.fromCharCode(answer.charCodeAt(0) - diff)];
+                    const options = shuffle([answer, ...distractors]);
+                    return { sequence, options, answer };
+                },
+                symbolRotation: () => {
+                    const symbols = ['→', '↗', '↑', '↖', '←', '↙', '↓', '↘'];
+                    const start = Math.floor(Math.random() * 8);
+                    const diff = Math.random() > 0.5 ? 1 : -1; // Clockwise or counter-clockwise
+                    const sequence = Array.from({ length: 4 }, (_, i) => symbols[(start + i * diff + 8) % 8]);
+                    const answer = symbols[(start + 4 * diff + 8) % 8];
+                    const distractors = [symbols[(start + 5 * diff + 8) % 8], symbols[(start + 3 * diff + 8) % 8]];
+                    const options = shuffle([answer, ...distractors]);
+                    return { sequence, options, answer };
+                },
+                shapeAlternating: () => {
+                    const shapes = ['●', '■', '▲', '◆'];
+                    const shape1 = shapes[Math.floor(Math.random() * shapes.length)];
+                    let shape2 = shapes[Math.floor(Math.random() * shapes.length)];
+                    while (shape1 === shape2) {
+                        shape2 = shapes[Math.floor(Math.random() * shapes.length)];
+                    }
+                    const sequence = [shape1, shape2, shape1, shape2];
+                    const answer = shape1;
+                    const distractors = [shape2, shapes.find(s => s !== shape1 && s !== shape2)];
+                    const options = shuffle([answer, ...distractors]);
+                    return { sequence, options, answer };
+                }
+            };
+
+            let currentPuzzle = {};
             let isSolved = false;
 
-            function loadPuzzle() {
+            function loadNewPuzzle() {
                 isSolved = false;
-                const puzzle = puzzles[currentPuzzleIndex];
+                const generatorKeys = Object.keys(puzzleGenerators);
+                const randomGeneratorKey = generatorKeys[Math.floor(Math.random() * generatorKeys.length)];
+                currentPuzzle = puzzleGenerators[randomGeneratorKey]();
+
                 sequenceContainer.innerHTML = '';
                 optionsContainer.innerHTML = '';
                 messageElement.textContent = '';
                 nextPuzzleBtn.style.display = 'none';
 
-                puzzle.sequence.forEach(item => {
+                currentPuzzle.sequence.forEach(item => {
                     const el = document.createElement('div');
                     el.className = 'sequence-item';
                     el.textContent = item;
@@ -169,7 +215,7 @@
                 questionMark.textContent = '?';
                 sequenceContainer.appendChild(questionMark);
 
-                puzzle.options.forEach(item => {
+                currentPuzzle.options.forEach(item => {
                     const el = document.createElement('div');
                     el.className = 'option-item';
                     el.textContent = item;
@@ -179,19 +225,17 @@
             }
 
             function checkAnswer(selectedElement, selectedOption) {
-                if (isSolved) return;
+                if (isSolved || selectedElement.classList.contains('wrong')) return;
 
-                // Clear previous wrong answers
-                document.querySelectorAll('.option-item.wrong').forEach(el => el.classList.remove('wrong'));
-
-                const puzzle = puzzles[currentPuzzleIndex];
-                if (selectedOption === puzzle.answer) {
+                if (selectedOption === currentPuzzle.answer) {
                     isSolved = true;
                     messageElement.textContent = '정답입니다! 역시 INTP시군요.';
                     messageElement.style.color = 'var(--success-color)';
                     nextPuzzleBtn.style.display = 'block';
+                    // Disable all options
                     document.querySelectorAll('.option-item').forEach(el => {
-                        el.style.cursor = 'default';
+                        el.style.cursor = 'not-allowed';
+                        el.style.pointerEvents = 'none';
                     });
                 } else {
                     selectedElement.classList.add('wrong');
@@ -200,13 +244,11 @@
                 }
             }
 
-            nextPuzzleBtn.addEventListener('click', () => {
-                currentPuzzleIndex = (currentPuzzleIndex + 1) % puzzles.length;
-                loadPuzzle();
-            });
+            nextPuzzleBtn.addEventListener('click', loadNewPuzzle);
 
-            loadPuzzle();
+            loadNewPuzzle();
         });
     </script>
 </body>
 </html>
+
