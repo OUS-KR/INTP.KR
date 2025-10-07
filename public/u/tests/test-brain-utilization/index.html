@@ -154,16 +154,22 @@
         startBtn.addEventListener('click', startQuiz);
         retryBtn.addEventListener('click', startQuiz);
 
+        function setInitialView() {
+            startArea.style.display = 'block';
+            quizArea.style.display = 'none';
+            resultArea.style.display = 'none';
+        }
+
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
             
             resultTitleEl.innerText = '';
             resultTextEl.innerText = '';
-            resultArea.classList.add('hidden');
             
-            startArea.classList.add('hidden');
-            quizArea.classList.remove('hidden');
+            startArea.style.display = 'none';
+            quizArea.style.display = 'block';
+            resultArea.style.display = 'none';
             
             showQuestion();
         }
@@ -205,8 +211,8 @@
         }
 
         function showResult() {
-            quizArea.classList.add('hidden');
-            resultArea.classList.remove('hidden');
+            quizArea.style.display = 'none';
+            resultArea.style.display = 'block';
             let resultTitle = '';
             let resultMessage = '';
             if (score >= 80) {
@@ -227,6 +233,7 @@
             const progress = (currentQuestionIndex / quizData.length) * 100;
             progressBar.style.width = `${progress}%`;
         }
-    </script>
+
+        setInitialView();
 </body>
 </html>
