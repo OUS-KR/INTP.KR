@@ -334,6 +334,15 @@ h3 {
     color: #3498db;
 }
 
+.content-card .card-type.game {
+    background-color: #fbe9f5; /* Light pink/purple */
+    color: #9b59b6; /* Purple */
+}
+
+[data-theme='dark'] .content-card .card-type.game {
+    background-color: #5a3c70; /* Darker purple for dark mode */
+}
+
 [data-theme='dark'] .content-card .card-type.info {
     background-color: #3d5a53;
 }
