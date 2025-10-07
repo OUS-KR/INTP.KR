@@ -3,17 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>암호 해독</title>
+    <title>암호 해독 (시저 암호)</title>
     <link rel="stylesheet" href="/assets/css/main.css">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .cipher-display, .decrypted-display {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 600px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            word-break: break-word;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .controls button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .controls button:hover {
+            background-color: var(--card-border);
+        }
+        #shift-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            width: 50px;
+            text-align: center;
+        }
+        #hint-btn {
+            margin-left: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            background-color: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #hint-btn:hover {
+            background-color: var(--btn-primary-hover);
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: var(--h-color);
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-system-building/">가상 시스템 구축</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
     <div class="container">
-        <h1>암호 해독</h1>
-        <p style="text-align:center;">게임이 곧 출시될 예정입니다. 기대해주세요!</p>
+        <h1>암호 해독 (시저 암호)</h1>
+        <p style="text-align:center;">암호화된 메시지를 해독하여 숨겨진 의미를 찾아보세요!</p>
+        
+        <div class="game-container">
+            <div class="cipher-display" id="encrypted-message"></div>
+            <div class="controls">
+                <button id="shift-minus">-</button>
+                <span id="shift-value">0</span>
+                <button id="shift-plus">+</button>
+                <button id="hint-btn">힌트 보기</button>
+            </div>
+            <div class="decrypted-display" id="decrypted-message"></div>
+            <div id="message" class="message"></div>
+        </div>
     </div>
+
     <script src="/assets/js/main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const encryptedMessageElement = document.getElementById('encrypted-message');
+            const decryptedMessageElement = document.getElementById('decrypted-message');
+            const shiftValueElement = document.getElementById('shift-value');
+            const shiftMinusBtn = document.getElementById('shift-minus');
+            const shiftPlusBtn = document.getElementById('shift-plus');
+            const hintBtn = document.getElementById('hint-btn');
+            const messageElement = document.getElementById('message');
+
+            const messages = [
+                { encrypted: "uryyb jbeyq", correct: "hello world", shift: 13 },
+                { encrypted: "khoor zruog", correct: "hello world", shift: 3 },
+                { encrypted: "qeb nrfzh ybtx", correct: "the quick brown fox", shift: 23 },
+                { encrypted: "wklv lv d vhfuhw phvvdjh", correct: "this is a secret message", shift: 3 },
+                { encrypted: "frgh lv ixq", correct: "code is fun", shift: 3 },
+                { encrypted: "l dp dq lqws", correct: "i am an intp", shift: 3 },
+            ];
+            let currentMessageIndex = Math.floor(Math.random() * messages.length);
+            let currentEncryptedMessage = messages[currentMessageIndex].encrypted;
+            let correctShift = messages[currentMessageIndex].shift;
+            let currentShift = 0;
+
+            function caesarDecrypt(text, shift) {
+                return text.split('').map(char => {
+                    if (char >= 'a' && char <= 'z') {
+                        return String.fromCharCode(((char.charCodeAt(0) - 'a'.charCodeAt(0) - shift + 26) % 26) + 'a'.charCodeAt(0));
+                    } else if (char >= 'A' && char <= 'Z') {
+                        return String.fromCharCode(((char.charCodeAt(0) - 'A'.charCodeAt(0) - shift + 26) % 26) + 'A'.charCodeAt(0));
+                    } else {
+                        return char;
+                    }
+                }).join('');
+            }
+
+            function updateDisplay() {
+                encryptedMessageElement.textContent = currentEncryptedMessage.toUpperCase();
+                shiftValueElement.textContent = currentShift;
+                decryptedMessageElement.textContent = caesarDecrypt(currentEncryptedMessage, currentShift).toUpperCase();
+                messageElement.textContent = '';
+            }
+
+            shiftMinusBtn.addEventListener('click', () => {
+                currentShift = (currentShift - 1 + 26) % 26;
+                updateDisplay();
+            });
+
+            shiftPlusBtn.addEventListener('click', () => {
+                currentShift = (currentShift + 1) % 26;
+                updateDisplay();
+            });
+
+            hintBtn.addEventListener('click', () => {
+                messageElement.textContent = `정답 시프트 값은 ${correctShift}입니다!`;
+                currentShift = correctShift;
+                updateDisplay();
+            });
+
+            updateDisplay();
+        });
+    </script>
 </body>
 </html>
