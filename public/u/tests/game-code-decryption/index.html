@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>암호 해독 (시저 암호)</title>
+    <title>암호 해독 (크립토그램)</title>
     <link rel="stylesheet" href="/assets/css/main.css">
     <style>
         .game-container {
@@ -12,69 +12,80 @@
             align-items: center;
             margin-top: 20px;
         }
-        .cipher-display, .decrypted-display {
+        #cryptogram-quote {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
             width: 100%;
-            max-width: 600px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            max-width: 800px;
+            font-size: 1.4em;
+            letter-spacing: 2px;
             text-align: center;
-            font-size: 1.2em;
-            font-weight: bold;
-            word-break: break-word;
         }
-        .controls {
-            display: flex;
-            align-items: center;
+        .char-wrapper {
+            display: inline-block;
+            text-align: center;
+            margin: 0 2px;
+            min-width: 20px;
+        }
+        .cipher-char {
+            font-weight: bold;
+            color: var(--h-color);
+            display: block;
+        }
+        .plain-char {
+            border-bottom: 2px solid var(--text-color);
+            min-height: 24px;
+            display: block;
+            color: var(--success-color);
+            font-weight: normal;
+        }
+        #alphabet-mapping {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
             gap: 10px;
+            width: 100%;
+            max-width: 800px;
             margin-bottom: 20px;
         }
-        .controls button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .mapping-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--card-bg);
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid var(--card-border);
+        }
+        .mapping-item label {
+            font-weight: bold;
+        }
+        .mapping-item input {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            font-size: 1em;
             border: 1px solid var(--card-border);
             background-color: var(--container-bg);
             color: var(--text-color);
-            font-size: 1.5em;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            border-radius: 4px;
+            text-transform: uppercase;
         }
-        .controls button:hover {
-            background-color: var(--card-border);
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
-        #shift-value {
-            font-size: 1.5em;
+        #message {
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2em;
             font-weight: bold;
-            width: 50px;
-            text-align: center;
-        }
-        #next-puzzle-btn {
-            margin-left: 20px;
-            padding: 12px 24px;
-            font-size: 1.1em;
-            border-radius: 5px;
-            background-color: var(--btn-primary-bg);
-            color: var(--btn-primary-text);
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        #next-puzzle-btn:hover {
-            background-color: var(--btn-primary-hover);
-        }
-        .message {
-            margin-top: 20px;
-            font-size: 1.1em;
-            color: var(--h-color);
-            text-align: center;
-            min-height: 24px;
+            min-height: 25px;
         }
     </style>
 </head>
@@ -136,127 +147,189 @@
         </div>
     </header>
     <div class="container">
-        <h1>암호 해독 (시저 암호)</h1>
-        <p style="text-align:center;">암호화된 메시지를 해독하여 숨겨진 의미를 찾아보세요!</p>
+        <h1>암호 해독 (크립토그램)</h1>
+        <p style="text-align:center;">암호문을 보고 알파벳 치환 규칙을 추리하여 원본 메시지를 찾아보세요.</p>
         
         <div class="game-container">
-            <div class="cipher-display" id="encrypted-message"></div>
+            <div id="cryptogram-quote"></div>
+            <div id="alphabet-mapping"></div>
             <div class="controls">
-                <button id="shift-minus">-</button>
-                <span id="shift-value">0</span>
-                <button id="shift-plus">+</button>
-                <button id="next-puzzle-btn" style="display: none;">다음 문제</button>
+                <button id="check-btn" class="btn btn-primary">정답 확인</button>
+                <button id="reset-btn" class="btn">초기화</button>
+                <button id="reveal-btn" class="btn">정답 공개</button>
+                <button id="next-puzzle-btn" class="btn" style="display: none;">다음 문제</button>
             </div>
-            <div class="decrypted-display" id="decrypted-message"></div>
-            <div id="message" class="message"></div>
+            <div id="message"></div>
         </div>
     </div>
 
     <script src="/assets/js/main.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const encryptedMessageElement = document.getElementById('encrypted-message');
-            const decryptedMessageElement = document.getElementById('decrypted-message');
-            const shiftValueElement = document.getElementById('shift-value');
-            const shiftMinusBtn = document.getElementById('shift-minus');
-            const shiftPlusBtn = document.getElementById('shift-plus');
+            const quoteElement = document.getElementById('cryptogram-quote');
+            const mappingElement = document.getElementById('alphabet-mapping');
+            const checkBtn = document.getElementById('check-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const revealBtn = document.getElementById('reveal-btn');
             const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
             const messageElement = document.getElementById('message');
 
-            const plaintexts = [
-                "logic is my playground",
-                "i think therefore i am",
-                "knowledge is power",
-                "question everything",
-                "analysis over emotion",
-                "the architect of ideas",
-                "curiosity is my compass",
-                "patterns emerge from chaos",
-                "a mind is a terrible thing to waste",
-                "introverted intuitive thinking perceiving",
-                "the world is a complex system to be understood",
-                "i need solitude to recharge my mind",
-                "endless curiosity for the win",
-                "sarcasm is my second language",
-                "overthinking is my default state",
-                "i value precision in language",
-                "let the data speak for itself",
-                "a good theory is a thing of beauty",
-                "i live inside my own head",
-                "small talk is a necessary evil",
-                "i seek universal principles",
-                "competence is more important than credentials",
-                "i prefer email to phone calls",
-                "the answer is in the details",
-                "i have a low tolerance for illogical arguments",
-                "my inner world is a vast and intricate landscape",
-                "i am a lifelong learner",
-                "i question authority and tradition",
-                "the pursuit of truth is a noble endeavor",
-                "i find comfort in abstract concepts"
+            const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const quotes = [
+                "LOGIC IS MY PLAYGROUND",
+                "I THINK THEREFORE I AM",
+                "KNOWLEDGE IS POWER",
+                "QUESTION EVERYTHING",
+                "ANALYSIS OVER EMOTION",
+                "THE ARCHITECT OF IDEAS",
+                "CURIOSITY IS MY COMPASS",
+                "PATTERNS EMERGE FROM CHAOS",
+                "A MIND IS A TERRIBLE THING TO WASTE",
+                "INTROVERTED INTUITIVE THINKING PERCEIVING",
+                "THE WORLD IS A COMPLEX SYSTEM TO BE UNDERSTOOD",
+                "I NEED SOLITUDE TO RECHARGE MY MIND",
+                "ENDLESS CURIOSITY FOR THE WIN",
+                "SARCASM IS MY SECOND LANGUAGE",
+                "OVERTHINKING IS MY DEFAULT STATE",
+                "I VALUE PRECISION IN LANGUAGE",
+                "LET THE DATA SPEAK FOR ITSELF",
+                "A GOOD THEORY IS A THING OF BEAUTY",
+                "I LIVE INSIDE MY OWN HEAD",
+                "SMALL TALK IS A NECESSARY EVIL"
             ];
 
-            let currentPlaintext = '';
-            let currentEncryptedMessage = '';
-            let correctShift = 0;
-            let currentShift = 0;
+            let currentQuote = '';
+            let substitutionMap = {};
+            let userMap = {};
 
-            function caesarCipher(text, shift, mode) {
-                const direction = mode === 'encrypt' ? 1 : -1;
-                return text.split('').map(char => {
-                    if (char >= 'a' && char <= 'z') {
-                        return String.fromCharCode(((char.charCodeAt(0) - 'a'.charCodeAt(0) + (shift * direction) + 26) % 26) + 'a'.charCodeAt(0));
-                    } else if (char >= 'A' && char <= 'Z') {
-                        return String.fromCharCode(((char.charCodeAt(0) - 'A'.charCodeAt(0) + (shift * direction) + 26) % 26) + 'A'.charCodeAt(0));
-                    } else {
-                        return char;
-                    }
-                }).join('');
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
             }
 
-            function startNewGame() {
-                currentPlaintext = plaintexts[Math.floor(Math.random() * plaintexts.length)];
-                correctShift = Math.floor(Math.random() * 25) + 1; // 1-25
-                currentEncryptedMessage = caesarCipher(currentPlaintext, correctShift, 'encrypt');
-                currentShift = 0;
-                
+            function createPuzzle() {
+                currentQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                const shuffledAlphabet = shuffle([...ALPHABET]);
+                substitutionMap = {};
+                ALPHABET.split('').forEach((char, i) => {
+                    substitutionMap[char] = shuffledAlphabet[i];
+                });
+
+                userMap = {};
+                messageElement.textContent = '';
                 nextPuzzleBtn.style.display = 'none';
-                shiftMinusBtn.disabled = false;
-                shiftPlusBtn.disabled = false;
+                checkBtn.style.display = 'inline-block';
+                resetBtn.style.display = 'inline-block';
+                revealBtn.style.display = 'inline-block';
 
-                updateDisplay();
+                renderPuzzle();
+                renderMappingInputs();
             }
 
-            function updateDisplay() {
-                encryptedMessageElement.textContent = currentEncryptedMessage.toUpperCase();
-                shiftValueElement.textContent = currentShift;
-                const decryptedText = caesarCipher(currentEncryptedMessage, currentShift, 'decrypt');
-                decryptedMessageElement.textContent = decryptedText.toUpperCase();
-                
-                if (decryptedText === currentPlaintext) {
-                    messageElement.textContent = '정답입니다! 훌륭해요!';
+            function renderPuzzle() {
+                quoteElement.innerHTML = '';
+                currentQuote.split('').forEach(char => {
+                    if (ALPHABET.includes(char)) {
+                        const encryptedChar = substitutionMap[char];
+                        const wrapper = document.createElement('span');
+                        wrapper.className = 'char-wrapper';
+                        wrapper.innerHTML = `<span class="cipher-char">${encryptedChar}</span><span class="plain-char" data-original="${encryptedChar}">&nbsp;</span>`;
+                        quoteElement.appendChild(wrapper);
+                    } else {
+                        const wrapper = document.createElement('span');
+                        wrapper.className = 'char-wrapper';
+                        wrapper.innerHTML = `<span class="cipher-char">${char}</span><span class="plain-char">&nbsp;</span>`;
+                        quoteElement.appendChild(wrapper);
+                    }
+                });
+            }
+
+            function renderMappingInputs() {
+                mappingElement.innerHTML = '';
+                ALPHABET.split('').forEach(char => {
+                    const item = document.createElement('div');
+                    item.className = 'mapping-item';
+                    const inputId = `map-input-${char}`;
+                    item.innerHTML = `<label for="${inputId}">${char} →</label><input type="text" id="${inputId}" data-char="${char}" maxlength="1">`;
+                    mappingElement.appendChild(item);
+                });
+            }
+
+            function handleMappingUpdate() {
+                userMap = {};
+                document.querySelectorAll('#alphabet-mapping input').forEach(input => {
+                    const cipherChar = input.dataset.char;
+                    const plainChar = input.value.toUpperCase();
+                    if (plainChar && ALPHABET.includes(plainChar)) {
+                        userMap[cipherChar] = plainChar;
+                    }
+                });
+
+                document.querySelectorAll('#cryptogram-quote .plain-char').forEach(span => {
+                    const originalCipher = span.dataset.original;
+                    if (originalCipher && userMap[originalCipher]) {
+                        span.textContent = userMap[originalCipher];
+                    } else {
+                        span.innerHTML = '&nbsp;';
+                    }
+                });
+            }
+
+            function checkSolution() {
+                let decryptedString = '';
+                currentQuote.split('').forEach(char => {
+                    if (ALPHABET.includes(char)) {
+                        const encryptedChar = substitutionMap[char];
+                        decryptedString += userMap[encryptedChar] || '';
+                    } else {
+                        decryptedString += char;
+                    }
+                });
+
+                if (decryptedString === currentQuote) {
+                    messageElement.textContent = '정답입니다! 완벽하게 해독했습니다!';
+                    messageElement.style.color = 'var(--success-color)';
                     nextPuzzleBtn.style.display = 'inline-block';
-                    shiftMinusBtn.disabled = true;
-                    shiftPlusBtn.disabled = true;
+                    checkBtn.style.display = 'none';
+                    resetBtn.style.display = 'none';
+                    revealBtn.style.display = 'none';
                 } else {
-                    messageElement.textContent = '';
+                    messageElement.textContent = '아직 미완성입니다. 다시 확인해보세요.';
+                    messageElement.style.color = 'var(--error-color)';
                 }
             }
 
-            shiftMinusBtn.addEventListener('click', () => {
-                currentShift = (currentShift - 1 + 26) % 26;
-                updateDisplay();
-            });
+            function resetInputs() {
+                document.querySelectorAll('#alphabet-mapping input').forEach(input => input.value = '');
+                handleMappingUpdate();
+                messageElement.textContent = '';
+            }
 
-            shiftPlusBtn.addEventListener('click', () => {
-                currentShift = (currentShift + 1) % 26;
-                updateDisplay();
-            });
+            function revealAnswer() {
+                const reverseMap = {};
+                for (const key in substitutionMap) {
+                    reverseMap[substitutionMap[key]] = key;
+                }
+                document.querySelectorAll('#alphabet-mapping input').forEach(input => {
+                    const cipherChar = input.dataset.char;
+                    input.value = reverseMap[cipherChar] || '';
+                });
+                handleMappingUpdate();
+                checkSolution();
+            }
 
-            nextPuzzleBtn.addEventListener('click', startNewGame);
+            mappingElement.addEventListener('input', handleMappingUpdate);
+            checkBtn.addEventListener('click', checkSolution);
+            resetBtn.addEventListener('click', resetInputs);
+            revealBtn.addEventListener('click', revealAnswer);
+            nextPuzzleBtn.addEventListener('click', createPuzzle);
 
-            startNewGame();
+            createPuzzle();
         });
     </script>
 </body>
-</html>>
+</html>
+>
