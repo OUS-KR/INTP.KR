@@ -47,12 +47,6 @@
         .option-item:hover {
             background-color: var(--card-border);
         }
-        .option-item.wrong {
-            background-color: #e74c3c !important; /* Hardcoded red */
-            color: #ffffff !important; /* Hardcoded white */
-            cursor: not-allowed;
-            pointer-events: none;
-        }
         .message {
             margin-top: 20px;
             font-size: 1.2em;
@@ -77,6 +71,18 @@
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
         <div class="nav-right-section">
             <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">오늘의 INTP</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/daily/">메인</a>
+                        <a href="/u/tests/daily/quote/">오늘의 명언</a>
+                        <a href="/u/tests/daily/puzzle/">오늘의 논리 퍼즐</a>
+                        <a href="/u/tests/daily/thought-experiment/">오늘의 사고실험</a>
+                        <a href="/u/tests/daily/weakness-workout/">INTP 약점 단련</a>
+                        <a href="/u/tests/daily/featured-idea/">오늘의 아이디어</a>
+                        <a href="/u/tests/daily/de-stressor/">오늘의 스트레스 해소법</a>
+                    </div>
+                </div>
                 <div class="nav-item dropdown">
                     <button class="dropdown-toggle">정보</button>
                     <div class="dropdown-menu">
@@ -108,6 +114,8 @@
                         <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
                         <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
                         <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
+                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
                     </div>
                 </div>
             </nav>
@@ -151,7 +159,7 @@
                     const diff = Math.floor(Math.random() * 5) + 1;
                     const sequence = Array.from({ length: 4 }, (_, i) => start + i * diff);
                     const answer = sequence[3] + diff;
-                    const distractors = [answer + diff, answer - diff, answer + Math.floor(Math.random() * 3) + 1].filter(d => d > 0);
+                    const distractors = [answer + diff, answer - diff, answer + Math.floor(Math.random() * 3) + 1].filter(d => d > 0 && d !== answer);
                     const options = shuffle([answer, ...new Set(distractors)].slice(0, 3));
                     return { sequence, options, answer };
                 },
@@ -225,20 +233,26 @@
             }
 
             function checkAnswer(selectedElement, selectedOption) {
-                if (isSolved || selectedElement.classList.contains('wrong')) return;
+                if (isSolved || selectedElement.style.pointerEvents === 'none') return;
 
                 if (selectedOption === currentPuzzle.answer) {
                     isSolved = true;
+                    selectedElement.style.backgroundColor = 'var(--success-color)';
+                    selectedElement.style.color = '#ffffff';
+
                     messageElement.textContent = '정답입니다! 역시 INTP시군요.';
                     messageElement.style.color = 'var(--success-color)';
                     nextPuzzleBtn.style.display = 'block';
-                    // Disable all options
+                    
                     document.querySelectorAll('.option-item').forEach(el => {
                         el.style.cursor = 'not-allowed';
                         el.style.pointerEvents = 'none';
                     });
                 } else {
-                    selectedElement.classList.add('wrong');
+                    selectedElement.style.backgroundColor = 'var(--error-color)';
+                    selectedElement.style.color = '#ffffff';
+                    selectedElement.style.cursor = 'not-allowed';
+                    selectedElement.style.pointerEvents = 'none';
                     messageElement.textContent = '아쉽네요. 다른 관점에서 생각해 보세요.';
                     messageElement.style.color = 'var(--error-color)';
                 }
