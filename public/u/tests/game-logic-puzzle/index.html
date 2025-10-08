@@ -241,9 +241,8 @@
 
             function solvePuzzle() {
                 if (isSolving) return;
-                resetBoard(); // Reset to initial state before solving
+                resetBoard();
                 
-                // Short delay to ensure board is rendered before animation starts
                 setTimeout(() => {
                     isSolving = true;
                     solveBtn.disabled = true;
@@ -258,8 +257,8 @@
                         if (i >= presses.length) {
                             isSolving = false;
                             newGameBtn.disabled = false;
-                            // The board is now solved, checkWin will show the success message
-                            checkWin(); 
+                            resetBtn.disabled = false;
+                            checkWin();
                             return;
                         }
                         const [r, c] = presses[i].split(',').map(Number);
@@ -272,7 +271,7 @@
                             if(lightElement) lightElement.classList.remove('solving');
                             i++;
                             pressNext();
-                        }, 500); // Increased delay
+                        }, 1000);
                     }
                     pressNext();
                 }, 100);

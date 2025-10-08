@@ -3,55 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>암호 해독 (Code Breaker)</title>
+    <title>패턴 추리</title>
     <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        .game-board { margin-top: 20px; }
-        .guess-row { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-        .guess-pegs { display: flex; gap: 10px; }
-        .peg { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--card-border); }
-        .feedback-pegs { display: flex; gap: 5px; margin-left: 20px; width: 50px; flex-wrap: wrap; }
-        .feedback-peg { width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--text-color); }
-        .black-peg { background-color: black; }
-        .white-peg { background-color: white; }
-        
-        .controls {
-            text-align: center;
-            margin: 20px 0;
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
         }
-        .controls button {
-            padding: 10px 25px;
-            font-size: 1.1em;
-            margin: 0 10px;
-            min-width: 100px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
+        .sequence-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 30px;
         }
-        #submit-guess-btn {
-            background-color: var(--btn-primary-bg);
-            color: var(--btn-primary-text);
+        .sequence-item {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--h-color);
         }
-        #clear-guess-btn {
-            background-color: var(--secondary-bg);
+        .options-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
         }
-
-        .color-palette { margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .color-btn { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
-        .color-btn.selected { border-color: var(--nav-link-hover); }
-        
-        .secret-code-container { text-align: center; margin-bottom: 15px; }
-        .secret-peg { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background-color: var(--card-border); margin: 0 5px; }
-        .hidden { background-color: var(--h-color) !important; }
-
-        @media (max-width: 480px) {
-            .peg, .secret-peg { width: 35px; height: 35px; }
-            .color-btn { width: 40px; height: 40px; }
-            .controls button {
-                width: 40%;
-                padding: 12px 10px;
-                font-size: 1em; /* Ensure font is readable */
-            }
+        .option-btn {
+            font-size: 1.5em;
+            width: 80px;
+            height: 80px;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 25px;
+        }
+        #next-puzzle-btn {
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -113,188 +107,132 @@
         </div>
     </header>
     <div class="container">
-        <h1>암호 해독 (Code Breaker)</h1>
-        <p style="text-align:center;">컴퓨터가 생성한 4가지 색상의 비밀 코드를 맞춰보세요.<br>정답과 색상 및 위치가 모두 같으면 검은색, 색상만 같으면 흰색 힌트가 주어집니다.</p>
+        <h1>패턴 추리 (Sequence)</h1>
+        <p style="text-align:center;">다음에 올 숫자나 문자는 무엇일까요?</p>
         
-        <div class="secret-code-container" id="secret-code-container"></div>
-        <div class="game-board" id="game-board"></div>
-        
-        <div class="controls">
-            <button id="submit-guess-btn">제출</button>
-            <button id="clear-guess-btn">지우기</button>
-        </div>
-
-        <div class="color-palette" id="color-palette"></div>
-        <div id="message" class="message" style="margin-top: 20px;"></div>
-        <div style="text-align:center; margin-top:20px;">
-            <button id="new-game-btn" class="btn btn-primary">새 게임</button>
+        <div class="game-container">
+            <div class="sequence-container" id="sequence-container"></div>
+            <div class="options-container" id="options-container"></div>
+            <div id="message"></div>
+            <button id="next-puzzle-btn" class="btn btn-primary" style="display: none;">다음 문제</button>
         </div>
     </div>
 
     <script src="/assets/js/main.js" defer></script>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const board = document.getElementById('game-board');
-        const paletteContainer = document.getElementById('color-palette');
-        const message = document.getElementById('message');
-        const newGameBtn = document.getElementById('new-game-btn');
-        const secretContainer = document.getElementById('secret-code-container');
-        const submitGuessBtn = document.getElementById('submit-guess-btn');
-        const clearGuessBtn = document.getElementById('clear-guess-btn');
+        document.addEventListener('DOMContentLoaded', () => {
+            const sequenceContainer = document.getElementById('sequence-container');
+            const optionsContainer = document.getElementById('options-container');
+            const messageElement = document.getElementById('message');
+            const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
 
-        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e67e22'];
-        const codeLength = 4;
-        const maxGuesses = 10;
-        let secretCode = [];
-        let currentGuess = [];
-        let currentRow;
-        let guessCount = 0;
+            const patterns = [
+                { type: 'arithmetic', length: 5, start: () => Math.floor(Math.random() * 10) + 1, step: () => Math.floor(Math.random() * 5) + 1 },
+                { type: 'geometric', length: 4, start: () => Math.floor(Math.random() * 3) + 2, step: () => Math.floor(Math.random() * 2) + 2 },
+                { type: 'fibonacci', length: 6, start: () => [Math.floor(Math.random() * 3)+1, Math.floor(Math.random() * 3)+2] },
+                { type: 'alternating_add_subtract', length: 5, start: () => Math.floor(Math.random() * 10) + 5, step: () => [Math.floor(Math.random() * 5) + 1, Math.floor(Math.random() * 5) + 1] },
+                { type: 'alphabet', length: 5, start: () => Math.floor(Math.random() * 20), step: () => Math.floor(Math.random() * 3) + 1 },
+            ];
 
-        function setupPalette() {
-            paletteContainer.innerHTML = '';
-            colors.forEach(color => {
-                const colorBtn = document.createElement('div');
-                colorBtn.className = 'color-btn';
-                colorBtn.style.backgroundColor = color;
-                colorBtn.addEventListener('click', () => selectColor(color));
-                paletteContainer.appendChild(colorBtn);
-            });
-        }
+            let correctAnswer;
 
-        function selectColor(color) {
-            if (currentGuess.length >= codeLength) return;
-            currentGuess.push(color);
-            const peg = currentRow.querySelector(`.peg:nth-child(${currentGuess.length})`);
-            peg.style.backgroundColor = color;
-        }
-        
-        function clearGuess() {
-            currentGuess = [];
-            if (currentRow) {
-                currentRow.querySelectorAll('.peg').forEach(p => p.style.backgroundColor = '');
-            }
-        }
+            function generatePuzzle() {
+                const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+                let sequence = [];
+                let answer;
+                let options = new Set();
 
-        function createGuessRow() {
-            if (guessCount >= maxGuesses) return null;
-            guessCount++;
-            const row = document.createElement('div');
-            row.className = 'guess-row';
-            
-            let pegsHTML = '';
-            for(let i = 0; i < codeLength; i++) {
-                pegsHTML += '<div class="peg"></div>';
-            }
-            
-            row.innerHTML = `
-                <div class="guess-pegs">${pegsHTML}</div>
-                <div class="feedback-pegs"></div>
-            `;
-            board.appendChild(row);
-            return row;
-        }
-
-        function submitGuess() {
-            if (currentGuess.length !== codeLength) {
-                message.textContent = '4개의 색상을 모두 선택해야 합니다.';
-                return;
-            }
-            message.textContent = '';
-
-            const feedback = getFeedback(currentGuess);
-            const feedbackContainer = currentRow.querySelector('.feedback-pegs');
-            feedbackContainer.innerHTML = '';
-            
-            feedback.black.forEach(() => feedbackContainer.innerHTML += '<div class="feedback-peg black-peg"></div>');
-            feedback.white.forEach(() => feedbackContainer.innerHTML += '<div class="feedback-peg white-peg"></div>');
-
-            if (feedback.black.length === codeLength) {
-                message.textContent = `축하합니다! ${guessCount}번 만에 코드를 해독했습니다!`;
-                revealSecretCode();
-                endGame();
-                return;
-            }
-
-            if (guessCount >= maxGuesses) {
-                message.textContent = '게임 오버. 비밀 코드는...';
-                revealSecretCode();
-                endGame();
-                return;
-            }
-
-            currentGuess = [];
-            currentRow = createGuessRow();
-        }
-
-        function getFeedback(guess) {
-            let black = [];
-            let white = [];
-            let secretCopy = [...secretCode];
-            let guessCopy = [...guess];
-
-            // Black pegs
-            for (let i = guessCopy.length - 1; i >= 0; i--) {
-                if (guessCopy[i] === secretCopy[i]) {
-                    black.push(1);
-                    secretCopy.splice(i, 1);
-                    guessCopy.splice(i, 1);
+                switch (pattern.type) {
+                    case 'arithmetic':
+                        const startA = pattern.start();
+                        const stepA = pattern.step();
+                        for (let i = 0; i < pattern.length; i++) sequence.push(startA + i * stepA);
+                        answer = startA + pattern.length * stepA;
+                        break;
+                    case 'geometric':
+                        const startG = pattern.start();
+                        const stepG = pattern.step();
+                        for (let i = 0; i < pattern.length; i++) sequence.push(startG * Math.pow(stepG, i));
+                        answer = startG * Math.pow(stepG, pattern.length);
+                        break;
+                    case 'fibonacci':
+                        const startF = pattern.start();
+                        sequence = [...startF];
+                        for (let i = 2; i < pattern.length; i++) sequence.push(sequence[i-1] + sequence[i-2]);
+                        answer = sequence[pattern.length-1] + sequence[pattern.length-2];
+                        break;
+                    case 'alternating_add_subtract':
+                        const startAlt = pattern.start();
+                        const [step1, step2] = pattern.step();
+                        sequence.push(startAlt);
+                        for (let i = 1; i < pattern.length; i++) {
+                            if (i % 2 !== 0) sequence.push(sequence[i-1] + step1);
+                            else sequence.push(sequence[i-1] - step2);
+                        }
+                        if (pattern.length % 2 !== 0) answer = sequence[pattern.length-1] + step1;
+                        else answer = sequence[pattern.length-1] - step2;
+                        break;
+                    case 'alphabet':
+                        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                        const startAlpha = pattern.start();
+                        const stepAlpha = pattern.step();
+                        for (let i = 0; i < pattern.length; i++) sequence.push(alphabet[startAlpha + i * stepAlpha]);
+                        answer = alphabet[startAlpha + pattern.length * stepAlpha];
+                        break;
                 }
-            }
 
-            // White pegs
-            for (let i = 0; i < guessCopy.length; i++) {
-                const foundIndex = secretCopy.indexOf(guessCopy[i]);
-                if (foundIndex !== -1) {
-                    white.push(1);
-                    secretCopy.splice(foundIndex, 1);
+                correctAnswer = answer;
+                options.add(answer);
+                while (options.size < 3) {
+                    const wrongOption = answer + (Math.floor(Math.random() * 10) - 4); // Generate nearby wrong answers
+                    if (wrongOption !== answer && wrongOption > 0) options.add(wrongOption);
                 }
-            }
-            return { black, white };
-        }
-        
-        function revealSecretCode() {
-            secretContainer.innerHTML = '';
-            secretCode.forEach(color => {
-                const peg = document.createElement('div');
-                peg.className = 'secret-peg';
-                peg.style.backgroundColor = color;
-                secretContainer.appendChild(peg);
-            });
-        }
-
-        function endGame() {
-            paletteContainer.innerHTML = '';
-            submitGuessBtn.disabled = true;
-            clearGuessBtn.disabled = true;
-        }
-
-        function newGame() {
-            secretCode = Array.from({length: codeLength}, () => colors[Math.floor(Math.random() * colors.length)]);
-            guessCount = 0;
-            board.innerHTML = '';
-            message.textContent = '';
-            
-            submitGuessBtn.disabled = false;
-            clearGuessBtn.disabled = false;
-
-            secretContainer.innerHTML = '';
-            for(let i=0; i<codeLength; i++) {
-                const peg = document.createElement('div');
-                peg.className = 'secret-peg hidden';
-                secretContainer.appendChild(peg);
+                
+                renderPuzzle(sequence, Array.from(options));
             }
 
-            setupPalette();
-            currentGuess = [];
-            currentRow = createGuessRow();
-        }
+            function renderPuzzle(sequence, options) {
+                sequenceContainer.innerHTML = '';
+                sequence.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'sequence-item';
+                    el.textContent = item;
+                    sequenceContainer.appendChild(el);
+                });
+                const qMark = document.createElement('div');
+                qMark.className = 'sequence-item';
+                qMark.textContent = '?';
+                sequenceContainer.appendChild(qMark);
 
-        submitGuessBtn.addEventListener('click', submitGuess);
-        clearGuessBtn.addEventListener('click', clearGuess);
-        newGameBtn.addEventListener('click', newGame);
-        
-        newGame();
-    });
+                optionsContainer.innerHTML = '';
+                options.sort(() => Math.random() - 0.5).forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn option-btn';
+                    btn.textContent = opt;
+                    btn.addEventListener('click', () => checkAnswer(opt));
+                    optionsContainer.appendChild(btn);
+                });
+
+                messageElement.textContent = '';
+                nextPuzzleBtn.style.display = 'none';
+            }
+
+            function checkAnswer(selected) {
+                document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                if (selected === correctAnswer) {
+                    messageElement.textContent = '정답입니다!';
+                    messageElement.style.color = 'var(--success-color)';
+                } else {
+                    messageElement.textContent = `오답입니다. 정답은 ${correctAnswer} 입니다.`;
+                    messageElement.style.color = 'var(--error-color)';
+                }
+                nextPuzzleBtn.style.display = 'inline-block';
+            }
+
+            nextPuzzleBtn.addEventListener('click', generatePuzzle);
+
+            generatePuzzle();
+        });
     </script>
 </body>
 </html>
