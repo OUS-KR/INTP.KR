@@ -11,16 +11,18 @@
         .grid-line { position: absolute; background-color: var(--card-border); transition: background-color 0.2s; cursor: pointer; }
         .grid-line:hover { background-color: var(--nav-link-hover); }
         .grid-line.drawn { background-color: var(--h-color); }
+        .grid-line.solution { background-color: var(--success-color) !important; opacity: 0.7; }
+        .grid-line.hint { background-color: var(--nav-link-hover) !important; }
         .horizontal { width: 60px; height: 4px; transform: translateY(-2px); }
         .vertical { width: 4px; height: 60px; transform: translateX(-2px); }
-        #controls { margin-top: 20px; text-align: center; }
+        #controls { margin-top: 20px; text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
     </style>
 </head>
 <body>
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
         <div class="nav-right-section">
-                        <nav class="nav-links" id="nav-links">
+            <nav class="nav-links" id="nav-links">
                 <div class="nav-item dropdown">
                     <button class="dropdown-toggle">오늘의 INTP</button>
                     <div class="dropdown-menu">
@@ -80,7 +82,9 @@
             <div id="game-grid"></div>
         </div>
         <div id="controls">
-            <button id="check-solution-btn" class="btn btn-primary">정답 확인</button>
+            <button id="validate-btn" class="btn">내 답안 검증</button>
+            <button id="hint-btn" class="btn">힌트</button>
+            <button id="show-solution-btn" class="btn btn-primary">정답 보기</button>
             <button id="reset-btn" class="btn">초기화</button>
         </div>
         <div id="message" class="message"></div>
@@ -91,38 +95,40 @@
     document.addEventListener('DOMContentLoaded', () => {
         const gridContainer = document.getElementById('game-grid');
         const message = document.getElementById('message');
-        const checkBtn = document.getElementById('check-solution-btn');
+        const validateBtn = document.getElementById('validate-btn');
         const resetBtn = document.getElementById('reset-btn');
+        const showSolutionBtn = document.getElementById('show-solution-btn');
+        const hintBtn = document.getElementById('hint-btn');
         const size = 5;
 
-        // 0=empty, 1,2,3=clue, -1=no clue
         const puzzle = [
-            [-1, 3, -1, 3, -1],
-            [2, -1, -1, -1, 2],
-            [-1, 3, 2, 3, -1],
-            [2, -1, -1, -1, 2],
-            [-1, 3, -1, 3, -1]
+            [-1, 2, -1, 3, -1],
+            [2, -1, -1, -1, 3],
+            [-1, 3, -1, 2, -1],
+            [1, -1, -1, -1, 3],
+            [-1, 3, -1, 2, -1]
         ];
 
-        let lines = {}; // key: x1,y1,x2,y2
+        const solution = {
+            '0,1,1,1':true, '0,3,0,4':true, '0,4,1,4':true, '1,0,2,0':true, '1,1,1,2':true, '1,2,2,2':true, '1,4,1,5':true, '2,0,3,0':true, '2,2,2,3':true, '2,3,1,3':true, '2,4,3,4':true, '3,0,4,0':true, '3,3,3,4':true, '3,4,4,4':true, '4,0,5,0':true, '4,1,5,1':true, '4,4,4,5':true, '5,0,5,1':true, '5,1,5,2':true, '5,2,5,3':true, '5,3,5,4':true, '5,4,4,4':true
+        };
+
+        let lines = {};
 
         function drawGrid() {
             gridContainer.innerHTML = '';
-            // Draw cells
+            lines = {};
+            message.textContent = '';
             for (let r = 0; r < size; r++) {
                 for (let c = 0; c < size; c++) {
                     const cell = document.createElement('div');
                     cell.className = 'grid-cell';
-                    if (puzzle[r][c] !== -1) {
-                        cell.textContent = puzzle[r][c];
-                    }
+                    if (puzzle[r][c] !== -1) cell.textContent = puzzle[r][c];
                     gridContainer.appendChild(cell);
                 }
             }
-            // Draw lines
             for (let r = 0; r <= size; r++) {
                 for (let c = 0; c <= size; c++) {
-                    // Horizontal
                     if (c < size) {
                         const hLine = document.createElement('div');
                         hLine.className = 'grid-line horizontal';
@@ -132,7 +138,6 @@
                         hLine.addEventListener('click', toggleLine);
                         gridContainer.appendChild(hLine);
                     }
-                    // Vertical
                     if (r < size) {
                         const vLine = document.createElement('div');
                         vLine.className = 'grid-line vertical';
@@ -148,33 +153,30 @@
 
         function toggleLine(e) {
             const line = e.target;
+            line.classList.remove('solution', 'hint');
             line.classList.toggle('drawn');
             const key = getLineKey(line.dataset);
-            if (line.classList.contains('drawn')) {
-                lines[key] = true;
-            } else {
-                delete lines[key];
-            }
+            if (line.classList.contains('drawn')) lines[key] = true;
+            else delete lines[key];
         }
 
         function getLineKey({r1, c1, r2, c2}) {
-            // Ensure consistent key order
+            r1=parseInt(r1); c1=parseInt(c1); r2=parseInt(r2); c2=parseInt(c2);
             if (r1 > r2 || (r1 === r2 && c1 > c2)) {
                 return `${r2},${c2},${r1},${c1}`;
             }
             return `${r1},${c1},${r2},${c2}`;
         }
 
-        function checkSolution() {
-            // 1. Check clues
+        function validateSolution() {
             for (let r = 0; r < size; r++) {
                 for (let c = 0; c < size; c++) {
                     if (puzzle[r][c] === -1) continue;
                     let surroundingLines = 0;
-                    if (lines[getLineKey({r1:r, c1:c, r2:r, c2:c+1})]) surroundingLines++; // Top
-                    if (lines[getLineKey({r1:r+1, c1:c, r2:r+1, c2:c+1})]) surroundingLines++; // Bottom
-                    if (lines[getLineKey({r1:r, c1:c, r2:r+1, c2:c})]) surroundingLines++; // Left
-                    if (lines[getLineKey({r1:r, c1:c+1, r2:r+1, c2:c+1})]) surroundingLines++; // Right
+                    if (lines[getLineKey({r1:r, c1:c, r2:r, c2:c+1})]) surroundingLines++;
+                    if (lines[getLineKey({r1:r+1, c1:c, r2:r+1, c2:c+1})]) surroundingLines++;
+                    if (lines[getLineKey({r1:r, c1:c, r2:r+1, c2:c})]) surroundingLines++;
+                    if (lines[getLineKey({r1:r, c1:c+1, r2:r+1, c2:c+1})]) surroundingLines++;
                     if (surroundingLines !== puzzle[r][c]) {
                         message.textContent = `(${r}, ${c}) 셀의 힌트(${puzzle[r][c]})가 맞지 않습니다.`;
                         message.style.color = 'var(--error-color)';
@@ -183,13 +185,16 @@
                 }
             }
 
-            // 2. Check for single loop (simplified check)
             const allLineKeys = Object.keys(lines);
+            if (allLineKeys.length === 0) {
+                 message.textContent = '선을 먼저 그려주세요.';
+                 message.style.color = 'var(--error-color)';
+                 return;
+            }
             const points = {};
             allLineKeys.forEach(key => {
                 const [r1, c1, r2, c2] = key.split(',').map(Number);
-                const p1Key = `${r1},${c1}`;
-                const p2Key = `${r2},${c2}`;
+                const p1Key = `${r1},${c1}`; const p2Key = `${r2},${c2}`;
                 points[p1Key] = (points[p1Key] || 0) + 1;
                 points[p2Key] = (points[p2Key] || 0) + 1;
             });
@@ -206,14 +211,42 @@
             message.style.color = 'var(--success-color)';
         }
 
-        function resetGrid() {
-            lines = {};
-            document.querySelectorAll('.grid-line.drawn').forEach(l => l.classList.remove('drawn'));
-            message.textContent = '';
+        function showSolution() {
+            resetGrid();
+            for (const key in solution) {
+                const [r1, c1, r2, c2] = key.split(',');
+                const line = document.querySelector(`[data-r1='${r1}'][data-c1='${c1}'][data-r2='${r2}'][data-c2='${c2}']`);
+                if (line) {
+                    line.classList.add('drawn', 'solution');
+                    lines[key] = true;
+                }
+            }
+            message.textContent = '정답 경로입니다.';
+            message.style.color = 'var(--h-color)';
         }
 
-        checkBtn.addEventListener('click', checkSolution);
-        resetBtn.addEventListener('click', resetGrid);
+        function showHint() {
+            const solutionKeys = Object.keys(solution);
+            const undrawnKeys = solutionKeys.filter(key => !lines[key]);
+
+            if (undrawnKeys.length === 0) {
+                message.textContent = '모든 힌트를 확인했습니다.';
+                return;
+            }
+
+            const randomKey = undrawnKeys[Math.floor(Math.random() * undrawnKeys.length)];
+            const [r1, c1, r2, c2] = randomKey.split(',');
+            const line = document.querySelector(`[data-r1='${r1}'][data-c1='${c1}'][data-r2='${r2}'][data-c2='${c2}']`);
+            if (line && !line.classList.contains('drawn')) {
+                line.classList.add('drawn', 'hint');
+                lines[randomKey] = true;
+            }
+        }
+
+        validateBtn.addEventListener('click', validateSolution);
+        resetBtn.addEventListener('click', drawGrid);
+        showSolutionBtn.addEventListener('click', showSolution);
+        hintBtn.addEventListener('click', showHint);
 
         drawGrid();
     });
