@@ -255,33 +255,22 @@
             
             let tempItemPool = JSON.parse(JSON.stringify(itemPool));
 
-            // 1. Determine trait and event first
-            currentTrait = Math.random() < 0.67 ? traits[Math.floor(Math.random() * traits.length)] : null;
             currentEvent = Math.random() < 0.67 ? events[Math.floor(Math.random() * events.length)] : null;
-
-            // 2. Apply effects to the entire pool before selecting items
             if (currentEvent) {
                 for (const category in tempItemPool) {
                     tempItemPool[category].forEach(item => currentEvent.effect(item, category));
                 }
             }
-            if (currentTrait) {
-                // The trait effect function needs to be called for each item in each category
-                for (const category in tempItemPool) {
-                    tempItemPool[category].forEach(item => currentTrait.effect(item));
-                }
-            }
 
-            // 3. Select a random subset of items for the current game
             currentGameItems = {};
             for (const category in tempItemPool) {
                 const shuffled = tempItemPool[category].sort(() => 0.5 - Math.random());
                 currentGameItems[category] = shuffled.slice(0, Math.min(shuffled.length, 4));
             }
 
-            // 4. Select a goal
             currentGoal = goals[Math.floor(Math.random() * goals.length)];
-            
+            currentTrait = Math.random() < 0.67 ? traits[Math.floor(Math.random() * traits.length)] : null;
+
             renderGoal();
             renderItems();
             updateSummary();
@@ -334,8 +323,16 @@
             let totalCost = 0;
             let totalSatisfaction = 0;
             
-            for (const category in selectedItems) {
-                const item = selectedItems[category];
+            let tempSelectedItems = JSON.parse(JSON.stringify(selectedItems));
+
+            if (currentTrait) {
+                Object.values(tempSelectedItems).forEach(item => {
+                    if(item) currentTrait.effect(item);
+                });
+            }
+
+            for (const category in tempSelectedItems) {
+                const item = tempSelectedItems[category];
                 const summaryItem = document.createElement('div');
                 summaryItem.className = 'summary-item';
                 summaryItem.innerHTML = `<span>${getCategoryName(category)}: ${item.name}</span>`;
@@ -348,19 +345,25 @@
         }
 
         evaluateBtn.addEventListener('click', () => {
-            let totalCost = 0;
-            let totalSatisfaction = 0;
             const selectedCategories = Object.keys(selectedItems);
-
             if (selectedCategories.length < Object.keys(currentGameItems).length) {
                 messageElement.textContent = '모든 종류의 항목을 선택해야 합니다.';
                 messageElement.style.color = 'var(--error-color)';
                 return;
             }
             
-            for (const category in selectedItems) {
-                totalCost += selectedItems[category].cost;
-                totalSatisfaction += selectedItems[category].satisfaction;
+            let tempSelectedItems = JSON.parse(JSON.stringify(selectedItems));
+            if (currentTrait) {
+                Object.values(tempSelectedItems).forEach(item => {
+                    if(item) currentTrait.effect(item);
+                });
+            }
+
+            let totalCost = 0;
+            let totalSatisfaction = 0;
+            for (const category in tempSelectedItems) {
+                totalCost += tempSelectedItems[category].cost;
+                totalSatisfaction += tempSelectedItems[category].satisfaction;
             }
 
             let success = false;
