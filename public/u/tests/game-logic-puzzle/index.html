@@ -135,12 +135,25 @@
             function createBoard() {
                 boardElement.innerHTML = '';
                 board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(0));
-                
-                // Generate a solvable initial state by making random moves
-                for (let i = 0; i < BOARD_SIZE * BOARD_SIZE / 2; i++) { // Roughly half the lights on
+
+                const pressCount = 8 + Math.floor(Math.random() * 8); // Press between 8 and 15 unique buttons
+                const presses = new Set();
+                while (presses.size < pressCount) {
                     const r = Math.floor(Math.random() * BOARD_SIZE);
                     const c = Math.floor(Math.random() * BOARD_SIZE);
-                    toggleLights(r, c, false); // Don't update UI during setup
+                    presses.add(`${r},${c}`);
+                }
+
+                presses.forEach(press => {
+                    const [r, c] = press.split(',').map(Number);
+                    toggleLights(r, c, false); // Apply press to the data model without updating UI
+                });
+
+                // In the rare case that the random presses cancel each other out, restart.
+                const allOff = board.every(row => row.every(light => light === 0));
+                if (allOff) {
+                    createBoard();
+                    return;
                 }
 
                 renderBoard();
@@ -187,7 +200,7 @@
                         board[nr][nc] = 1 - board[nr][nc]; // Toggle 0 to 1, 1 to 0
                         if (updateUI) {
                             const lightElement = boardElement.querySelector(`[data-row="${nr}"][data-col="${nc}"]`);
-                            lightElement.classList.toggle('on');
+                            if(lightElement) lightElement.classList.toggle('on');
                         }
                     }
                 });
@@ -207,4 +220,5 @@
         });
     </script>
 </body>
-</html>>
+</html>
+>
