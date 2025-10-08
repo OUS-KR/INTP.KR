@@ -16,6 +16,16 @@
         .horizontal { width: 60px; height: 4px; transform: translateY(-2px); }
         .vertical { width: 4px; height: 60px; transform: translateX(-2px); }
         #controls { margin-top: 20px; text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .message-box {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            text-align: center;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 4px var(--shadow-color);
+            display: none; /* Initially hidden */
+        }
     </style>
 </head>
 <body>
@@ -77,7 +87,7 @@
     </header>
     <div class="container">
         <h1>경로 탐색기 (Pathfinder)</h1>
-        <p style="text-align:center;">격자 가장자리를 클릭하여 하나의 연속된 루프를 만드세요.<br>각 셀의 숫자는 해당 셀을 둘러싼 선의 개수를 의미합니다.</p>
+        <p style="text-align:center;">격자 가장자리를 클릭하여 선을 그리고, 모든 숫자를 만족시키는 <strong>하나의 연속된 루프</strong>를 완성하세요.<br>각 셀의 숫자는 해당 셀을 둘러싼 네 변 중 루프의 일부가 되어야 하는 선의 개수를 의미합니다.<br>완성된 경로는 갈라지거나 끊어지지 않는 하나의 닫힌 루프여야 합니다.</p>
         <div style="display:flex; justify-content:center; margin-top:20px;">
             <div id="game-grid"></div>
         </div>
@@ -87,13 +97,16 @@
             <button id="show-solution-btn" class="btn btn-primary">정답 보기</button>
             <button id="reset-btn" class="btn">초기화</button>
         </div>
-        <div id="message" class="message"></div>
+        <div id="message-container" class="message-box">
+            <div id="message"></div>
+        </div>
     </div>
 
     <script src="/assets/js/main.js" defer></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const gridContainer = document.getElementById('game-grid');
+        const messageContainer = document.getElementById('message-container');
         const message = document.getElementById('message');
         const validateBtn = document.getElementById('validate-btn');
         const resetBtn = document.getElementById('reset-btn');
@@ -110,15 +123,31 @@
         ];
 
         const solution = {
-            '0,1,1,1':true, '0,3,0,4':true, '0,4,1,4':true, '1,0,2,0':true, '1,1,1,2':true, '1,2,2,2':true, '1,4,1,5':true, '2,0,3,0':true, '2,2,2,3':true, '2,3,1,3':true, '2,4,3,4':true, '3,0,4,0':true, '3,3,3,4':true, '3,4,4,4':true, '4,0,5,0':true, '4,1,5,1':true, '4,4,4,5':true, '5,0,5,1':true, '5,1,5,2':true, '5,2,5,3':true, '5,3,5,4':true, '5,4,4,4':true
+            '0,1,1,1': true, '0,3,0,4': true, '0,4,1,4': true, '1,0,2,0': true, 
+            '1,1,1,2': true, '1,2,2,2': true, '1,3,2,3': true, '1,4,1,5': true, 
+            '2,0,3,0': true, '2,2,2,3': true, '2,4,3,4': true, '3,0,4,0': true, 
+            '3,3,3,4': true, '3,4,4,4': true, '4,0,5,0': true, '4,1,5,1': true, 
+            '4,4,4,5': true, '4,4,5,4': true, '5,0,5,1': true, '5,1,5,2': true, 
+            '5,2,5,3': true, '5,3,5,4': true
         };
 
         let lines = {};
 
+        function showMessage(text, color) {
+            message.textContent = text;
+            message.style.color = color;
+            messageContainer.style.display = 'block';
+        }
+
+        function hideMessage() {
+            message.textContent = '';
+            messageContainer.style.display = 'none';
+        }
+
         function drawGrid() {
             gridContainer.innerHTML = '';
             lines = {};
-            message.textContent = '';
+            hideMessage();
             for (let r = 0; r < size; r++) {
                 for (let c = 0; c < size; c++) {
                     const cell = document.createElement('div');
@@ -152,6 +181,7 @@
         }
 
         function toggleLine(e) {
+            hideMessage();
             const line = e.target;
             line.classList.remove('solution', 'hint');
             line.classList.toggle('drawn');
@@ -178,8 +208,7 @@
                     if (lines[getLineKey({r1:r, c1:c, r2:r+1, c2:c})]) surroundingLines++;
                     if (lines[getLineKey({r1:r, c1:c+1, r2:r+1, c2:c+1})]) surroundingLines++;
                     if (surroundingLines !== puzzle[r][c]) {
-                        message.textContent = `(${r}, ${c}) 셀의 힌트(${puzzle[r][c]})가 맞지 않습니다.`;
-                        message.style.color = 'var(--error-color)';
+                        showMessage(`(${r}, ${c}) 셀의 힌트(${puzzle[r][c]})가 맞지 않습니다.`, 'var(--error-color)');
                         return;
                     }
                 }
@@ -187,8 +216,7 @@
 
             const allLineKeys = Object.keys(lines);
             if (allLineKeys.length === 0) {
-                 message.textContent = '선을 먼저 그려주세요.';
-                 message.style.color = 'var(--error-color)';
+                 showMessage('선을 먼저 그려주세요.', 'var(--error-color)');
                  return;
             }
             const points = {};
@@ -201,18 +229,23 @@
 
             for (const point in points) {
                 if (points[point] !== 2) {
-                    message.textContent = '루프가 아니거나 여러 개의 루프가 존재합니다. 모든 선은 2개의 다른 선과 만나야 합니다.';
-                    message.style.color = 'var(--error-color)';
+                    showMessage('루프가 아니거나 여러 개의 루프가 존재합니다. 모든 선은 2개의 다른 선과 만나야 합니다.', 'var(--error-color)');
                     return;
                 }
             }
             
-            message.textContent = '정답입니다! 완벽한 루프를 완성했습니다.';
-            message.style.color = 'var(--success-color)';
+            showMessage('정답입니다! 완벽한 루프를 완성했습니다.', 'var(--success-color)');
+        }
+        
+        function resetLines() {
+            document.querySelectorAll('.grid-line').forEach(line => {
+                line.classList.remove('drawn', 'solution', 'hint');
+            });
+            lines = {};
         }
 
         function showSolution() {
-            resetGrid();
+            resetLines();
             for (const key in solution) {
                 const [r1, c1, r2, c2] = key.split(',');
                 const line = document.querySelector(`[data-r1='${r1}'][data-c1='${c1}'][data-r2='${r2}'][data-c2='${c2}']`);
@@ -221,8 +254,7 @@
                     lines[key] = true;
                 }
             }
-            message.textContent = '정답 경로입니다.';
-            message.style.color = 'var(--h-color)';
+            showMessage('정답 경로입니다.', 'var(--h-color)');
         }
 
         function showHint() {
@@ -230,7 +262,7 @@
             const undrawnKeys = solutionKeys.filter(key => !lines[key]);
 
             if (undrawnKeys.length === 0) {
-                message.textContent = '모든 힌트를 확인했습니다.';
+                showMessage('모든 힌트를 확인했습니다.', 'var(--h-color)');
                 return;
             }
 
