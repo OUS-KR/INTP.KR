@@ -46,6 +46,8 @@
         .controls {
             margin-top: 20px;
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 10px;
         }
         .message {
@@ -121,6 +123,7 @@
             <div id="game-board" class="board"></div>
             <div class="controls">
                 <button id="new-game-btn" class="btn btn-primary">새 게임</button>
+                <button id="reset-btn" class="btn">초기화</button>
                 <button id="solve-btn" class="btn">해답 보기</button>
             </div>
             <div id="message" class="message"></div>
@@ -132,19 +135,25 @@
         document.addEventListener('DOMContentLoaded', () => {
             const boardElement = document.getElementById('game-board');
             const newGameBtn = document.getElementById('new-game-btn');
+            const resetBtn = document.getElementById('reset-btn');
             const solveBtn = document.getElementById('solve-btn');
             const messageElement = document.getElementById('message');
             const BOARD_SIZE = 5;
+            
             let board = [];
+            let initialBoard = [];
             let solutionPresses = new Set();
             let isSolving = false;
 
-            function createBoard() {
+            function deepCopy(arr) {
+                return JSON.parse(JSON.stringify(arr));
+            }
+
+            function startNewGame() {
                 isSolving = false;
-                boardElement.innerHTML = '';
                 board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(0));
 
-                const pressCount = 8 + Math.floor(Math.random() * 8); // Press between 8 and 15 unique buttons
+                const pressCount = 8 + Math.floor(Math.random() * 8);
                 solutionPresses.clear();
                 while (solutionPresses.size < pressCount) {
                     const r = Math.floor(Math.random() * BOARD_SIZE);
@@ -154,19 +163,28 @@
 
                 solutionPresses.forEach(press => {
                     const [r, c] = press.split(',').map(Number);
-                    toggleLights(r, c, false); // Apply press to the data model without updating UI
+                    toggleLights(r, c, board, false);
                 });
 
                 const allOff = board.every(row => row.every(light => light === 0));
                 if (allOff) {
-                    createBoard();
+                    startNewGame();
                     return;
                 }
-
+                
+                initialBoard = deepCopy(board);
                 renderBoard();
                 messageElement.textContent = '';
                 solveBtn.disabled = false;
                 newGameBtn.disabled = false;
+                resetBtn.disabled = false;
+            }
+
+            function resetBoard() {
+                if (isSolving) return;
+                board = deepCopy(initialBoard);
+                messageElement.textContent = '';
+                renderBoard();
             }
 
             function renderBoard() {
@@ -191,18 +209,18 @@
 
                 const r = parseInt(event.target.dataset.row);
                 const c = parseInt(event.target.dataset.col);
-                toggleLights(r, c, true);
+                toggleLights(r, c, board, true);
                 checkWin();
             }
 
-            function toggleLights(r, c, updateUI) {
+            function toggleLights(r, c, targetBoard, updateUI) {
                 const neighbors = [
                     [r, c], [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]
                 ];
 
                 neighbors.forEach(([nr, nc]) => {
                     if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
-                        board[nr][nc] = 1 - board[nr][nc];
+                        targetBoard[nr][nc] = 1 - targetBoard[nr][nc];
                         if (updateUI) {
                             const lightElement = boardElement.querySelector(`[data-row="${nr}"][data-col="${nc}"]`);
                             if(lightElement) lightElement.classList.toggle('on');
@@ -216,45 +234,55 @@
                 if (allOff) {
                     messageElement.textContent = '모든 불을 껐습니다! 축하합니다!';
                     solveBtn.disabled = true;
+                    resetBtn.disabled = true;
                     boardElement.querySelectorAll('.light').forEach(light => light.style.cursor = 'default');
                 }
             }
 
             function solvePuzzle() {
                 if (isSolving) return;
-                isSolving = true;
-                solveBtn.disabled = true;
-                newGameBtn.disabled = true;
-                messageElement.textContent = '해답을 보여드립니다...';
+                resetBoard(); // Reset to initial state before solving
+                
+                // Short delay to ensure board is rendered before animation starts
+                setTimeout(() => {
+                    isSolving = true;
+                    solveBtn.disabled = true;
+                    newGameBtn.disabled = true;
+                    resetBtn.disabled = true;
+                    messageElement.textContent = '해답을 보여드립니다...';
 
-                const presses = Array.from(solutionPresses);
-                let i = 0;
+                    const presses = Array.from(solutionPresses);
+                    let i = 0;
 
-                function pressNext() {
-                    if (i >= presses.length) {
-                        isSolving = false;
-                        newGameBtn.disabled = false;
-                        checkWin(); // Should show win message
-                        return;
+                    function pressNext() {
+                        if (i >= presses.length) {
+                            isSolving = false;
+                            newGameBtn.disabled = false;
+                            // The board is now solved, checkWin will show the success message
+                            checkWin(); 
+                            return;
+                        }
+                        const [r, c] = presses[i].split(',').map(Number);
+                        const lightElement = boardElement.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                        
+                        if(lightElement) lightElement.classList.add('solving');
+                        
+                        setTimeout(() => {
+                            toggleLights(r, c, board, true);
+                            if(lightElement) lightElement.classList.remove('solving');
+                            i++;
+                            pressNext();
+                        }, 500); // Increased delay
                     }
-                    const [r, c] = presses[i].split(',').map(Number);
-                    const lightElement = boardElement.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    
-                    lightElement.classList.add('solving');
-                    setTimeout(() => {
-                        toggleLights(r, c, true);
-                        lightElement.classList.remove('solving');
-                        i++;
-                        pressNext();
-                    }, 300);
-                }
-                pressNext();
+                    pressNext();
+                }, 100);
             }
 
-            newGameBtn.addEventListener('click', createBoard);
+            newGameBtn.addEventListener('click', startNewGame);
+            resetBtn.addEventListener('click', resetBoard);
             solveBtn.addEventListener('click', solvePuzzle);
 
-            createBoard(); // Initialize game on load
+            startNewGame();
         });
     </script>
 </body>

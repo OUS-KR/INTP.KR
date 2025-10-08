@@ -3,89 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>암호 해독 (크립토그램)</title>
+    <title>암호 해독 (Code Breaker)</title>
     <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-        #cryptogram-quote {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 800px;
-            font-size: 1.4em;
-            letter-spacing: 2px;
-            text-align: center;
-        }
-        .char-wrapper {
-            display: inline-block;
-            text-align: center;
-            margin: 0 2px;
-            min-width: 20px;
-        }
-        .cipher-char {
-            font-weight: bold;
-            color: var(--h-color);
-            display: block;
-        }
-        .plain-char {
-            border-bottom: 2px solid var(--text-color);
-            min-height: 24px;
-            display: block;
-            color: var(--success-color);
-            font-weight: normal;
-        }
-        .mapping-container {
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 20px;
-        }
-        .alphabet-bar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-            padding: 10px;
-            border-radius: 8px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-        }
-        .alphabet-bar:first-child { margin-bottom: 10px; }
-        .alphabet-char {
-            width: 35px;
-            height: 35px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            border: 1px solid var(--card-border);
-            transition: background-color 0.2s, color 0.2s;
-        }
-        .alphabet-char:hover { background-color: var(--nav-link-hover); }
-        .alphabet-char.selected { background-color: var(--h-color); color: var(--card-bg); }
-        .alphabet-char.used { background-color: var(--card-border); color: var(--text-secondary-color); cursor: not-allowed; }
+        .game-board { margin-top: 20px; }
+        .guess-row { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+        .guess-pegs { display: flex; gap: 10px; }
+        .peg { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--card-border); }
+        .feedback-pegs { display: flex; gap: 5px; margin-left: 20px; width: 50px; flex-wrap: wrap; }
+        .feedback-peg { width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--text-color); }
+        .black-peg { background-color: black; }
+        .white-peg { background-color: white; }
+        
         .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-        #message {
-            width: 100%;
             text-align: center;
-            margin-top: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-            min-height: 25px;
+            margin: 20px 0;
+        }
+        .controls button {
+            padding: 10px 25px;
+            font-size: 1.1em;
+            margin: 0 10px;
+            min-width: 100px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        #submit-guess-btn {
+            background-color: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+        }
+        #clear-guess-btn {
+            background-color: var(--secondary-bg);
+        }
+
+        .color-palette { margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .color-btn { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+        .color-btn.selected { border-color: var(--nav-link-hover); }
+        
+        .secret-code-container { text-align: center; margin-bottom: 15px; }
+        .secret-peg { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background-color: var(--card-border); margin: 0 5px; }
+        .hidden { background-color: var(--h-color) !important; }
+
+        @media (max-width: 480px) {
+            .peg, .secret-peg { width: 35px; height: 35px; }
+            .color-btn { width: 40px; height: 40px; }
+            .controls button {
+                width: 40%;
+                padding: 12px 10px;
+                font-size: 1em; /* Ensure font is readable */
+            }
         }
     </style>
 </head>
@@ -147,225 +113,188 @@
         </div>
     </header>
     <div class="container">
-        <h1>암호 해독 (크립토그램)</h1>
-        <p style="text-align:center;">암호문을 보고 글자 치환 규칙을 추리하여 원본 메시지를 찾아보세요.</p>
+        <h1>암호 해독 (Code Breaker)</h1>
+        <p style="text-align:center;">컴퓨터가 생성한 4가지 색상의 비밀 코드를 맞춰보세요.<br>정답과 색상 및 위치가 모두 같으면 검은색, 색상만 같으면 흰색 힌트가 주어집니다.</p>
         
-        <div class="game-container">
-            <div id="cryptogram-quote"></div>
-            <div class="mapping-container">
-                <p style="text-align:center; margin-bottom: 5px;"><b>암호 글자</b> (클릭하여 선택)</p>
-                <div id="cipher-alphabet" class="alphabet-bar"></div>
-                <p style="text-align:center; margin-top: 15px; margin-bottom: 5px;"><b>원본 글자</b> (선택된 암호 글자에 매핑)</p>
-                <div id="plain-alphabet" class="alphabet-bar"></div>
-            </div>
-            <div class="controls">
-                <button id="check-btn" class="btn btn-primary">정답 확인</button>
-                <button id="hint-btn" class="btn">힌트</button>
-                <button id="reset-btn" class="btn">초기화</button>
-                <button id="next-puzzle-btn" class="btn" style="display: none;">다음 문제</button>
-            </div>
-            <div id="message"></div>
+        <div class="secret-code-container" id="secret-code-container"></div>
+        <div class="game-board" id="game-board"></div>
+        
+        <div class="controls">
+            <button id="submit-guess-btn">제출</button>
+            <button id="clear-guess-btn">지우기</button>
+        </div>
+
+        <div class="color-palette" id="color-palette"></div>
+        <div id="message" class="message" style="margin-top: 20px;"></div>
+        <div style="text-align:center; margin-top:20px;">
+            <button id="new-game-btn" class="btn btn-primary">새 게임</button>
         </div>
     </div>
 
     <script src="/assets/js/main.js" defer></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const quoteElement = document.getElementById('cryptogram-quote');
-            const cipherAlphabetElement = document.getElementById('cipher-alphabet');
-            const plainAlphabetElement = document.getElementById('plain-alphabet');
-            const checkBtn = document.getElementById('check-btn');
-            const resetBtn = document.getElementById('reset-btn');
-            const hintBtn = document.getElementById('hint-btn');
-            const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
-            const messageElement = document.getElementById('message');
+    document.addEventListener('DOMContentLoaded', () => {
+        const board = document.getElementById('game-board');
+        const paletteContainer = document.getElementById('color-palette');
+        const message = document.getElementById('message');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const secretContainer = document.getElementById('secret-code-container');
+        const submitGuessBtn = document.getElementById('submit-guess-btn');
+        const clearGuessBtn = document.getElementById('clear-guess-btn');
 
-            const quotes = [
-                "가는 날이 장날이다",
-                "세 살 버릇 여든까지 간다",
-                "아는 길도 물어가라",
-                "백지장도 맞들면 낫다",
-                "시작이 반이다",
-                "천 리 길도 한 걸음부터",
-                "낮말은 새가 듣고 밤말은 쥐가 듣는다",
-                "등잔 밑이 어둡다",
-                "말 한마디로 천 냥 빚을 갚는다",
-                "원숭이도 나무에서 떨어진다"
-            ];
+        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e67e22'];
+        const codeLength = 4;
+        const maxGuesses = 10;
+        let secretCode = [];
+        let currentGuess = [];
+        let currentRow;
+        let guessCount = 0;
 
-            let currentQuote = '';
-            let substitutionMap = {};
-            let userMap = {};
-            let selectedCipherChar = null;
-
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-
-            function createPuzzle() {
-                currentQuote = quotes[Math.floor(Math.random() * quotes.length)];
-                const uniqueChars = [...new Set(currentQuote.replace(/ /g, ''))];
-                const shuffledChars = shuffle([...uniqueChars]);
-                
-                substitutionMap = {};
-                uniqueChars.forEach((char, i) => {
-                    substitutionMap[char] = shuffledChars[i];
-                });
-
-                userMap = {};
-                selectedCipherChar = null;
-                messageElement.textContent = '';
-                nextPuzzleBtn.style.display = 'none';
-                checkBtn.style.display = 'inline-block';
-                resetBtn.style.display = 'inline-block';
-                hintBtn.style.display = 'inline-block';
-
-                renderPuzzle();
-                updateMappingUI();
-            }
-
-            function renderPuzzle() {
-                quoteElement.innerHTML = '';
-                currentQuote.split('').forEach(char => {
-                    const wrapper = document.createElement('span');
-                    wrapper.className = 'char-wrapper';
-                    if (char === ' ') {
-                        wrapper.innerHTML = `<span class="cipher-char" style="opacity:0;"> </span><span class="plain-char"> </span>`;
-                    } else {
-                        const encryptedChar = substitutionMap[char];
-                        wrapper.innerHTML = `<span class="cipher-char">${encryptedChar}</span><span class="plain-char" data-original="${encryptedChar}">&nbsp;</span>`;
-                    }
-                    quoteElement.appendChild(wrapper);
-                });
-            }
-
-            function updateMappingUI() {
-                const uniqueChars = [...new Set(currentQuote.replace(/ /g, ''))];
-                const cipherChars = uniqueChars.map(c => substitutionMap[c]).sort();
-
-                cipherAlphabetElement.innerHTML = '';
-                cipherChars.forEach(c => {
-                    const charDiv = document.createElement('div');
-                    charDiv.className = 'alphabet-char';
-                    charDiv.textContent = c;
-                    charDiv.dataset.cipher = c;
-                    if (userMap[c]) {
-                        charDiv.textContent = `${c}→${userMap[c]}`;
-                        charDiv.classList.add('used');
-                    }
-                    if (selectedCipherChar === c) charDiv.classList.add('selected');
-                    cipherAlphabetElement.appendChild(charDiv);
-                });
-
-                plainAlphabetElement.innerHTML = '';
-                const usedPlainChars = Object.values(userMap);
-                uniqueChars.sort().forEach(c => {
-                    const charDiv = document.createElement('div');
-                    charDiv.className = 'alphabet-char';
-                    charDiv.textContent = c;
-                    charDiv.dataset.plain = c;
-                    if (usedPlainChars.includes(c)) charDiv.classList.add('used');
-                    plainAlphabetElement.appendChild(charDiv);
-                });
-                updatePuzzleDisplay();
-            }
-
-            function updatePuzzleDisplay() {
-                 document.querySelectorAll('#cryptogram-quote .plain-char').forEach(span => {
-                    const originalCipher = span.dataset.original;
-                    if (originalCipher && userMap[originalCipher]) {
-                        span.textContent = userMap[originalCipher];
-                    } else {
-                        span.innerHTML = '&nbsp;';
-                    }
-                });
-            }
-
-            cipherAlphabetElement.addEventListener('click', e => {
-                const target = e.target.closest('.alphabet-char');
-                if (!target) return;
-                const cipher = target.dataset.cipher;
-                if (userMap[cipher]) {
-                    delete userMap[cipher];
-                    selectedCipherChar = null;
-                } else {
-                    selectedCipherChar = cipher;
-                }
-                updateMappingUI();
+        function setupPalette() {
+            paletteContainer.innerHTML = '';
+            colors.forEach(color => {
+                const colorBtn = document.createElement('div');
+                colorBtn.className = 'color-btn';
+                colorBtn.style.backgroundColor = color;
+                colorBtn.addEventListener('click', () => selectColor(color));
+                paletteContainer.appendChild(colorBtn);
             });
+        }
 
-            plainAlphabetElement.addEventListener('click', e => {
-                const target = e.target.closest('.alphabet-char');
-                if (!target || target.classList.contains('used') || !selectedCipherChar) return;
-                const plain = target.dataset.plain;
-                userMap[selectedCipherChar] = plain;
-                selectedCipherChar = null;
-                updateMappingUI();
-            });
+        function selectColor(color) {
+            if (currentGuess.length >= codeLength) return;
+            currentGuess.push(color);
+            const peg = currentRow.querySelector(`.peg:nth-child(${currentGuess.length})`);
+            peg.style.backgroundColor = color;
+        }
+        
+        function clearGuess() {
+            currentGuess = [];
+            if (currentRow) {
+                currentRow.querySelectorAll('.peg').forEach(p => p.style.backgroundColor = '');
+            }
+        }
 
-            function checkSolution() {
-                let decryptedString = '';
-                currentQuote.split('').forEach(char => {
-                    if (char === ' ') {
-                        decryptedString += ' ';
-                    } else {
-                        const encryptedChar = substitutionMap[char];
-                        decryptedString += userMap[encryptedChar] || '?';
-                    }
-                });
+        function createGuessRow() {
+            if (guessCount >= maxGuesses) return null;
+            guessCount++;
+            const row = document.createElement('div');
+            row.className = 'guess-row';
+            
+            let pegsHTML = '';
+            for(let i = 0; i < codeLength; i++) {
+                pegsHTML += '<div class="peg"></div>';
+            }
+            
+            row.innerHTML = `
+                <div class="guess-pegs">${pegsHTML}</div>
+                <div class="feedback-pegs"></div>
+            `;
+            board.appendChild(row);
+            return row;
+        }
 
-                if (decryptedString === currentQuote) {
-                    messageElement.textContent = '정답입니다! 완벽하게 해독했습니다!';
-                    messageElement.style.color = 'var(--success-color)';
-                    nextPuzzleBtn.style.display = 'inline-block';
-                    checkBtn.style.display = 'none';
-                    hintBtn.style.display = 'none';
-                } else {
-                    messageElement.textContent = '아직 미완성입니다. 다시 확인해보세요.';
-                    messageElement.style.color = 'var(--error-color)';
+        function submitGuess() {
+            if (currentGuess.length !== codeLength) {
+                message.textContent = '4개의 색상을 모두 선택해야 합니다.';
+                return;
+            }
+            message.textContent = '';
+
+            const feedback = getFeedback(currentGuess);
+            const feedbackContainer = currentRow.querySelector('.feedback-pegs');
+            feedbackContainer.innerHTML = '';
+            
+            feedback.black.forEach(() => feedbackContainer.innerHTML += '<div class="feedback-peg black-peg"></div>');
+            feedback.white.forEach(() => feedbackContainer.innerHTML += '<div class="feedback-peg white-peg"></div>');
+
+            if (feedback.black.length === codeLength) {
+                message.textContent = `축하합니다! ${guessCount}번 만에 코드를 해독했습니다!`;
+                revealSecretCode();
+                endGame();
+                return;
+            }
+
+            if (guessCount >= maxGuesses) {
+                message.textContent = '게임 오버. 비밀 코드는...';
+                revealSecretCode();
+                endGame();
+                return;
+            }
+
+            currentGuess = [];
+            currentRow = createGuessRow();
+        }
+
+        function getFeedback(guess) {
+            let black = [];
+            let white = [];
+            let secretCopy = [...secretCode];
+            let guessCopy = [...guess];
+
+            // Black pegs
+            for (let i = guessCopy.length - 1; i >= 0; i--) {
+                if (guessCopy[i] === secretCopy[i]) {
+                    black.push(1);
+                    secretCopy.splice(i, 1);
+                    guessCopy.splice(i, 1);
                 }
             }
 
-            function showHint() {
-                const reverseMap = {};
-                for (const key in substitutionMap) { reverseMap[substitutionMap[key]] = key; }
-
-                const unsolved = Object.keys(reverseMap).filter(cipher => 
-                    userMap[cipher] !== reverseMap[cipher]
-                );
-
-                if (unsolved.length === 0) {
-                    messageElement.textContent = '모든 글자를 다 찾았습니다!';
-                    return;
+            // White pegs
+            for (let i = 0; i < guessCopy.length; i++) {
+                const foundIndex = secretCopy.indexOf(guessCopy[i]);
+                if (foundIndex !== -1) {
+                    white.push(1);
+                    secretCopy.splice(foundIndex, 1);
                 }
-                const randomCipher = unsolved[Math.floor(Math.random() * unsolved.length)];
-                const correctPlain = reverseMap[randomCipher];
-                
-                // Clear any existing mapping for the revealed pair
-                for(const key in userMap) {
-                    if(userMap[key] === correctPlain) delete userMap[key];
-                }
-                userMap[randomCipher] = correctPlain;
-                selectedCipherChar = null;
-                updateMappingUI();
+            }
+            return { black, white };
+        }
+        
+        function revealSecretCode() {
+            secretContainer.innerHTML = '';
+            secretCode.forEach(color => {
+                const peg = document.createElement('div');
+                peg.className = 'secret-peg';
+                peg.style.backgroundColor = color;
+                secretContainer.appendChild(peg);
+            });
+        }
+
+        function endGame() {
+            paletteContainer.innerHTML = '';
+            submitGuessBtn.disabled = true;
+            clearGuessBtn.disabled = true;
+        }
+
+        function newGame() {
+            secretCode = Array.from({length: codeLength}, () => colors[Math.floor(Math.random() * colors.length)]);
+            guessCount = 0;
+            board.innerHTML = '';
+            message.textContent = '';
+            
+            submitGuessBtn.disabled = false;
+            clearGuessBtn.disabled = false;
+
+            secretContainer.innerHTML = '';
+            for(let i=0; i<codeLength; i++) {
+                const peg = document.createElement('div');
+                peg.className = 'secret-peg hidden';
+                secretContainer.appendChild(peg);
             }
 
-            checkBtn.addEventListener('click', checkSolution);
-            resetBtn.addEventListener('click', () => {
-                userMap = {};
-                selectedCipherChar = null;
-                updateMappingUI();
-            });
-            hintBtn.addEventListener('click', showHint);
-            nextPuzzleBtn.addEventListener('click', createPuzzle);
+            setupPalette();
+            currentGuess = [];
+            currentRow = createGuessRow();
+        }
 
-            createPuzzle();
-        });
+        submitGuessBtn.addEventListener('click', submitGuess);
+        clearGuessBtn.addEventListener('click', clearGuess);
+        newGameBtn.addEventListener('click', newGame);
+        
+        newGame();
+    });
     </script>
 </body>
 </html>
->
