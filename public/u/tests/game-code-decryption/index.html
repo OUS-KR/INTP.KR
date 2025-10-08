@@ -148,14 +148,14 @@
     </header>
     <div class="container">
         <h1>암호 해독 (크립토그램)</h1>
-        <p style="text-align:center;">암호문을 보고 알파벳 치환 규칙을 추리하여 원본 메시지를 찾아보세요.</p>
+        <p style="text-align:center;">암호문을 보고 글자 치환 규칙을 추리하여 원본 메시지를 찾아보세요.</p>
         
         <div class="game-container">
             <div id="cryptogram-quote"></div>
             <div class="mapping-container">
-                <p style="text-align:center; margin-bottom: 5px;"><b>암호 알파벳</b> (클릭하여 선택)</p>
+                <p style="text-align:center; margin-bottom: 5px;"><b>암호 글자</b> (클릭하여 선택)</p>
                 <div id="cipher-alphabet" class="alphabet-bar"></div>
-                <p style="text-align:center; margin-top: 15px; margin-bottom: 5px;"><b>원본 알파벳</b> (선택된 암호 알파벳에 매핑)</p>
+                <p style="text-align:center; margin-top: 15px; margin-bottom: 5px;"><b>원본 글자</b> (선택된 암호 글자에 매핑)</p>
                 <div id="plain-alphabet" class="alphabet-bar"></div>
             </div>
             <div class="controls">
@@ -180,17 +180,17 @@
             const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
             const messageElement = document.getElementById('message');
 
-            const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             const quotes = [
-                "LOGIC IS MY PLAYGROUND", "I THINK THEREFORE I AM", "KNOWLEDGE IS POWER",
-                "QUESTION EVERYTHING", "ANALYSIS OVER EMOTION", "THE ARCHITECT OF IDEAS",
-                "CURIOSITY IS MY COMPASS", "PATTERNS EMERGE FROM CHAOS",
-                "A MIND IS A TERRIBLE THING TO WASTE", "INTROVERTED INTUITIVE THINKING PERCEIVING",
-                "THE WORLD IS A COMPLEX SYSTEM TO BE UNDERSTOOD", "I NEED SOLITUDE TO RECHARGE MY MIND",
-                "ENDLESS CURIOSITY FOR THE WIN", "SARCASM IS MY SECOND LANGUAGE",
-                "OVERTHINKING IS MY DEFAULT STATE", "I VALUE PRECISION IN LANGUAGE",
-                "LET THE DATA SPEAK FOR ITSELF", "A GOOD THEORY IS A THING OF BEAUTY",
-                "I LIVE INSIDE MY OWN HEAD", "SMALL TALK IS A NECESSARY EVIL"
+                "가는 날이 장날이다",
+                "세 살 버릇 여든까지 간다",
+                "아는 길도 물어가라",
+                "백지장도 맞들면 낫다",
+                "시작이 반이다",
+                "천 리 길도 한 걸음부터",
+                "낮말은 새가 듣고 밤말은 쥐가 듣는다",
+                "등잔 밑이 어둡다",
+                "말 한마디로 천 냥 빚을 갚는다",
+                "원숭이도 나무에서 떨어진다"
             ];
 
             let currentQuote = '';
@@ -208,10 +208,12 @@
 
             function createPuzzle() {
                 currentQuote = quotes[Math.floor(Math.random() * quotes.length)];
-                const shuffledAlphabet = shuffle([...ALPHABET]);
+                const uniqueChars = [...new Set(currentQuote.replace(/ /g, ''))];
+                const shuffledChars = shuffle([...uniqueChars]);
+                
                 substitutionMap = {};
-                ALPHABET.split('').forEach((char, i) => {
-                    substitutionMap[char] = shuffledAlphabet[i];
+                uniqueChars.forEach((char, i) => {
+                    substitutionMap[char] = shuffledChars[i];
                 });
 
                 userMap = {};
@@ -231,19 +233,19 @@
                 currentQuote.split('').forEach(char => {
                     const wrapper = document.createElement('span');
                     wrapper.className = 'char-wrapper';
-                    if (ALPHABET.includes(char)) {
+                    if (char === ' ') {
+                        wrapper.innerHTML = `<span class="cipher-char" style="opacity:0;"> </span><span class="plain-char"> </span>`;
+                    } else {
                         const encryptedChar = substitutionMap[char];
                         wrapper.innerHTML = `<span class="cipher-char">${encryptedChar}</span><span class="plain-char" data-original="${encryptedChar}">&nbsp;</span>`;
-                    } else {
-                        wrapper.innerHTML = `<span class="cipher-char" style="opacity:0;">${char}</span><span class="plain-char">${char}</span>`;
                     }
                     quoteElement.appendChild(wrapper);
                 });
             }
 
             function updateMappingUI() {
-                const quoteChars = [...new Set(currentQuote.split('').filter(c => ALPHABET.includes(c)))];
-                const cipherChars = quoteChars.map(c => substitutionMap[c]).sort();
+                const uniqueChars = [...new Set(currentQuote.replace(/ /g, ''))];
+                const cipherChars = uniqueChars.map(c => substitutionMap[c]).sort();
 
                 cipherAlphabetElement.innerHTML = '';
                 cipherChars.forEach(c => {
@@ -261,7 +263,7 @@
 
                 plainAlphabetElement.innerHTML = '';
                 const usedPlainChars = Object.values(userMap);
-                ALPHABET.split('').forEach(c => {
+                uniqueChars.sort().forEach(c => {
                     const charDiv = document.createElement('div');
                     charDiv.className = 'alphabet-char';
                     charDiv.textContent = c;
@@ -287,7 +289,7 @@
                 const target = e.target.closest('.alphabet-char');
                 if (!target) return;
                 const cipher = target.dataset.cipher;
-                if (userMap[cipher]) { // If already mapped, clear it
+                if (userMap[cipher]) {
                     delete userMap[cipher];
                     selectedCipherChar = null;
                 } else {
@@ -308,11 +310,11 @@
             function checkSolution() {
                 let decryptedString = '';
                 currentQuote.split('').forEach(char => {
-                    if (ALPHABET.includes(char)) {
+                    if (char === ' ') {
+                        decryptedString += ' ';
+                    } else {
                         const encryptedChar = substitutionMap[char];
                         decryptedString += userMap[encryptedChar] || '?';
-                    } else {
-                        decryptedString += char;
                     }
                 });
 
@@ -329,21 +331,25 @@
             }
 
             function showHint() {
-                const unsolved = Object.keys(substitutionMap).filter(plain => 
-                    !Object.values(userMap).includes(plain)
+                const reverseMap = {};
+                for (const key in substitutionMap) { reverseMap[substitutionMap[key]] = key; }
+
+                const unsolved = Object.keys(reverseMap).filter(cipher => 
+                    userMap[cipher] !== reverseMap[cipher]
                 );
+
                 if (unsolved.length === 0) {
                     messageElement.textContent = '모든 글자를 다 찾았습니다!';
                     return;
                 }
-                const randomPlain = unsolved[Math.floor(Math.random() * unsolved.length)];
-                const correspondingCipher = substitutionMap[randomPlain];
+                const randomCipher = unsolved[Math.floor(Math.random() * unsolved.length)];
+                const correctPlain = reverseMap[randomCipher];
                 
                 // Clear any existing mapping for the revealed pair
                 for(const key in userMap) {
-                    if(userMap[key] === randomPlain) delete userMap[key];
+                    if(userMap[key] === correctPlain) delete userMap[key];
                 }
-                userMap[correspondingCipher] = randomPlain;
+                userMap[randomCipher] = correctPlain;
                 selectedCipherChar = null;
                 updateMappingUI();
             }
