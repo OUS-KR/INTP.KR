@@ -95,7 +95,7 @@
             <button id="validate-btn" class="btn">내 답안 검증</button>
             <button id="hint-btn" class="btn">힌트</button>
             <button id="show-solution-btn" class="btn btn-primary">정답 보기</button>
-            <button id="reset-btn" class="btn">초기화</button>
+            <button id="new-game-btn" class="btn">새로운 퍼즐</button>
         </div>
         <div id="message-container" class="message-box">
             <div id="message"></div>
@@ -109,29 +109,116 @@
         const messageContainer = document.getElementById('message-container');
         const message = document.getElementById('message');
         const validateBtn = document.getElementById('validate-btn');
-        const resetBtn = document.getElementById('reset-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
         const showSolutionBtn = document.getElementById('show-solution-btn');
         const hintBtn = document.getElementById('hint-btn');
         const size = 5;
 
-        const puzzle = [
-            [-1, 2, -1, 3, -1],
-            [2, -1, -1, -1, 3],
-            [-1, 3, -1, 2, -1],
-            [1, -1, -1, -1, 3],
-            [-1, 3, -1, 2, -1]
-        ];
-
-        const solution = {
-            '0,1,1,1': true, '0,3,0,4': true, '0,4,1,4': true, '1,0,2,0': true, 
-            '1,1,1,2': true, '1,2,2,2': true, '1,3,2,3': true, '1,4,1,5': true, 
-            '2,0,3,0': true, '2,2,2,3': true, '2,4,3,4': true, '3,0,4,0': true, 
-            '3,3,3,4': true, '3,4,4,4': true, '4,0,5,0': true, '4,1,5,1': true, 
-            '4,4,4,5': true, '4,4,5,4': true, '5,0,5,1': true, '5,1,5,2': true, 
-            '5,2,5,3': true, '5,3,5,4': true
-        };
-
+        let puzzle;
+        let solution;
         let lines = {};
+
+        function getLineKey({r1, c1, r2, c2}) {
+            r1=parseInt(r1); c1=parseInt(c1); r2=parseInt(r2); c2=parseInt(c2);
+            if (r1 > r2 || (r1 === r2 && c1 > c2)) {
+                return `${r2},${c2},${r1},${c1}`;
+            }
+            return `${r1},${c1},${r2},${c2}`;
+        }
+
+        function generatePuzzle() {
+            let path, newSolution;
+            const minLoopLength = 10; // 최소 루프 길이
+
+            while (true) {
+                const visited = new Set();
+                path = [];
+                newSolution = {};
+                const startR = Math.floor(Math.random() * (size + 1));
+                const startC = Math.floor(Math.random() * (size + 1));
+                const startNode = `${startR},${startC}`;
+
+                let r = startR, c = startC;
+                visited.add(startNode);
+                path.push([r, c]);
+
+                let stuck = false;
+                while (path.length > 0) {
+                    const [currR, currC] = path[path.length - 1];
+                    const neighbors = [];
+                    // Up, Down, Left, Right
+                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+                    dirs.sort(() => Math.random() - 0.5); // Shuffle directions
+
+                    let moved = false;
+                    for (const [dr, dc] of dirs) {
+                        const nextR = currR + dr;
+                        const nextC = currC + dc;
+                        const nextNode = `${nextR},${nextC}`;
+
+                        if (nextR >= 0 && nextR <= size && nextC >= 0 && nextC <= size) {
+                            if (nextR === startR && nextC === startC && path.length > 1) {
+                                path.push([nextR, nextC]);
+                                moved = true;
+                                break;
+                            }
+                            if (!visited.has(nextNode)) {
+                                visited.add(nextNode);
+                                path.push([nextR, nextC]);
+                                moved = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (moved && path[path.length - 1][0] === startR && path[path.length - 1][1] === startC) {
+                        break; // Loop closed
+                    }
+
+                    if (!moved) { // Backtrack
+                        path.pop();
+                    }
+                }
+                
+                if (path.length >= minLoopLength) {
+                    // Check if it's a valid loop by checking the start and end points
+                    const lastNode = path[path.length - 1];
+                    if (lastNode[0] === startR && lastNode[1] === startC) {
+                        break; // Found a good loop
+                    }
+                }
+                // Otherwise, retry generation
+            }
+
+            for (let i = 0; i < path.length - 1; i++) {
+                const [r1, c1] = path[i];
+                const [r2, c2] = path[i+1];
+                newSolution[getLineKey({r1, c1, r2, c2})] = true;
+            }
+
+            const newPuzzle = Array(size).fill(0).map(() => Array(size).fill(-1));
+            let hintCount = 0;
+            const maxHints = Math.floor(size * size * 0.6); // Give hints for ~60% of cells
+
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    let surroundingLines = 0;
+                    if (newSolution[getLineKey({r1:r, c1:c, r2:r, c2:c+1})]) surroundingLines++;
+                    if (newSolution[getLineKey({r1:r+1, c1:c, r2:r+1, c2:c+1})]) surroundingLines++;
+                    if (newSolution[getLineKey({r1:r, c1:c, r2:r+1, c2:c})]) surroundingLines++;
+                    if (newSolution[getLineKey({r1:r, c1:c+1, r2:r+1, c2:c+1})]) surroundingLines++;
+                    
+                    if (Math.random() < 0.6 && hintCount < maxHints) {
+                         newPuzzle[r][c] = surroundingLines;
+                         hintCount++;
+                    } else {
+                        newPuzzle[r][c] = -1;
+                    }
+                }
+            }
+
+            return { puzzle: newPuzzle, solution: newSolution };
+        }
 
         function showMessage(text, color) {
             message.textContent = text;
@@ -180,6 +267,13 @@
             }
         }
 
+        function startNewGame() {
+            const newPuzzleData = generatePuzzle();
+            puzzle = newPuzzleData.puzzle;
+            solution = newPuzzleData.solution;
+            drawGrid();
+        }
+
         function toggleLine(e) {
             hideMessage();
             const line = e.target;
@@ -188,14 +282,6 @@
             const key = getLineKey(line.dataset);
             if (line.classList.contains('drawn')) lines[key] = true;
             else delete lines[key];
-        }
-
-        function getLineKey({r1, c1, r2, c2}) {
-            r1=parseInt(r1); c1=parseInt(c1); r2=parseInt(r2); c2=parseInt(c2);
-            if (r1 > r2 || (r1 === r2 && c1 > c2)) {
-                return `${r2},${c2},${r1},${c1}`;
-            }
-            return `${r1},${c1},${r2},${c2}`;
         }
 
         function validateSolution() {
@@ -208,7 +294,7 @@
                     if (lines[getLineKey({r1:r, c1:c, r2:r+1, c2:c})]) surroundingLines++;
                     if (lines[getLineKey({r1:r, c1:c+1, r2:r+1, c2:c+1})]) surroundingLines++;
                     if (surroundingLines !== puzzle[r][c]) {
-                        showMessage(`(${r}, ${c}) 셀의 힌트(${puzzle[r][c]})가 맞지 않습니다.`, 'var(--error-color)');
+                        showMessage(`(${r + 1}, ${c + 1}) 셀의 힌트(${puzzle[r][c]})가 맞지 않습니다.`, 'var(--error-color)');
                         return;
                     }
                 }
@@ -276,11 +362,11 @@
         }
 
         validateBtn.addEventListener('click', validateSolution);
-        resetBtn.addEventListener('click', drawGrid);
+        newGameBtn.addEventListener('click', startNewGame);
         showSolutionBtn.addEventListener('click', showSolution);
         hintBtn.addEventListener('click', showHint);
 
-        drawGrid();
+        startNewGame();
     });
     </script>
 </body>
