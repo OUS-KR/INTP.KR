@@ -255,10 +255,14 @@
 
                     function pressNext() {
                         if (i >= presses.length) {
-                            isSolving = false;
-                            newGameBtn.disabled = false;
-                            resetBtn.disabled = false;
-                            checkWin();
+                            messageElement.textContent = '해답을 확인했습니다. 이제 직접 풀어보세요!';
+                            setTimeout(() => {
+                                isSolving = false;
+                                newGameBtn.disabled = false;
+                                resetBtn.disabled = false;
+                                solveBtn.disabled = false;
+                                resetBoard();
+                            }, 1500);
                             return;
                         }
                         const [r, c] = presses[i].split(',').map(Number);
@@ -271,7 +275,7 @@
                             if(lightElement) lightElement.classList.remove('solving');
                             i++;
                             pressNext();
-                        }, 1000);
+                        }, 2000);
                     }
                     pressNext();
                 }, 100);
