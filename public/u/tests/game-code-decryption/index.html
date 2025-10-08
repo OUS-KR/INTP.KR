@@ -42,37 +42,37 @@
             color: var(--success-color);
             font-weight: normal;
         }
-        #alphabet-mapping {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-            gap: 10px;
+        .mapping-container {
             width: 100%;
             max-width: 800px;
             margin-bottom: 20px;
         }
-        .mapping-item {
+        .alphabet-bar {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px;
+            border-radius: 8px;
             background-color: var(--card-bg);
-            padding: 5px;
-            border-radius: 5px;
             border: 1px solid var(--card-border);
         }
-        .mapping-item label {
+        .alphabet-bar:first-child { margin-bottom: 10px; }
+        .alphabet-char {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             font-weight: bold;
-        }
-        .mapping-item input {
-            width: 30px;
-            height: 30px;
-            text-align: center;
-            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
             border: 1px solid var(--card-border);
-            background-color: var(--container-bg);
-            color: var(--text-color);
-            border-radius: 4px;
-            text-transform: uppercase;
+            transition: background-color 0.2s, color 0.2s;
         }
+        .alphabet-char:hover { background-color: var(--nav-link-hover); }
+        .alphabet-char.selected { background-color: var(--h-color); color: var(--card-bg); }
+        .alphabet-char.used { background-color: var(--card-border); color: var(--text-secondary-color); cursor: not-allowed; }
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -152,11 +152,16 @@
         
         <div class="game-container">
             <div id="cryptogram-quote"></div>
-            <div id="alphabet-mapping"></div>
+            <div class="mapping-container">
+                <p style="text-align:center; margin-bottom: 5px;"><b>암호 알파벳</b> (클릭하여 선택)</p>
+                <div id="cipher-alphabet" class="alphabet-bar"></div>
+                <p style="text-align:center; margin-top: 15px; margin-bottom: 5px;"><b>원본 알파벳</b> (선택된 암호 알파벳에 매핑)</p>
+                <div id="plain-alphabet" class="alphabet-bar"></div>
+            </div>
             <div class="controls">
                 <button id="check-btn" class="btn btn-primary">정답 확인</button>
+                <button id="hint-btn" class="btn">힌트</button>
                 <button id="reset-btn" class="btn">초기화</button>
-                <button id="reveal-btn" class="btn">정답 공개</button>
                 <button id="next-puzzle-btn" class="btn" style="display: none;">다음 문제</button>
             </div>
             <div id="message"></div>
@@ -167,40 +172,31 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const quoteElement = document.getElementById('cryptogram-quote');
-            const mappingElement = document.getElementById('alphabet-mapping');
+            const cipherAlphabetElement = document.getElementById('cipher-alphabet');
+            const plainAlphabetElement = document.getElementById('plain-alphabet');
             const checkBtn = document.getElementById('check-btn');
             const resetBtn = document.getElementById('reset-btn');
-            const revealBtn = document.getElementById('reveal-btn');
+            const hintBtn = document.getElementById('hint-btn');
             const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
             const messageElement = document.getElementById('message');
 
             const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             const quotes = [
-                "LOGIC IS MY PLAYGROUND",
-                "I THINK THEREFORE I AM",
-                "KNOWLEDGE IS POWER",
-                "QUESTION EVERYTHING",
-                "ANALYSIS OVER EMOTION",
-                "THE ARCHITECT OF IDEAS",
-                "CURIOSITY IS MY COMPASS",
-                "PATTERNS EMERGE FROM CHAOS",
-                "A MIND IS A TERRIBLE THING TO WASTE",
-                "INTROVERTED INTUITIVE THINKING PERCEIVING",
-                "THE WORLD IS A COMPLEX SYSTEM TO BE UNDERSTOOD",
-                "I NEED SOLITUDE TO RECHARGE MY MIND",
-                "ENDLESS CURIOSITY FOR THE WIN",
-                "SARCASM IS MY SECOND LANGUAGE",
-                "OVERTHINKING IS MY DEFAULT STATE",
-                "I VALUE PRECISION IN LANGUAGE",
-                "LET THE DATA SPEAK FOR ITSELF",
-                "A GOOD THEORY IS A THING OF BEAUTY",
-                "I LIVE INSIDE MY OWN HEAD",
-                "SMALL TALK IS A NECESSARY EVIL"
+                "LOGIC IS MY PLAYGROUND", "I THINK THEREFORE I AM", "KNOWLEDGE IS POWER",
+                "QUESTION EVERYTHING", "ANALYSIS OVER EMOTION", "THE ARCHITECT OF IDEAS",
+                "CURIOSITY IS MY COMPASS", "PATTERNS EMERGE FROM CHAOS",
+                "A MIND IS A TERRIBLE THING TO WASTE", "INTROVERTED INTUITIVE THINKING PERCEIVING",
+                "THE WORLD IS A COMPLEX SYSTEM TO BE UNDERSTOOD", "I NEED SOLITUDE TO RECHARGE MY MIND",
+                "ENDLESS CURIOSITY FOR THE WIN", "SARCASM IS MY SECOND LANGUAGE",
+                "OVERTHINKING IS MY DEFAULT STATE", "I VALUE PRECISION IN LANGUAGE",
+                "LET THE DATA SPEAK FOR ITSELF", "A GOOD THEORY IS A THING OF BEAUTY",
+                "I LIVE INSIDE MY OWN HEAD", "SMALL TALK IS A NECESSARY EVIL"
             ];
 
             let currentQuote = '';
             let substitutionMap = {};
             let userMap = {};
+            let selectedCipherChar = null;
 
             function shuffle(array) {
                 for (let i = array.length - 1; i > 0; i--) {
@@ -219,56 +215,65 @@
                 });
 
                 userMap = {};
+                selectedCipherChar = null;
                 messageElement.textContent = '';
                 nextPuzzleBtn.style.display = 'none';
                 checkBtn.style.display = 'inline-block';
                 resetBtn.style.display = 'inline-block';
-                revealBtn.style.display = 'inline-block';
+                hintBtn.style.display = 'inline-block';
 
                 renderPuzzle();
-                renderMappingInputs();
+                updateMappingUI();
             }
 
             function renderPuzzle() {
                 quoteElement.innerHTML = '';
                 currentQuote.split('').forEach(char => {
+                    const wrapper = document.createElement('span');
+                    wrapper.className = 'char-wrapper';
                     if (ALPHABET.includes(char)) {
                         const encryptedChar = substitutionMap[char];
-                        const wrapper = document.createElement('span');
-                        wrapper.className = 'char-wrapper';
                         wrapper.innerHTML = `<span class="cipher-char">${encryptedChar}</span><span class="plain-char" data-original="${encryptedChar}">&nbsp;</span>`;
-                        quoteElement.appendChild(wrapper);
                     } else {
-                        const wrapper = document.createElement('span');
-                        wrapper.className = 'char-wrapper';
-                        wrapper.innerHTML = `<span class="cipher-char">${char}</span><span class="plain-char">&nbsp;</span>`;
-                        quoteElement.appendChild(wrapper);
+                        wrapper.innerHTML = `<span class="cipher-char" style="opacity:0;">${char}</span><span class="plain-char">${char}</span>`;
                     }
+                    quoteElement.appendChild(wrapper);
                 });
             }
 
-            function renderMappingInputs() {
-                mappingElement.innerHTML = '';
-                ALPHABET.split('').forEach(char => {
-                    const item = document.createElement('div');
-                    item.className = 'mapping-item';
-                    const inputId = `map-input-${char}`;
-                    item.innerHTML = `<label for="${inputId}">${char} →</label><input type="text" id="${inputId}" data-char="${char}" maxlength="1">`;
-                    mappingElement.appendChild(item);
+            function updateMappingUI() {
+                const quoteChars = [...new Set(currentQuote.split('').filter(c => ALPHABET.includes(c)))];
+                const cipherChars = quoteChars.map(c => substitutionMap[c]).sort();
+
+                cipherAlphabetElement.innerHTML = '';
+                cipherChars.forEach(c => {
+                    const charDiv = document.createElement('div');
+                    charDiv.className = 'alphabet-char';
+                    charDiv.textContent = c;
+                    charDiv.dataset.cipher = c;
+                    if (userMap[c]) {
+                        charDiv.textContent = `${c}→${userMap[c]}`;
+                        charDiv.classList.add('used');
+                    }
+                    if (selectedCipherChar === c) charDiv.classList.add('selected');
+                    cipherAlphabetElement.appendChild(charDiv);
                 });
+
+                plainAlphabetElement.innerHTML = '';
+                const usedPlainChars = Object.values(userMap);
+                ALPHABET.split('').forEach(c => {
+                    const charDiv = document.createElement('div');
+                    charDiv.className = 'alphabet-char';
+                    charDiv.textContent = c;
+                    charDiv.dataset.plain = c;
+                    if (usedPlainChars.includes(c)) charDiv.classList.add('used');
+                    plainAlphabetElement.appendChild(charDiv);
+                });
+                updatePuzzleDisplay();
             }
 
-            function handleMappingUpdate() {
-                userMap = {};
-                document.querySelectorAll('#alphabet-mapping input').forEach(input => {
-                    const cipherChar = input.dataset.char;
-                    const plainChar = input.value.toUpperCase();
-                    if (plainChar && ALPHABET.includes(plainChar)) {
-                        userMap[cipherChar] = plainChar;
-                    }
-                });
-
-                document.querySelectorAll('#cryptogram-quote .plain-char').forEach(span => {
+            function updatePuzzleDisplay() {
+                 document.querySelectorAll('#cryptogram-quote .plain-char').forEach(span => {
                     const originalCipher = span.dataset.original;
                     if (originalCipher && userMap[originalCipher]) {
                         span.textContent = userMap[originalCipher];
@@ -278,12 +283,34 @@
                 });
             }
 
+            cipherAlphabetElement.addEventListener('click', e => {
+                const target = e.target.closest('.alphabet-char');
+                if (!target) return;
+                const cipher = target.dataset.cipher;
+                if (userMap[cipher]) { // If already mapped, clear it
+                    delete userMap[cipher];
+                    selectedCipherChar = null;
+                } else {
+                    selectedCipherChar = cipher;
+                }
+                updateMappingUI();
+            });
+
+            plainAlphabetElement.addEventListener('click', e => {
+                const target = e.target.closest('.alphabet-char');
+                if (!target || target.classList.contains('used') || !selectedCipherChar) return;
+                const plain = target.dataset.plain;
+                userMap[selectedCipherChar] = plain;
+                selectedCipherChar = null;
+                updateMappingUI();
+            });
+
             function checkSolution() {
                 let decryptedString = '';
                 currentQuote.split('').forEach(char => {
                     if (ALPHABET.includes(char)) {
                         const encryptedChar = substitutionMap[char];
-                        decryptedString += userMap[encryptedChar] || '';
+                        decryptedString += userMap[encryptedChar] || '?';
                     } else {
                         decryptedString += char;
                     }
@@ -294,37 +321,40 @@
                     messageElement.style.color = 'var(--success-color)';
                     nextPuzzleBtn.style.display = 'inline-block';
                     checkBtn.style.display = 'none';
-                    resetBtn.style.display = 'none';
-                    revealBtn.style.display = 'none';
+                    hintBtn.style.display = 'none';
                 } else {
                     messageElement.textContent = '아직 미완성입니다. 다시 확인해보세요.';
                     messageElement.style.color = 'var(--error-color)';
                 }
             }
 
-            function resetInputs() {
-                document.querySelectorAll('#alphabet-mapping input').forEach(input => input.value = '');
-                handleMappingUpdate();
-                messageElement.textContent = '';
-            }
-
-            function revealAnswer() {
-                const reverseMap = {};
-                for (const key in substitutionMap) {
-                    reverseMap[substitutionMap[key]] = key;
+            function showHint() {
+                const unsolved = Object.keys(substitutionMap).filter(plain => 
+                    !Object.values(userMap).includes(plain)
+                );
+                if (unsolved.length === 0) {
+                    messageElement.textContent = '모든 글자를 다 찾았습니다!';
+                    return;
                 }
-                document.querySelectorAll('#alphabet-mapping input').forEach(input => {
-                    const cipherChar = input.dataset.char;
-                    input.value = reverseMap[cipherChar] || '';
-                });
-                handleMappingUpdate();
-                checkSolution();
+                const randomPlain = unsolved[Math.floor(Math.random() * unsolved.length)];
+                const correspondingCipher = substitutionMap[randomPlain];
+                
+                // Clear any existing mapping for the revealed pair
+                for(const key in userMap) {
+                    if(userMap[key] === randomPlain) delete userMap[key];
+                }
+                userMap[correspondingCipher] = randomPlain;
+                selectedCipherChar = null;
+                updateMappingUI();
             }
 
-            mappingElement.addEventListener('input', handleMappingUpdate);
             checkBtn.addEventListener('click', checkSolution);
-            resetBtn.addEventListener('click', resetInputs);
-            revealBtn.addEventListener('click', revealAnswer);
+            resetBtn.addEventListener('click', () => {
+                userMap = {};
+                selectedCipherChar = null;
+                updateMappingUI();
+            });
+            hintBtn.addEventListener('click', showHint);
             nextPuzzleBtn.addEventListener('click', createPuzzle);
 
             createPuzzle();
