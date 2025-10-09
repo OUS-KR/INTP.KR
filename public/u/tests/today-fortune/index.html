@@ -6,40 +6,11 @@
     <title>오늘의 운세 - INTP</title>
     <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        .fortune-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5em;
-            margin-top: 2em;
-        }
-        .fortune-section {
-            margin-bottom: 0;
-            padding: 1.5em;
-            border-radius: 8px;
-            background-color: var(--card-bg-color);
-            box-shadow: var(--card-shadow);
-            display: flex;
-            flex-direction: column;
-        }
-        .fortune-section h2 {
-            color: var(--primary-color);
-            margin-top: 0;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5em;
-            margin-bottom: 1em;
-            display: flex;
-            align-items: center;
-        }
-        .fortune-section h2 .icon {
+        /* Custom styles are now handled by main.css through .info-card */
+        .card-title .icon {
             display: inline-block;
             margin-right: 0.5em;
             font-style: normal;
-            font-size: 1.2em;
-        }
-        .fortune-section p {
-            font-size: 1.1em;
-            line-height: 1.6;
-            flex-grow: 1;
         }
     </style>
 </head>
@@ -98,21 +69,21 @@
 
     <div class="container">
         <h1>오늘의 INTP 운세</h1>
-        <div id="fortuneContent" class="fortune-grid">
-            <div class="fortune-section">
-                <h2><span class="icon">💡</span> 오늘의 조언</h2>
+        <div id="fortuneContent">
+            <div class="card info-card">
+                <div class="card-title"><span class="icon">💡</span> 오늘의 조언</div>
                 <p id="adviceDisplay">조언을 불러오는 중...</p>
             </div>
-            <div class="fortune-section">
-                <h2><span class="icon">📝</span> 오늘의 과제</h2>
+            <div class="card info-card">
+                <div class="card-title"><span class="icon">📝</span> 오늘의 과제</div>
                 <p id="taskDisplay">과제를 불러오는 중...</p>
             </div>
-            <div class="fortune-section">
-                <h2><span class="icon">📈</span> INTP 지수</h2>
+            <div class="card info-card">
+                <div class="card-title"><span class="icon">📈</span> INTP 지수</div>
                 <p id="intpIndexDisplay">INTP 지수를 불러오는 중...</p>
             </div>
-            <div class="fortune-section">
-                <h2><span class="icon">🔑</span> 행운의 키워드</h2>
+            <div class="card info-card">
+                <div class="card-title"><span class="icon">🔑</span> 행운의 키워드</div>
                 <p id="keywordDisplay">키워드를 불러오는 중...</p>
             </div>
         </div>
