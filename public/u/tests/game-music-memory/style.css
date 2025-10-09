@@ -128,7 +128,7 @@
     white-space: nowrap; /* Prevent text wrapping */
     background-color: var(--card-bg); /* Default background */
     color: var(--text-color); /* Default text color */
-    border-color: var(--h-color); /* Default border */
+    border: 2px solid var(--h-color); /* Explicitly add border */
 }
 
 #shuffle-all-label:hover {

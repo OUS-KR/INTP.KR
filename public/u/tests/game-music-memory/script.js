@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card2.classList.add('matched');
             matchedPairs++;
             resetFlippedCards(); // This will unlock the board
-            if (matchedPairs === 6) {
+            if (matchedPairs === cards.length / 2) {
                 endGame();
             }
         } else {

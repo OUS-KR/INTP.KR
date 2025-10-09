@@ -384,13 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Event Listeners
-    loadSongBtn.addEventListener('click', async () => {
-        const selectedSongId = songSelect.value;
-        currentSong = allMusicData.find(song => song.id === selectedSongId);
-        if (currentSong) {
-            await loadBeatmap(currentSong.id);
-        }
-    });
+    
     startBtn.addEventListener('click', startGame);
     pauseBtn.addEventListener('click', pauseGame);
     resumeBtn.addEventListener('click', resumeGame);
