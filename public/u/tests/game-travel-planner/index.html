@@ -393,6 +393,17 @@
                 totalSatisfaction += tempSelectedItems[category].satisfaction;
             }
 
+            let synergyBonus = 0;
+            let synergyText = '';
+            const city = tempSelectedItems.city;
+            const activity = tempSelectedItems.activity;
+
+            if (city && activity && city.type === activity.type) {
+                synergyBonus = 20; // Synergy bonus points
+                totalSatisfaction += synergyBonus;
+                synergyText = `<br><strong style="color: var(--nav-link-hover);">시너지 보너스!</strong> '도시'와 '활동'의 타입(${typeTranslations[city.type] || city.type})이 일치하여 만족도 +${synergyBonus}점을 얻었습니다!`;
+            }
+
             let success = false;
             let resultText = '';
             const valueScore = totalCost > 0 ? Math.round((totalSatisfaction / totalCost) * 100000) : 0;
@@ -426,7 +437,7 @@
                     break;
             }
 
-            messageElement.innerHTML = resultText;
+            messageElement.innerHTML = resultText + synergyText;
             messageElement.style.color = success ? 'var(--success-color)' : 'var(--error-color)';
         });
 

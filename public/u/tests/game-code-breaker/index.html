@@ -20,9 +20,9 @@
         .guess-pegs { display: flex; gap: 10px; }
         .peg { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--card-border); background-color: var(--secondary-bg); }
         .feedback-pegs { display: flex; gap: 5px; width: 50px; flex-wrap: wrap; }
-        .feedback-peg { width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--text-color); }
-        .black-peg { background-color: var(--h-color); }
-        .white-peg { background-color: var(--text-color); border-color: var(--h-color);}
+        .feedback-peg { width: 15px; height: 15px; border-radius: 50%; }
+        .black-peg { background-color: #000; border: 1px solid #fff; }
+        .white-peg { background-color: #fff; border: 1px solid #ccc;}
 
         .secret-code-container { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; min-height: 44px; }
         .secret-peg { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background-color: var(--card-border); }
@@ -223,7 +223,7 @@
                 <div class="guess-pegs">${pegsHTML}</div>
                 <div class="feedback-pegs"></div>
             `;
-            board.insertBefore(row, board.firstChild);
+            board.appendChild(row);
             return row.querySelector('.guess-pegs');
         }
 
@@ -255,7 +255,7 @@
             }
 
             if (guessCount >= maxGuesses) {
-                message.textContent = '게임 오버. 비밀 코드는 다음과 같습니다.';
+                message.textContent = '게임 오버!';
                 revealSecretCode();
                 endGame();
                 return;
