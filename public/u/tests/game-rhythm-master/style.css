@@ -86,7 +86,7 @@ body {
 
 #feedback {
     position: absolute;
-    top: 350px; /* Adjust this value to be roughly centered on the canvas */
+    top: 250px; /* Centered vertically on the canvas itself */
     left: 50%; /* Center horizontally */
     transform: translate(-50%, -50%); /* Adjust for element's own size */
     font-size: 3em; /* Larger for visibility */
@@ -96,5 +96,5 @@ body {
     opacity: 0; /* Start hidden */
     transition: opacity 0.1s ease-in-out; /* Smooth fade */
     pointer-events: none; /* Allow clicks to pass through */
-    z-index: 10; /* Ensure it's above canvas */
+    z-index: 999; /* Ensure it's above all other elements */
 }

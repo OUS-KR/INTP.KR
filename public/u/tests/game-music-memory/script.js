@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageElement = document.getElementById('message');
     const songSelect = document.getElementById('song-select');
     const shuffleAllCheckbox = document.getElementById('shuffle-all');
+    const shuffleAllLabel = document.getElementById('shuffle-all-label'); // New
     const gameControls = document.getElementById('game-controls');
     const stopAudioBtn = document.getElementById('stop-audio-btn'); // New
 
@@ -207,7 +208,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    shuffleAllCheckbox.addEventListener('change', () => {
+        songSelect.disabled = shuffleAllCheckbox.checked;
+        if (shuffleAllCheckbox.checked) {
+            songSelect.value = ''; // Optionally clear selection when shuffling all
+        }
+    });
+
     startGameBtn.addEventListener('click', startGame);
     stopAudioBtn.addEventListener('click', stopAudio); // New event listener
     loadMusicData(); // Load music data on page load
+
+    document.addEventListener('click', (event) => {
+        // Check if audio is playing and the click is not on a card
+        if (!audioPlayer.paused && !event.target.closest('.card')) {
+            stopAudio();
+        }
+    });
 });

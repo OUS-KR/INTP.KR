@@ -8,11 +8,11 @@
 
 #game-board {
     display: grid;
-    grid-template-columns: repeat(4, 90px); /* Reduced card width for more spacing */
-    gap: 30px; /* Increased gap for more spacing */
+    grid-template-columns: repeat(4, 80px); /* Further reduced card width for more spacing */
+    gap: 30px; /* Consistent gap */
     margin-top: 20px;
     perspective: 1000px;
-    max-width: 450px; /* (90*4) + (30*3) = 360 + 90 = 450px */
+    max-width: 410px; /* (80*4) + (30*3) = 320 + 90 = 410px */
     justify-content: center; /* Center the grid */
 }
 
@@ -125,4 +125,53 @@
     color: var(--bg-color);
     font-size: 14px;
     line-height: 1;
+}
+
+/* Style for the control rows */
+.control-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px; /* Space between rows */
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Ensure it takes full width for centering */
+}
+
+/* Adjust select box width */
+#game-controls select {
+    flex-grow: 1; /* Allow select to take available space */
+    max-width: 250px; /* Limit max width */
+}
+
+/* Style the shuffle-all label as a button */
+#shuffle-all-label {
+    /* Inherit btn styles or define new ones */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    white-space: nowrap; /* Prevent text wrapping */
+    border: 2px solid var(--h-color); /* Default border */
+    background-color: var(--card-bg); /* Default background */
+    color: var(--text-color); /* Default text color */
+}
+
+#shuffle-all-label:hover {
+    background-color: var(--h-color);
+    color: var(--bg-color);
+}
+
+/* Style for when shuffle-all is checked */
+#shuffle-all:checked + #shuffle-all-label {
+    background-color: var(--h-color);
+    color: var(--bg-color);
+    border-color: var(--h-color);
+}
+
+/* Hide the actual checkbox */
+#shuffle-all {
+    display: none;
 }
