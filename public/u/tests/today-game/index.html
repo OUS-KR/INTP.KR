@@ -157,175 +157,202 @@
 
     <script src="/assets/js/main.js" defer></script>
     <script>
-        function getDailySeed() {
-            const today = new Date();
-            return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-        }
+    function getDailySeed() {
+        const today = new Date();
+        return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    }
 
-        function mulberry32(seed) {
-            return function() {
-                seed |= 0;
-                seed = seed + 0x6D2B79F5 | 0;
-                let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-                t = t + Math.imul(t ^ t >>> 7, 61 | t) | 0;
-                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    function mulberry32(seed) {
+        return function() {
+            seed |= 0;
+            seed = seed + 0x6D2B79F5 | 0;
+            let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+            t = t + Math.imul(t ^ t >>> 7, 61 | t) | 0;
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        }
+    }
+
+    let currentCorrectAnswer = null;
+    let currentRandFn = null;
+
+    // --- Game Implementations (Enhanced) ---
+
+    // Game 0: Number Sequence
+    function setupNumberSequenceGame() {
+        document.getElementById('gameTitle').innerText = "오늘의 게임: 숫자 시퀀스";
+        document.getElementById('userGuess').type = "number";
+        document.getElementById('userGuess').placeholder = "다음 숫자";
+        const gameArea = document.getElementById('gameArea');
+        gameArea.innerHTML = '<div id="sequenceDisplay" class="game-display"></div>';
+        const { sequence, nextNum } = generateNumberSequence(currentRandFn);
+        currentCorrectAnswer = nextNum;
+        const display = document.getElementById('sequenceDisplay');
+        display.innerHTML = sequence.map(item => `<span>${item}</span>`).join('') + '<span class="missing">?</span>';
+    }
+
+    function generateNumberSequence(randFn) {
+        const type = Math.floor(randFn() * 5); // 5 types now
+        const start = Math.floor(randFn() * 20) + 1;
+        const length = 4 + Math.floor(randFn() * 3);
+        let sequence = [];
+        let nextNum = 0;
+
+        if (type === 0) { // Arithmetic
+            const diff = Math.floor(randFn() * 9) + 2;
+            for (let i = 0; i < length; i++) sequence.push(start + i * diff);
+            nextNum = start + length * diff;
+        } else if (type === 1) { // Geometric
+            const ratio = Math.floor(randFn() * 3) + 2;
+            let current = start > 10 ? Math.floor(start / 10) + 1 : start;
+            for (let i = 0; i < length; i++) { sequence.push(current); current *= ratio; }
+            nextNum = current;
+        } else if (type === 2) { // Powers
+            const power = Math.floor(randFn() * 2) + 2;
+            const add = Math.floor(randFn() * 10);
+            for (let i = 1; i <= length; i++) sequence.push(Math.pow(i, power) + add);
+            nextNum = Math.pow(length + 1, power) + add;
+        } else if (type === 3) { // Alternating series
+            const diff1 = Math.floor(randFn() * 12) + 1;
+            const diff2 = -1 * (Math.floor(randFn() * 12) + 1);
+            let current = start;
+            for (let i = 0; i < length; i++) {
+                sequence.push(current);
+                current += (i % 2 === 0) ? diff1 : diff2;
             }
+            nextNum = current;
+        } else { // Fibonacci-like
+            let a = start;
+            let b = start + Math.floor(randFn() * 8) + 1;
+            sequence.push(a, b);
+            for (let i = 2; i < length; i++) { let c = a + b; sequence.push(c); a = b; b = c; }
+            nextNum = a + b;
         }
+        return { sequence, nextNum };
+    }
 
-        let currentCorrectAnswer = null;
-        let currentRandFn = null;
+    // Game 1: Word Scramble
+    const intpWords = ["ALGORITHM", "ABSTRACTION", "ANALYTICS", "AXIOM", "BINARY", "BOOLEAN", "CALCULUS", "COGNITION", "COMPILER", "CONJECTURE", "DEDUCTION", "EMPIRICISM", "ENIGMA", "EPISTEMOLOGY", "HEURISTIC", "INFERENCE", "INTELLECT", "LOGIC", "METAPHYSICS", "ONTOLOGY", "PARADIGM", "PARADOX", "PATTERNS", "PHILOSOPHY", "QUANTUM", "RATIONALITY", "RECURSION", "SEMANTICS", "SYNTAX", "SYSTEM", "THEORY", "TOPOLOGY", "HYPOTHESIS", "FRAMEWORK", "MODELING"];
+    function setupWordScrambleGame() {
+        document.getElementById('gameTitle').innerText = "오늘의 게임: 단어 스크램블";
+        document.getElementById('userGuess').type = "text";
+        document.getElementById('userGuess').placeholder = "정답 단어";
+        const gameArea = document.getElementById('gameArea');
+        const word = intpWords[Math.floor(currentRandFn() * intpWords.length)];
+        currentCorrectAnswer = word;
+        let shuffledWord = word.split('').sort(() => currentRandFn() - 0.5).join('');
+        if (shuffledWord === word) shuffledWord = word.split('').reverse().join('');
+        gameArea.innerHTML = `<div class="game-display scramble-display">${shuffledWord}</div>`;
+    }
 
-        // --- Game Implementations ---
+    // Game 2: Logic Gate
+    function setupLogicGateGame() {
+        document.getElementById('gameTitle').innerText = "오늘의 게임: 논리 게이트";
+        document.getElementById('userGuess').type = "number";
+        document.getElementById('userGuess').placeholder = "결과";
+        const gameArea = document.getElementById('gameArea');
+        const gates = ["AND", "OR", "XOR", "NAND"];
+        const gate = gates[Math.floor(currentRandFn() * gates.length)];
+        const input1 = Math.floor(currentRandFn() * 2);
+        const input2 = Math.floor(currentRandFn() * 2);
+        let answer;
+        if (gate === "AND") answer = input1 & input2;
+        else if (gate === "OR") answer = input1 | input2;
+        else if (gate === "XOR") answer = input1 ^ input2;
+        else answer = 1 - (input1 & input2);
+        currentCorrectAnswer = answer;
+        gameArea.innerHTML = `<div class="game-display"><span>${input1}</span> <span>${gate}</span> <span>${input2}</span> <span>=</span> <span class="missing">?</span></div>`;
+    }
 
-        // Game 0: Number Sequence
-        function setupNumberSequenceGame() {
-            document.getElementById('gameTitle').innerText = "오늘의 게임: 숫자 시퀀스";
-            document.getElementById('gameDescription').innerText = "다음 시퀀스에 올 숫자를 추론하세요.";
-            document.getElementById('userGuess').type = "number";
-            document.getElementById('userGuess').placeholder = "다음 숫자";
+    // Game 3: Odd One Out
+    function setupOddOneOutGame() {
+        document.getElementById('gameTitle').innerText = "오늘의 게임: 다른 하나 찾기";
+        document.getElementById('gameDescription').innerText = "다음 중 성격이 다른 하나는 무엇일까요?";
+        document.getElementById('userGuess').type = "text";
+        document.getElementById('userGuess').placeholder = "다른 하나";
+        const gameArea = document.getElementById('gameArea');
+        const { items, answer } = generateOddOneOut(currentRandFn);
+        currentCorrectAnswer = answer;
+        gameArea.innerHTML = `<div class="game-display">${items.map(item => `<span>${item}</span>`).join('')}</div>`;
+    }
 
-            const gameArea = document.getElementById('gameArea');
-            gameArea.innerHTML = '<div id="sequenceDisplay" class="game-display"></div>';
-
-            const { sequence, nextNum } = generateNumberSequence(currentRandFn);
-            currentCorrectAnswer = nextNum;
-            displaySequence(sequence, "?");
-        }
-
-        function generateNumberSequence(randFn) {
-            const type = Math.floor(randFn() * 4); // 4 types
-            const start = Math.floor(randFn() * 15) + 1;
-            const length = 4 + Math.floor(randFn() * 3); // 4 to 6 numbers
-            let sequence = [];
-            let nextNum = 0;
-
-            if (type === 0) { // Arithmetic
-                const diff = Math.floor(randFn() * 8) + 2;
-                for (let i = 0; i < length; i++) sequence.push(start + i * diff);
-                nextNum = start + length * diff;
-            } else if (type === 1) { // Geometric
-                const ratio = Math.floor(randFn() * 3) + 2; // 2-4
-                let current = start;
-                for (let i = 0; i < length; i++) { sequence.push(current); current *= ratio; }
-                nextNum = current;
-            } else if (type === 2) { // Powers
-                const power = Math.floor(randFn() * 2) + 2; // 2 or 3
-                const add = Math.floor(randFn() * 5);
-                for (let i = 1; i <= length; i++) sequence.push(Math.pow(i, power) + add);
-                nextNum = Math.pow(length + 1, power) + add;
-            } else { // Alternating series
-                const diff1 = Math.floor(randFn() * 10) + 1;
-                const diff2 = Math.floor(randFn() * 10) + 1;
-                let current = start;
-                for (let i = 0; i < length; i++) {
-                    sequence.push(current);
-                    current += (i % 2 === 0) ? diff1 : diff2;
-                }
-                nextNum = current;
-            }
-            return { sequence, nextNum };
-        }
-
-        function displaySequence(sequence, missingChar) {
-            const display = document.getElementById('sequenceDisplay');
-            display.innerHTML = '';
-            sequence.forEach(item => {
-                const span = document.createElement('span');
-                span.innerText = item;
-                display.appendChild(span);
-            });
-            const missingSpan = document.createElement('span');
-            missingSpan.innerText = missingChar;
-            missingSpan.classList.add('missing');
-            display.appendChild(missingSpan);
-        }
-
-        // Game 1: Word Scramble
-        const intpWords = ["ALGORITHM", "ABSTRACTION", "ANALYTICS", "AXIOM", "BINARY", "BOOLEAN", "CALCULUS", "COGNITION", "COMPILER", "CONJECTURE", "DEDUCTION", "EMPIRICISM", "ENIGMA", "EPISTEMOLOGY", "HEURISTIC", "INFERENCE", "INTELLECT", "LOGIC", "METAPHYSICS", "ONTOLOGY", "PARADIGM", "PARADOX", "PATTERNS", "PHILOSOPHY", "QUANTUM", "RATIONALITY", "RECURSION", "SEMANTICS", "SYNTAX", "SYSTEM", "THEORY", "TOPOLOGY"];
-
-        function setupWordScrambleGame() {
-            document.getElementById('gameTitle').innerText = "오늘의 게임: 단어 스크램블";
-            document.getElementById('gameDescription').innerText = "섞인 글자를 조합하여 단어를 완성하세요.";
-            document.getElementById('userGuess').type = "text";
-            document.getElementById('userGuess').placeholder = "정답 단어";
-
-            const gameArea = document.getElementById('gameArea');
-            const word = intpWords[Math.floor(currentRandFn() * intpWords.length)];
-            currentCorrectAnswer = word;
-            
-            let shuffledWord = word.split('').sort(() => currentRandFn() - 0.5).join('');
-            if (shuffledWord === word) { // Ensure it's actually shuffled
-                shuffledWord = word.split('').reverse().join('');
-            }
-
-            gameArea.innerHTML = `<div class="game-display scramble-display">${shuffledWord}</div>`;
-        }
-
-        // Game 2: Logic Gate
-        function setupLogicGateGame() {
-            document.getElementById('gameTitle').innerText = "오늘의 게임: 논리 게이트";
-            document.getElementById('gameDescription').innerText = "논리 연산의 결과를 맞추세요 (0 또는 1).";
-            document.getElementById('userGuess').type = "number";
-            document.getElementById('userGuess').placeholder = "결과";
-
-            const gameArea = document.getElementById('gameArea');
-            const gates = ["AND", "OR", "XOR"];
-            const gate = gates[Math.floor(currentRandFn() * gates.length)];
-            const input1 = Math.floor(currentRandFn() * 2);
-            const input2 = Math.floor(currentRandFn() * 2);
-            let answer;
-
-            if (gate === "AND") answer = input1 & input2;
-            else if (gate === "OR") answer = input1 | input2;
-            else answer = input1 ^ input2;
-
-            currentCorrectAnswer = answer;
-            gameArea.innerHTML = `<div class="game-display"><span>${input1}</span> <span>${gate}</span> <span>${input2}</span> <span>=</span> <span class="missing">?</span></div>`;
-        }
-
-        // --- Game Dispatcher and Common Logic ---
-        const gameTypes = [
-            setupNumberSequenceGame,
-            setupWordScrambleGame,
-            setupLogicGateGame
+    function generateOddOneOut(randFn) {
+        const types = [
+            { name: "vowels", items: ["A", "E", "I", "O", "U"], odd: ["B", "C", "D", "F", "G", "K"] },
+            { name: "evens", items: [2, 4, 6, 8, 10, 12], odd: [1, 3, 5, 7, 9, 11] },
+            { name: "primes", items: [2, 3, 5, 7, 11, 13], odd: [4, 6, 8, 9, 10, 12] },
+            { name: "shapes", items: ["■", "▲", "●", "◆"], odd: ["□", "△", "○", "◇"] }
         ];
+        const type = types[Math.floor(randFn() * types.length)];
+        const shuffledItems = type.items.sort(() => randFn() - 0.5);
+        const oddOne = type.odd[Math.floor(randFn() * type.odd.length)];
+        let items = shuffledItems.slice(0, 4);
+        const answer = oddOne.toString();
+        const insertPos = Math.floor(randFn() * 5);
+        items.splice(insertPos, 0, oddOne);
+        return { items, answer };
+    }
 
-        function checkGuess() {
-            const userGuess = document.getElementById('userGuess').value.trim().toUpperCase();
-            const feedbackMessage = document.getElementById('feedbackMessage');
+    // --- Game Dispatcher and Common Logic ---
+    const gameTypes = [
+        setupNumberSequenceGame,
+        setupWordScrambleGame,
+        setupLogicGateGame,
+        setupOddOneOutGame
+    ];
 
-            if (userGuess === "") {
-                feedbackMessage.innerText = "정답을 입력해 주세요!";
-                feedbackMessage.className = "feedback-message incorrect";
-                return;
-            }
+    function getDayOfWeekText(day) {
+        const messages = [
+            "주말의 마무리, 두뇌를 말랑하게 풀어보세요.", // Sunday
+            "새로운 한 주, 논리력으로 시작해 보세요!", // Monday
+            "오늘은 분석력을 발휘하기 좋은 날입니다.", // Tuesday
+            "주 중반, 창의적인 발상으로 환기해 보세요.", // Wednesday
+            "문제 해결 능력을 시험해 볼 시간입니다.", // Thursday
+            "주말을 앞둔 금요일, 가볍게 두뇌를 자극해 보세요.", // Friday
+            "여유로운 토요일, 새로운 퍼즐은 어떠신가요?", // Saturday
+        ];
+        return messages[day];
+    }
 
-            if (userGuess == currentCorrectAnswer) {
-                feedbackMessage.innerText = "정답입니다! 역시 INTP군요.";
-                feedbackMessage.className = "feedback-message correct";
-                document.getElementById('submitGuess').disabled = true;
-                document.getElementById('userGuess').disabled = true;
-            } else {
-                feedbackMessage.innerText = "오답입니다. 다른 관점에서 생각해 보세요.";
-                feedbackMessage.className = "feedback-message incorrect";
-            }
+    function checkGuess() {
+        const userGuess = document.getElementById('userGuess').value.trim().toUpperCase();
+        const feedbackMessage = document.getElementById('feedbackMessage');
+        if (!userGuess) {
+            feedbackMessage.innerText = "정답을 입력해 주세요!";
+            feedbackMessage.className = "feedback-message incorrect";
+            return;
         }
-
-        function initDailyGame() {
-            const seed = getDailySeed();
-            currentRandFn = mulberry32(seed);
-
-            const gameTypeIndex = Math.floor(currentRandFn() * gameTypes.length);
-            gameTypes[gameTypeIndex]();
-
-            document.getElementById('userGuess').value = '';
-            document.getElementById('userGuess').disabled = false;
-            document.getElementById('submitGuess').disabled = false;
-            document.getElementById('feedbackMessage').innerText = '';
-            document.getElementById('feedbackMessage').className = "feedback-message";
+        if (userGuess == currentCorrectAnswer) {
+            feedbackMessage.innerText = "정답입니다! 역시 INTP군요.";
+            feedbackMessage.className = "feedback-message correct";
+            document.getElementById('submitGuess').disabled = true;
+            document.getElementById('userGuess').disabled = true;
+        } else {
+            feedbackMessage.innerText = "오답입니다. 다른 관점에서 생각해 보세요.";
+            feedbackMessage.className = "feedback-message incorrect";
         }
+    }
 
-        window.onload = function() {
+    function initDailyGame() {
+        const today = new Date();
+        const seed = getDailySeed();
+        currentRandFn = mulberry32(seed);
+        
+        const dayOfWeek = today.getDay();
+        document.getElementById('gameDescription').innerText = getDayOfWeekText(dayOfWeek);
+
+        // Slightly influence game choice by day of week, but still random
+        const gameTypeIndex = Math.floor(currentRandFn() * gameTypes.length + dayOfWeek) % gameTypes.length;
+        gameTypes[gameTypeIndex]();
+
+        document.getElementById('userGuess').value = '';
+        document.getElementById('userGuess').disabled = false;
+        document.getElementById('submitGuess').disabled = false;
+        document.getElementById('feedbackMessage').innerText = '';
+        document.getElementById('feedbackMessage').className = "feedback-message";
+    }
+
+    window.onload = function() {
+        try {
             initDailyGame();
             document.getElementById('submitGuess').addEventListener('click', checkGuess);
             document.getElementById('userGuess').addEventListener('keypress', function(event) {
@@ -333,7 +360,11 @@
                     checkGuess();
                 }
             });
-        };
-    </script>
+        } catch (e) {
+            console.error("오늘의 게임 생성 중 오류 발생:", e);
+            document.getElementById('gameDescription').innerText = "콘텐츠를 불러오는 데 실패했습니다. 페이지를 새로고침해 주세요.";
+        }
+    };
+</script>
 </body>
 </html>
