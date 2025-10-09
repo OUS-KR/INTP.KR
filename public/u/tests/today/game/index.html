@@ -15,34 +15,46 @@
             box-shadow: var(--card-shadow);
             text-align: center;
         }
-        .sequence-display {
+        .game-area {
+            margin-top: 1.5em;
+            min-height: 200px; /* Ensure consistent height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .sequence-display, .pattern-display, .scramble-display {
             font-size: 2em;
             margin-bottom: 1em;
             font-weight: bold;
             color: var(--text-color);
         }
-        .sequence-display span {
+        .sequence-display span, .pattern-display span {
             margin: 0 0.3em;
             padding: 0.1em 0.4em;
             border-radius: 4px;
             background-color: var(--primary-color-light);
             color: var(--primary-color-dark);
         }
-        .sequence-display .missing {
+        .sequence-display .missing, .pattern-display .missing {
             background-color: var(--accent-color);
             color: var(--text-color-inverted);
+        }
+        .scramble-display {
+            letter-spacing: 0.1em;
         }
         .game-input {
             margin-bottom: 1em;
         }
-        .game-input input[type="number"] {
+        .game-input input[type="text"], .game-input input[type="number"] {
             padding: 0.5em;
             font-size: 1.2em;
-            width: 100px;
+            width: 150px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             background-color: var(--input-bg-color);
             color: var(--text-color);
+            text-align: center;
         }
         .game-input button {
             padding: 0.6em 1.5em;
@@ -53,6 +65,7 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-left: 0.5em;
         }
         .game-input button:hover {
             background-color: var(--primary-color-dark);
@@ -138,16 +151,18 @@
     </header>
 
     <div class="container">
-        <h1>오늘의 INTP 게임: 숫자 시퀀스 추론</h1>
+        <h1 id="gameTitle">오늘의 INTP 게임</h1>
         <div class="game-container">
-            <p>주어진 숫자 시퀀스의 다음 숫자를 추론해 보세요. 당신의 논리력을 시험할 시간입니다!</p>
-            <div id="sequenceDisplay" class="sequence-display"></div>
+            <p id="gameDescription">게임을 불러오는 중...</p>
+            <div id="gameArea" class="game-area">
+                <!-- Game content will be loaded here by JavaScript -->
+            </div>
             <div class="game-input">
-                <input type="number" id="userGuess" placeholder="다음 숫자" autofocus>
+                <input type="text" id="userGuess" placeholder="정답 입력" autofocus>
                 <button id="submitGuess">제출</button>
             </div>
             <p id="feedbackMessage" class="feedback-message"></p>
-            <button id="newGameButton" class="new-game-button" style="display:none;">새로운 시퀀스</button>
+            <button id="newGameButton" class="new-game-button" style="display:none;">새로운 게임</button>
         </div>
     </div>
 
@@ -168,33 +183,48 @@
             }
         }
 
-        let currentSequence = [];
-        let correctAnswer = 0;
-        let rand = null;
+        let currentCorrectAnswer = null;
+        let currentRandFn = null;
 
-        function generateSequence(seed) {
-            rand = mulberry32(seed);
-            const type = Math.floor(rand() * 3); // 0: arithmetic, 1: geometric, 2: Fibonacci-like
-            const start = Math.floor(rand() * 10) + 1; // 1-10
+        // --- Game Implementations ---
+
+        // Game Type 0: Number Sequence Guessing Game
+        function setupNumberSequenceGame() {
+            document.getElementById('gameTitle').innerText = "오늘의 INTP 게임: 숫자 시퀀스 추론";
+            document.getElementById('gameDescription').innerText = "주어진 숫자 시퀀스의 다음 숫자를 추론해 보세요. 당신의 논리력을 시험할 시간입니다!";
+            document.getElementById('userGuess').type = "number";
+            document.getElementById('userGuess').placeholder = "다음 숫자";
+
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = '<div id="sequenceDisplay" class="sequence-display"></div>';
+
+            const { sequence, nextNum } = generateNumberSequence(currentRandFn);
+            currentCorrectAnswer = nextNum;
+            displayNumberSequence(sequence);
+        }
+
+        function generateNumberSequence(randFn) {
+            const type = Math.floor(randFn() * 3); // 0: arithmetic, 1: geometric, 2: Fibonacci-like
+            const start = Math.floor(randFn() * 10) + 1; // 1-10
             const length = 5; // 5 numbers in sequence
             let sequence = [];
             let nextNum = 0;
 
             if (type === 0) { // Arithmetic progression
-                const diff = Math.floor(rand() * 5) + 1; // 1-5
+                const diff = Math.floor(randFn() * 5) + 1; // 1-5
                 for (let i = 0; i < length; i++) {
                     sequence.push(start + i * diff);
                 }
                 nextNum = start + length * diff;
             } else if (type === 1) { // Geometric progression
-                const ratio = Math.floor(rand() * 3) + 2; // 2-4
+                const ratio = Math.floor(randFn() * 3) + 2; // 2-4
                 for (let i = 0; i < length; i++) {
                     sequence.push(start * Math.pow(ratio, i));
                 }
                 nextNum = start * Math.pow(ratio, length);
             } else { // Fibonacci-like
                 let a = start;
-                let b = start + Math.floor(rand() * 5) + 1;
+                let b = start + Math.floor(randFn() * 5) + 1;
                 sequence.push(a, b);
                 for (let i = 2; i < length; i++) {
                     let c = a + b;
@@ -207,10 +237,10 @@
             return { sequence, nextNum };
         }
 
-        function displaySequence(sequence) {
+        function displayNumberSequence(sequence) {
             const display = document.getElementById('sequenceDisplay');
             display.innerHTML = '';
-            sequence.forEach((num, index) => {
+            sequence.forEach((num) => {
                 const span = document.createElement('span');
                 span.innerText = num;
                 display.appendChild(span);
@@ -221,42 +251,132 @@
             display.appendChild(missingSpan);
         }
 
+        // Game Type 1: Simple Pattern Matching Game
+        const patterns = [
+            { question: "▲ ▼ ▲ ?", answer: "▼", display: ["▲", "▼", "▲", "?"] },
+            { question: "A B D G ?", answer: "K", display: ["A", "B", "D", "G", "?"] },
+            { question: "1 1 2 3 5 ?", answer: "8", display: ["1", "1", "2", "3", "5", "?"] },
+            { question: "O T T F F S S ?", answer: "E", display: ["O", "T", "T", "F", "F", "S", "S", "?"] } // One, Two, Three, Four, Five, Six, Seven, Eight
+        ];
+
+        function setupPatternMatchingGame() {
+            document.getElementById('gameTitle').innerText = "오늘의 INTP 게임: 패턴 인식";
+            document.getElementById('gameDescription').innerText = "주어진 패턴의 다음 요소를 찾아보세요. 숨겨진 규칙을 발견할 수 있을까요?";
+            document.getElementById('userGuess').type = "text";
+            document.getElementById('userGuess').placeholder = "다음 요소";
+
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = '<div id="patternDisplay" class="pattern-display"></div>';
+
+            const patternIndex = Math.floor(currentRandFn() * patterns.length);
+            const selectedPattern = patterns[patternIndex];
+            currentCorrectAnswer = selectedPattern.answer;
+            displayPattern(selectedPattern.display);
+        }
+
+        function displayPattern(patternArray) {
+            const display = document.getElementById('patternDisplay');
+            display.innerHTML = '';
+            patternArray.forEach((item) => {
+                const span = document.createElement('span');
+                span.innerText = item;
+                if (item === '?') {
+                    span.classList.add('missing');
+                }
+                display.appendChild(span);
+            });
+        }
+
+        // Game Type 2: Word Scramble (INTP-themed)
+        const intpWords = [
+            { word: "LOGIC", hint: "INTP의 핵심 사고 방식" },
+            { word: "ANALYZE", hint: "INTP가 즐겨하는 활동" },
+            { word: "THEORY", hint: "INTP가 탐구하는 것" },
+            { word: "INNOVATE", hint: "INTP의 창의성" },
+            { word: "SYSTEM", hint: "INTP가 이해하려는 것" }
+        ];
+
+        function shuffleWord(word, randFn) {
+            let a = word.split("");
+            let n = a.length;
+
+            for(let i = n - 1; i > 0; i--) {
+                let j = Math.floor(randFn() * (i + 1));
+                let tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+            }
+            return a.join("");
+        }
+
+        function setupWordScrambleGame() {
+            document.getElementById('gameTitle').innerText = "오늘의 INTP 게임: 단어 스크램블";
+            document.getElementById('gameDescription').innerText = "섞인 글자들을 조합하여 INTP와 관련된 단어를 맞춰보세요! (힌트: INTP 관련)";
+            document.getElementById('userGuess').type = "text";
+            document.getElementById('userGuess').placeholder = "정답 단어";
+
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = '<div id="scrambleDisplay" class="scramble-display"></div><p id="scrambleHint" style="font-style: italic; margin-top: 1em;"></p>';
+
+            const wordIndex = Math.floor(currentRandFn() * intpWords.length);
+            const selectedWord = intpWords[wordIndex];
+            currentCorrectAnswer = selectedWord.word.toUpperCase();
+            document.getElementById('scrambleDisplay').innerText = shuffleWord(selectedWord.word.toUpperCase(), currentRandFn);
+            document.getElementById('scrambleHint').innerText = "힌트: " + selectedWord.hint;
+        }
+
+        // --- Game Dispatcher and Common Logic ---
+
+        const gameTypes = [
+            setupNumberSequenceGame,
+            setupPatternMatchingGame,
+            setupWordScrambleGame
+        ];
+
         function checkGuess() {
-            const userGuess = parseInt(document.getElementById('userGuess').value);
+            const userGuess = document.getElementById('userGuess').value.trim();
             const feedbackMessage = document.getElementById('feedbackMessage');
             const submitButton = document.getElementById('submitGuess');
             const newGameButton = document.getElementById('newGameButton');
             const guessInput = document.getElementById('userGuess');
 
-            if (isNaN(userGuess)) {
-                feedbackMessage.innerText = "숫자를 입력해 주세요!";
+            if (userGuess === "") {
+                feedbackMessage.innerText = "정답을 입력해 주세요!";
                 feedbackMessage.className = "feedback-message incorrect";
                 return;
             }
 
-            if (userGuess === correctAnswer) {
+            // For number sequence, convert to number for comparison
+            let guessToCompare = userGuess;
+            if (document.getElementById('userGuess').type === "number") {
+                guessToCompare = parseInt(userGuess);
+            }
+
+            if (guessToCompare.toString().toUpperCase() === currentCorrectAnswer.toString().toUpperCase()) {
                 feedbackMessage.innerText = "정답입니다! 당신의 논리력은 완벽하군요.";
                 feedbackMessage.className = "feedback-message correct";
                 submitButton.disabled = true;
                 guessInput.disabled = true;
                 newGameButton.style.display = 'block';
-                // Optionally reveal the full sequence
-                const display = document.getElementById('sequenceDisplay');
-                display.lastChild.innerText = correctAnswer;
-                display.lastChild.classList.remove('missing');
+
+                // Special handling for number sequence to reveal answer
+                if (document.getElementById('sequenceDisplay')) {
+                    const display = document.getElementById('sequenceDisplay');
+                    display.lastChild.innerText = currentCorrectAnswer;
+                    display.lastChild.classList.remove('missing');
+                }
             } else {
                 feedbackMessage.innerText = "오답입니다. 다시 시도해 보세요!";
                 feedbackMessage.className = "feedback-message incorrect";
             }
         }
 
-        function initGame() {
+        function initDailyGame() {
             const seed = getDailySeed();
-            const { sequence, nextNum } = generateSequence(seed);
-            currentSequence = sequence;
-            correctAnswer = nextNum;
+            currentRandFn = mulberry32(seed);
 
-            displaySequence(currentSequence);
+            const gameTypeIndex = Math.floor(currentRandFn() * gameTypes.length);
+            gameTypes[gameTypeIndex](); // Setup the selected game type
 
             document.getElementById('userGuess').value = '';
             document.getElementById('userGuess').disabled = false;
@@ -267,14 +387,14 @@
         }
 
         window.onload = function() {
-            initGame();
+            initDailyGame();
             document.getElementById('submitGuess').addEventListener('click', checkGuess);
             document.getElementById('userGuess').addEventListener('keypress', function(event) {
                 if (event.key === 'Enter') {
                     checkGuess();
                 }
             });
-            document.getElementById('newGameButton').addEventListener('click', initGame);
+            document.getElementById('newGameButton').addEventListener('click', initDailyGame);
         };
     </script>
 </body>
