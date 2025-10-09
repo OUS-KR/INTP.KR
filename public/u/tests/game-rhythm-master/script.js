@@ -283,8 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        loadingMessage.style.display = 'none'; // Hide loading message
-        startBtn.disabled = false; // Re-enable start button
+        loadingMessage.style.display = 'none';
 
         resetStats();
         prepareNotes();
@@ -293,11 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         audioPlayer.src = `../../..${currentSong.path}`;
         audioPlayer.currentTime = 0;
-        audioPlayer.play();
-        gameStartTime = Date.now();
 
-        // Wait for the start delay before notes appear
+        // Wait for the start delay before notes appear AND audio starts
         setTimeout(() => {
+            audioPlayer.play();
+            gameStartTime = Date.now(); // Set game start time when audio actually begins
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             gameLoop();
         }, START_DELAY * 1000); // Convert seconds to milliseconds
