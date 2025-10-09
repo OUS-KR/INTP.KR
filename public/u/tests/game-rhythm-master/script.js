@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
@@ -10,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioPlayer = new Audio();
 
     // Game settings
-    const LANES = 4;
+    const LANES = 1; // Simplified to a single lane
     const NOTE_HEIGHT = 20;
     const NOTE_SPEED = 3; // pixels per frame
     const HIT_LINE_Y = 450;
@@ -51,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function prepareNotes() {
         notes = beatmap.notes.map(note => ({
             time: note.time,
-            lane: Math.floor(Math.random() * LANES), // Assign random lane for now
+            lane: 0, // All notes in one lane
             y: -NOTE_HEIGHT,
             isHit: false
         }));
@@ -71,13 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         notes.forEach(note => {
             if (!note.isHit) {
-                // Position notes based on time difference
                 const timeDiff = note.time - elapsedTime;
-                note.y = HIT_LINE_Y - (timeDiff * NOTE_SPEED * 60); // 60fps assumption
+                note.y = HIT_LINE_Y - (timeDiff * NOTE_SPEED * 60); 
 
-                // Check for missed notes
                 if (note.y > canvas.height) {
-                    note.isHit = true; // Mark as missed
+                    note.isHit = true; 
                     resetCombo();
                     showFeedback('Miss');
                 }
@@ -87,15 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw lanes
-        for (let i = 1; i < LANES; i++) {
-            ctx.strokeStyle = 'var(--h-color)';
-            ctx.beginPath();
-            ctx.moveTo(i * laneWidth, 0);
-            ctx.lineTo(i * laneWidth, canvas.height);
-            ctx.stroke();
-        }
 
         // Draw hit line
         ctx.strokeStyle = '#f1c40f';
@@ -118,39 +106,41 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleInput(event) {
         if (!isPlaying) return;
 
-        const rect = canvas.getBoundingClientRect();
-        const x = (event.clientX || event.touches[0].clientX) - rect.left;
-        const lane = Math.floor(x / laneWidth);
-
         const elapsedTime = (Date.now() - gameStartTime) / 1000;
         let hit = false;
 
+        // Find the closest un-hit note
+        let closestNote = null;
+        let minTimeDiff = Infinity;
+
         for (const note of notes) {
-            if (!note.isHit && note.lane === lane) {
+            if (!note.isHit) {
                 const timeDiff = Math.abs(note.time - elapsedTime);
-                if (timeDiff <= OK_WINDOW) {
-                    note.isHit = true;
-                    hit = true;
-                    if (timeDiff <= PERFECT_WINDOW) {
-                        score += 100;
-                        combo++;
-                        showFeedback('Perfect');
-                    } else if (timeDiff <= GOOD_WINDOW) {
-                        score += 50;
-                        combo++;
-                        showFeedback('Good');
-                    } else {
-                        score += 20;
-                        combo++;
-                        showFeedback('OK');
-                    }
-                    break; // Only hit one note per input
+                if (timeDiff < minTimeDiff) {
+                    minTimeDiff = timeDiff;
+                    closestNote = note;
                 }
             }
         }
 
-        if (!hit) {
-            // Tapping an empty lane doesn't reset combo
+        if (closestNote && minTimeDiff <= OK_WINDOW) {
+            closestNote.isHit = true;
+            hit = true;
+            if (minTimeDiff <= PERFECT_WINDOW) {
+                score += 100;
+                combo++;
+                showFeedback('Perfect');
+            } else if (minTimeDiff <= GOOD_WINDOW) {
+                score += 50;
+                combo++;
+                showFeedback('Good');
+            } else {
+                score += 20;
+                combo++;
+                showFeedback('OK');
+            }
+        } else {
+            // Tapping with no note nearby doesn't reset combo
         }
 
         scoreDisplay.textContent = `점수: ${score}`;

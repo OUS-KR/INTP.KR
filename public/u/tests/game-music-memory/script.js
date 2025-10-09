@@ -1,29 +1,21 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board');
     const startGameBtn = document.getElementById('start-game-btn');
     const messageElement = document.getElementById('message');
-    const timerElement = document.getElementById('timer');
 
-    let audioContext;
-    let audioBuffer;
     let songPath = '';
 
     let cards = [];
     let flippedCards = [];
     let matchedPairs = 0;
     let lockBoard = false;
-    let gameTimer;
-    let timeLeft = 60;
 
-    // Audio player
     const audioPlayer = new Audio();
 
     async function loadMusicData() {
         try {
             const response = await fetch('../music_data.json');
             const data = await response.json();
-            // For now, just use the first song
             const song = data[0];
             songPath = `../../..${song.path}`;
             return song;
@@ -37,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameBoard.innerHTML = '';
         matchedPairs = 0;
         cards = [];
+        lockBoard = false;
 
         let sections = song.sections;
         if (!sections || sections.length < 6) {
@@ -66,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function generateRandomSections(duration, count) {
         const sections = [];
-        const snippetLength = 5; // 5 seconds for each snippet
+        const snippetLength = 5; 
         for (let i = 0; i < count; i++) {
             const start = Math.random() * (duration - snippetLength);
             sections.push({ start: start, end: start + snippetLength });
@@ -81,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function flipCard(card) {
         if (lockBoard || card.classList.contains('flip') || card.classList.contains('matched')) return;
 
+        lockBoard = true; // Lock the board immediately
         card.classList.add('flip');
         playSnippet(card.dataset.startTime, card.dataset.endTime);
 
@@ -97,15 +91,19 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.play();
 
         const checkTime = setInterval(() => {
-            if (audioPlayer.currentTime >= endTime) {
+            if (audioPlayer.currentTime >= endTime || audioPlayer.paused) {
                 audioPlayer.pause();
                 clearInterval(checkTime);
+                // If it was the first card, unlock board. If it was the second, checkForMatch handles the lock.
+                if (flippedCards.length < 2) {
+                    lockBoard = false;
+                }
             }
         }, 100);
     }
 
     function checkForMatch() {
-        lockBoard = true;
+        // lockBoard is already true from the second card's flipCard call
         const [card1, card2] = flippedCards;
 
         if (card1.dataset.startTime === card2.dataset.startTime) {
@@ -115,10 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
             matchedPairs++;
             resetFlippedCards();
             if (matchedPairs === 6) {
-                endGame(true);
+                endGame();
             }
         } else {
-            // No match
+            // No match - unflip after a delay
             setTimeout(() => {
                 card1.classList.remove('flip');
                 card2.classList.remove('flip');
@@ -135,35 +133,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame() {
         startGameBtn.disabled = true;
         messageElement.textContent = '';
-        timeLeft = 60;
-        timerElement.textContent = timeLeft;
         
         loadMusicData().then(song => {
             if (song) {
                 createBoard(song);
-                startTimer();
             }
         });
     }
 
-    function startTimer() {
-        gameTimer = setInterval(() => {
-            timeLeft--;
-            timerElement.textContent = timeLeft;
-            if (timeLeft <= 0) {
-                endGame(false);
-            }
-        }, 1000);
-    }
-
-    function endGame(isWin) {
-        clearInterval(gameTimer);
+    function endGame() {
         lockBoard = true;
-        if (isWin) {
-            messageElement.textContent = '축하합니다! 모든 쌍을 맞췄습니다!';
-        } else {
-            messageElement.textContent = '시간 초과! 다시 시도해보세요.';
-        }
+        messageElement.textContent = '축하합니다! 모든 쌍을 맞췄습니다!';
         startGameBtn.disabled = false;
     }
 
