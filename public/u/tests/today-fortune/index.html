@@ -193,7 +193,7 @@
     function generateIntpIndex(randFn, parts) {
         const pick = (arr) => arr[Math.floor(randFn() * arr.length)];
         const percentage = 65 + Math.floor(randFn() * 31); // 65% to 95%
-        return `${percentage}% - ${pick(parts.reasons)} ${pick(parts.results}`;
+        return `${percentage}% - ${pick(parts.reasons)} ${pick(parts.results)}`;
     }
 
     function generateKeywords(randFn, keywords, count) {

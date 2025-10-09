@@ -151,12 +151,6 @@
             </div>
             <p id="feedbackMessage" class="feedback-message"></p>
         </div>
-        
-        <div class="card info-card" style="margin-top: 2em; font-size: 0.9em; text-align: left;">
-            <div class="card-title">💡 개발자 노트</div>
-            <p>특정 게임을 테스트하려면 URL 끝에 쿼리 파라미터를 추가하세요. (예: <code>?game=scramble</code>)</p>
-            <p>사용 가능한 게임: <code>sequence</code>, <code>scramble</code>, <code>gate</code>, <code>odd</code></p>
-        </div>
     </div>
 
     <script src="/assets/js/main.js" defer></script>
@@ -297,14 +291,12 @@
     }
 
     // --- Game Dispatcher and Common Logic ---
-    const gameMap = {
-        'sequence': setupNumberSequenceGame,
-        'scramble': setupWordScrambleGame,
-        'gate': setupLogicGateGame,
-        'odd': setupOddOneOutGame
-    };
-    const gameTypes = Object.values(gameMap);
-
+    const gameTypes = [
+        setupNumberSequenceGame,
+        setupWordScrambleGame,
+        setupLogicGateGame,
+        setupOddOneOutGame
+    ];
 
     function getDayOfWeekText(day) {
         const messages = [
@@ -343,19 +335,12 @@
         const seed = getDailySeed();
         currentRandFn = mulberry32(seed);
         
-        const urlParams = new URLSearchParams(window.location.search);
-        const requestedGame = urlParams.get('game');
+        const dayOfWeek = today.getDay();
+        document.getElementById('gameDescription').innerText = getDayOfWeekText(dayOfWeek);
 
-        if (requestedGame && gameMap[requestedGame]) {
-            document.getElementById('gameDescription').innerText = `테스트 모드: '${requestedGame}' 게임을 실행합니다.`;
-            gameMap[requestedGame]();
-        } else {
-            const dayOfWeek = today.getDay();
-            document.getElementById('gameDescription').innerText = getDayOfWeekText(dayOfWeek);
-            // Slightly influence game choice by day of week, but still random
-            const gameTypeIndex = Math.floor(currentRandFn() * gameTypes.length + dayOfWeek) % gameTypes.length;
-            gameTypes[gameTypeIndex]();
-        }
+        // Slightly influence game choice by day of week, but still random
+        const gameTypeIndex = Math.floor(currentRandFn() * gameTypes.length + dayOfWeek) % gameTypes.length;
+        gameTypes[gameTypeIndex]();
 
         document.getElementById('userGuess').value = '';
         document.getElementById('userGuess').disabled = false;
