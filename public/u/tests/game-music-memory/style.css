@@ -68,8 +68,9 @@
 .controls {
     margin-bottom: 20px;
     display: flex;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column; /* Ensure vertical stacking */
+    align-items: center; /* Center items horizontally */
+    gap: 10px; /* Reduce gap between rows */
 }
 
 .message {
@@ -147,33 +148,13 @@
     display: none;
 }
 
-.card {
-    border: none !important;
-    border-left-width: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100px;
-    height: 100px;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-    cursor: pointer;
-}
-
-.card-face {
-    border: none !important;
-    border-left-width: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
+.control-row {
     display: flex;
-    justify-content: center;
+    gap: 10px;
+    margin-bottom: 0; /* Remove margin-bottom from control-row as gap is on parent */
     align-items: center;
-    border-radius: 8px;
-    font-size: 2em;
+    justify-content: center;
+    width: 100%;
 }
 
 @media (max-width: 768px) { /* Adjust breakpoint as needed */

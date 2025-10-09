@@ -74,10 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             songPath = `../../..${selectedSong.path}`;
             let sections = selectedSong.sections;
-            if (!sections || sections.length < 6) {
-                sections = generateRandomSections(selectedSong.duration, 6);
+            if (!sections || sections.length < 8) {
+                sections = generateRandomSections(selectedSong.duration, 8);
             }
-            gameSections = sections.slice(0, 6).flatMap(section => [section, section]);
+            gameSections = sections.slice(0, 8).flatMap(section => [section, section]);
         }
 
         shuffle(gameSections);
