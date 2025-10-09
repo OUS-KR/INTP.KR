@@ -106,6 +106,30 @@
         }
     }
 
+    /**
+     * 한국어 조사(e.g., 은/는, 을/를)를 앞 단어의 받침 유무에 따라 올바르게 선택하는 함수
+     * @param {string} text - 조사가 붙을 단어
+     * @param {string} particle - '/'로 구분된 조사 쌍 (예: "을/를")
+     * @returns {string} - 선택된 조사
+     */
+    function josa(text, particle) {
+        const particles = particle.split('/');
+        if (particles.length < 2) return particle;
+
+        if (typeof text !== 'string' || text.length === 0) return particles[1];
+        const lastChar = text[text.length - 1];
+        const charCode = lastChar.charCodeAt(0);
+
+        // 한글 (가-힣) 범위 체크
+        if (charCode < 0xAC00 || charCode > 0xD7A3) {
+            // 한글이 아니면 기본값(받침 없는 경우) 반환
+            return particles[1];
+        }
+
+        const hasBatchim = (charCode - 0xAC00) % 28 > 0;
+        return hasBatchim ? particles[0] : particles[1];
+    }
+
     // --- Enhanced Generative Data Parts ---
     const data = {
         advice: {
@@ -119,7 +143,7 @@
             types: ["탐구하기:", "정리하기:", "설명하기:", "상상하기:"],
             actions: ["평소 궁금했던", "오랫동안 탐구하고 싶었던", "최근 흥미가 생긴", "당연하게 여겼던"],
             subjects: ["과학적 원리", "철학적 개념", "복잡한 시스템", "사회적 현상", "미해결 문제", "역사적 사건"],
-            verbs: ["에 대해 15분간 깊이 파고들어 보세요.", "의 핵심을 한 문장으로 요약해 보세요.", "을(를) 비전문가도 이해할 수 있도록 설명하는 글을 써보세요.", "과 관련된 새로운 아이디어를 3가지 이상 기록해 보세요.", "의 작동 방식을 다이어그램으로 그려보세요."]
+            verbs: ["에 대해 15분간 깊이 파고들어 보세요.", "의 핵심을 한 문장으로 요약해 보세요.", "을(를) 비전문가도 이해할 수 있도록 설명하는 글을 써보세요.", "과/와 관련된 새로운 아이디어를 3가지 이상 기록해 보세요.", "의 작동 방식을 다이어그램으로 그려보세요."]
         },
         intpIndex: {
             reasons: ["논리 회로가 명료하게 작동하여", "창의적 영감이 샘솟아", "지적 탐구심이 최고조에 달해", "시스템 전체를 꿰뚫어보는 통찰력이 발휘되어", "복잡한 정보 속에서 패턴을 발견하여"],
@@ -147,13 +171,29 @@
 
     function generateTask(randFn, parts) {
         const pick = (arr) => arr[Math.floor(randFn() * arr.length)];
-        return `오늘의 과제 (${pick(parts.types)}) ${pick(parts.actions)} ${pick(parts.subjects)}${pick(parts.verbs)}`;
+        
+        const type = pick(parts.types);
+        const action = pick(parts.actions);
+        const subject = pick(parts.subjects);
+        const verb = pick(parts.verbs);
+
+        // 문장 조합: action + subject + verb
+        let rawSentence = `${action} ${subject}${verb}`;
+
+        // 조사 처리
+        rawSentence = rawSentence
+            .replace("을(를)", josa(subject, "을/를"))
+            .replace("은(는)", josa(subject, "은/는"))
+            .replace("이(가)", josa(subject, "이/가"))
+            .replace("과/와", josa(subject, "과/와"));
+
+        return `오늘의 과제 (${type}) ${rawSentence}`;
     }
 
     function generateIntpIndex(randFn, parts) {
         const pick = (arr) => arr[Math.floor(randFn() * arr.length)];
         const percentage = 65 + Math.floor(randFn() * 31); // 65% to 95%
-        return `${percentage}% - ${pick(parts.reasons)} ${pick(parts.results)}`;
+        return `${percentage}% - ${pick(parts.reasons)} ${pick(parts.results}`;
     }
 
     function generateKeywords(randFn, keywords, count) {
