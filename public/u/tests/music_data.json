@@ -1,0 +1,18 @@
+
+[
+  {
+    "id": "thought-bubble",
+    "title": "생각 방울 (Thought Bubble)",
+    "artist": "Sol (솔)",
+    "path": "/u/sol/songs/0TiUHi3rW78/생각 방울 (Thought Bubble).mp3",
+    "duration": 210,
+    "sections": [
+      {"start": 10, "end": 15},
+      {"start": 30, "end": 35},
+      {"start": 50, "end": 55},
+      {"start": 70, "end": 75},
+      {"start": 90, "end": 95},
+      {"start": 110, "end": 115}
+    ]
+  }
+]
