@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const NOTE_SPEED = 3; // pixels per frame
     const HIT_LINE_Y = 450;
 
+    const START_DELAY = 5; // seconds
+
     let allMusicData = [];
     let currentSong = null;
     let currentBeatmap = null;
