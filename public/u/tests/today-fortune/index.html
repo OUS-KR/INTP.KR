@@ -187,7 +187,7 @@
             .replace("이(가)", josa(subject, "이/가"))
             .replace("과/와", josa(subject, "과/와"));
 
-        return `오늘의 과제 (${type}) ${rawSentence}`;
+        return `${type} ${rawSentence}`;
     }
 
     function generateIntpIndex(randFn, parts) {
