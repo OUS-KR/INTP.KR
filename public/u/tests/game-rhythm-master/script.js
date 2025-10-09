@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
@@ -324,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         goodCountDisplay.textContent = goodCount;
         okCountDisplay.textContent = okCount;
         missCountDisplay.textContent = missCount;
-        finalScoreDisplay.textContent = Math.round(score);
+                finalScoreDisplay.textContent = Math.round(score);
 
         // Grading Logic
         const finalGradeDisplay = document.getElementById('final-grade');
