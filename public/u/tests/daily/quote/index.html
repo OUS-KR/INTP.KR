@@ -2,13 +2,12 @@
                 <div class="nav-item dropdown">
                     <button class="dropdown-toggle">오늘의 INTP</button>
                     <div class="dropdown-menu">
-                        <a href="/u/tests/daily/">메인</a>
                         <a href="/u/tests/daily/quote/">오늘의 명언</a>
-                        <a href="/u/tests/daily/puzzle/">오늘의 논리 퍼즐</a>
+                        <a href="/u/tests/daily/logic-puzzle/">오늘의 논리 퍼즐</a>
                         <a href="/u/tests/daily/thought-experiment/">오늘의 사고실험</a>
-                        <a href="/u/tests/daily/weakness-workout/">INTP 약점 단련</a>
-                        <a href="/u/tests/daily/featured-idea/">오늘의 아이디어</a>
-                        <a href="/u/tests/daily/de-stressor/">오늘의 스트레스 해소법</a>
+                        <a href="/u/tests/daily/weakness-training/">INTP 약점 단련</a>
+                        <a href="/u/tests/daily/idea/">오늘의 아이디어</a>
+                        <a href="/u/tests/daily/stress-relief/">오늘의 스트레스 해소법</a>
                     </div>
                 </div>
                 <div class="nav-item dropdown">
@@ -46,4 +45,34 @@
                         <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
                     </div>
                 </div>
-            </nav><button id="theme-switcher" class="theme-switcher">🌙</button><button id="hamburger" class="hamburger">☰</button></div></header><div class="container"><h1>오늘의 명언</h1><div class="card"><p class="card-title">"나는 내가 아무것도 모른다는 것을 안다."</p><span>- 소크라테스</span></div></div><script src="/assets/js/main.js" defer></script></body></html>
+            </nav><button id="theme-switcher" class="theme-switcher">🌙</button><button id="hamburger" class="hamburger">☰</button></div></header><div class="container">
+    <h1>오늘의 명언</h1>
+    <div id="quote-display" class="card">
+        <p class="card-title" id="quote-text">콘텐츠를 불러오는 중...</p>
+        <span id="quote-author"></span>
+    </div>
+</div>
+<script src="/assets/js/main.js" defer></script>
+<script>
+    const quotes = [
+        { text: "나는 내가 아무것도 모른다는 것을 안다.", author: "소크라테스" },
+        { text: "생각하는 대로 살지 않으면, 사는 대로 생각하게 된다.", author: "폴 발레리" },
+        { text: "가장 훌륭한 지혜는 자신을 아는 것이다.", author: "갈릴레오 갈릴레이" },
+        { text: "인생은 용감한 모험이거나 아무것도 아니다.", author: "헬렌 켈러" },
+        { text: "성공은 최종적인 것이 아니며, 실패는 치명적인 것이 아니다. 중요한 것은 계속하려는 용기이다.", author: "윈스턴 처칠" },
+        { text: "어제는 역사이고, 내일은 미스터리이며, 오늘은 선물이다.", author: "엘리너 루즈벨트" },
+        { text: "배움은 끝이 없다. 삶이 있는 한 배움은 계속된다.", author: "세네카" },
+        { text: "지식은 힘이다.", author: "프랜시스 베이컨" },
+        { text: "모든 것을 의심하라.", author: "르네 데카르트" },
+        { text: "가장 중요한 것은 질문을 멈추지 않는 것이다.", author: "알베르트 아인슈타인" }
+    ];
+
+    function displayRandomQuote() {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        const randomQuote = quotes[randomIndex];
+        document.getElementById('quote-text').textContent = `"${randomQuote.text}"`;
+        document.getElementById('quote-author').textContent = `- ${randomQuote.author}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', displayRandomQuote);
+</script></body></html>

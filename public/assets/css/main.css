@@ -443,3 +443,24 @@ h3 {
     color: var(--nav-link-hover);
     margin-bottom: 10px;
 }
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .container {
+        margin: 20px auto; /* Reduce top/bottom margin */
+        padding: 15px; /* Reduce padding */
+    }
+
+    .card {
+        padding: 15px; /* Reduce card padding */
+        margin: 15px 0; /* Reduce card margin */
+    }
+
+    h1 {
+        font-size: 2em; /* Adjust heading size */
+    }
+
+    h2 {
+        font-size: 1.5em; /* Adjust heading size */
+    }
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTP 약점 단련</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+    <header class="main-nav">
+        <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">오늘의 INTP</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/daily/quote/">오늘의 명언</a>
+                        <a href="/u/tests/daily/logic-puzzle/">오늘의 논리 퍼즐</a>
+                        <a href="/u/tests/daily/thought-experiment/">오늘의 사고실험</a>
+                        <a href="/u/tests/daily/weakness-training/">INTP 약점 단련</a>
+                        <a href="/u/tests/daily/idea/">오늘의 아이디어</a>
+                        <a href="/u/tests/daily/stress-relief/">오늘의 스트레스 해소법</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
+                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
+    </header>
+    <div class="container">
+        <h1>INTP 약점 단련</h1>
+        <div id="weakness-training-display" class="card">
+            <h2 id="training-title">콘텐츠를 불러오는 중...</h2>
+            <p id="training-text"></p>
+        </div>
+    </div>
+    <script src="/assets/js/main.js" defer></script>
+    <script>
+        const weaknessTrainings = [
+            {
+                title: "감정 표현 연습",
+                text: "거울을 보며 다양한 감정(기쁨, 슬픔, 분노, 놀람 등)을 표정으로 표현하는 연습을 해보세요. 또는 가까운 사람에게 자신의 감정을 솔직하게 말하는 연습을 시작해 보세요. INTP에게는 논리만큼 감정 이해도 중요합니다."
+            },
+            {
+                title: "일상의 작은 변화 시도",
+                text: "매일 같은 루틴에서 벗어나 작은 변화를 시도해 보세요. 예를 들어, 평소 가지 않던 길로 출근하거나, 새로운 음식을 시도하거나, 예상치 못한 사람에게 먼저 말을 걸어보는 것입니다. 이는 새로운 경험에 대한 개방성을 높여줍니다."
+            },
+            {
+                title: "타인의 관점 이해하기",
+                text: "논쟁이나 의견 충돌이 있을 때, 자신의 논리를 주장하기 전에 상대방의 입장에서 상황을 바라보고 그들의 감정을 이해하려 노력해 보세요. '만약 내가 저 사람이라면 어떻게 느꼈을까?'라고 질문해 보는 것이 도움이 됩니다."
+            },
+            {
+                title: "실용적인 문제 해결 연습",
+                text: "추상적인 이론에만 머무르지 않고, 실제 생활에서 발생하는 작은 문제들을 직접 해결해 보세요. 예를 들어, 고장 난 물건을 고치거나, 복잡한 서류 작업을 효율적으로 처리하는 방법을 찾는 것입니다. 이는 현실 감각을 길러줍니다."
+            },
+            {
+                title: "계획 세우고 실행하기",
+                text: "INTP는 계획을 세우는 것을 어려워하거나 실행력이 부족할 수 있습니다. 작은 목표(예: 30분 독서, 방 정리)를 세우고, 구체적인 계획을 수립한 후, 이를 완수하는 연습을 해보세요. 성공 경험이 쌓이면 더 큰 목표에도 도전할 수 있습니다."
+            }
+        ];
+
+        function displayRandomWeaknessTraining() {
+            const randomIndex = Math.floor(Math.random() * weaknessTrainings.length);
+            const randomTraining = weaknessTrainings[randomIndex];
+            document.getElementById('training-title').textContent = `INTP 약점 단련: ${randomTraining.title}`;
+            document.getElementById('training-text').textContent = randomTraining.text;
+        }
+
+        document.addEventListener('DOMContentLoaded', displayRandomWeaknessTraining);
+    </script>
+</body>
+</html>
