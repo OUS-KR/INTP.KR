@@ -87,6 +87,38 @@
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 12px;
+    height: 40px; /* Consistent height */
+    line-height: 40px; /* Vertically center text */
+}
+
+/* Style for the checkbox and its label */
+#game-controls label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+#game-controls select,
+#shuffle-all-label {
+    height: 40px; /* Consistent height */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+#shuffle-all-label {
+    /* Inherit btn styles or define new ones */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    white-space: nowrap; /* Prevent text wrapping */
+    border: 2px solid var(--h-color); /* Default border */
+    background-color: var(--card-bg); /* Default background */
+    color: var(--text-color); /* Default text color */
 }
 
 /* Style for the checkbox and its label */
