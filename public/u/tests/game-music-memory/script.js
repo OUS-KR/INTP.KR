@@ -218,11 +218,13 @@ document.addEventListener('DOMContentLoaded', () => {
         songSelect.disabled = shuffleAllCheckbox.checked;
         if (shuffleAllCheckbox.checked) {
             songSelect.value = ''; // Clear selection when shuffling all
+            shuffleAllLabel.classList.add('shuffle-active'); // Add class
         } else {
             // Select the first song when shuffle is off
             if (allMusicData.length > 0) {
                 songSelect.value = allMusicData[0].id;
             }
+            shuffleAllLabel.classList.remove('shuffle-active'); // Remove class
         }
     });
 

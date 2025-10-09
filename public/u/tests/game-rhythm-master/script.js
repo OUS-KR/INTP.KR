@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameSetup = document.getElementById('game-setup');
     const gameControls = document.getElementById('game-controls');
     const loadingMessage = document.getElementById('loading-message');
-    const loadingMessage = document.getElementById('loading-message');
 
     const audioPlayer = new Audio();
 

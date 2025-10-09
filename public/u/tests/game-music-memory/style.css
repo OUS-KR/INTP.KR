@@ -137,10 +137,10 @@
 }
 
 /* Style for when shuffle-all is checked */
-#shuffle-all:checked + #shuffle-all-label {
-    background-color: var(--h-color) !important; /* Active background */
-    color: var(--bg-color) !important; /* Active text color */
-    border-color: var(--h-color); /* Active border */
+.shuffle-active {
+    background-color: var(--h-color) !important;
+    color: var(--bg-color) !important;
+    border-color: var(--h-color) !important;
 }
 
 /* Hide the actual checkbox */
