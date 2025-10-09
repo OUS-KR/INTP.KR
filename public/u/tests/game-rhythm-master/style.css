@@ -1,4 +1,3 @@
-
 body {
     touch-action: none; /* Disable double-tap to zoom on mobile */
 }
@@ -11,34 +10,76 @@ body {
     position: relative;
 }
 
+/* Add styles for new UI elements */
+#game-setup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#game-setup select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--card-border);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+#game-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#stats-container {
+    margin-top: 20px;
+    padding: 15px;
+    border: 2px solid var(--h-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    width: 300px;
+}
+
+#stats-container h3 {
+    color: var(--h-color);
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#stats-container p {
+    margin: 5px 0;
+    font-size: 1.1em;
+}
+
+#stats-container span {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+/* Adjust existing styles */
 #ui-container {
     display: flex;
     justify-content: space-between;
-    width: 400px;
+    width: 400px; /* Match canvas width */
     font-size: 1.2em;
     font-weight: bold;
     margin-bottom: 10px;
+    color: var(--text-color); /* Ensure text color is consistent */
 }
 
 #game-canvas {
     background-color: var(--bg-color);
     border: 2px solid var(--h-color);
     border-radius: 8px;
+    touch-action: none; /* Ensure touch events are handled by JS */
 }
 
-#feedback {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 3em;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 2px 2px 4px #000;
-    opacity: 0;
-    transition: opacity 0.5s;
-}
-
+/* Remove #start-btn margin-top as it's now part of game-controls */
 #start-btn {
-    margin-top: 20px;
+    margin-top: 0;
 }

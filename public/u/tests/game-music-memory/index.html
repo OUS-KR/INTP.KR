@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -67,7 +66,11 @@
         <p style="text-align:center;">카드를 뒤집어 같은 구간의 음악을 찾아보세요.</p>
         
         <div class="game-container">
-            <div class="controls">
+            <div id="game-controls" class="controls">
+                <select id="song-select"></select>
+                <label>
+                    <input type="checkbox" id="shuffle-all"> 모든 노래 섞기
+                </label>
                 <button id="start-game-btn" class="btn btn-primary">게임 시작</button>
             </div>
             <div id="game-board"></div>

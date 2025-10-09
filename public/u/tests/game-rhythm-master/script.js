@@ -1,26 +1,48 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
+    const songSelect = document.getElementById('song-select');
+    const loadSongBtn = document.getElementById('load-song-btn');
     const startBtn = document.getElementById('start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
+    const restartBtn = document.getElementById('restart-btn');
     const scoreDisplay = document.getElementById('score');
     const comboDisplay = document.getElementById('combo');
     const feedbackDisplay = document.getElementById('feedback');
+    const statsContainer = document.getElementById('stats-container');
+    const perfectCountDisplay = document.getElementById('perfect-count');
+    const goodCountDisplay = document.getElementById('good-count');
+    const okCountDisplay = document.getElementById('ok-count');
+    const missCountDisplay = document.getElementById('miss-count');
+    const finalScoreDisplay = document.getElementById('final-score');
+    const gameSetup = document.getElementById('game-setup');
+    const gameControls = document.getElementById('game-controls');
 
     const audioPlayer = new Audio();
 
     // Game settings
-    const LANES = 1; // Simplified to a single lane
+    const LANES = 1; 
     const NOTE_HEIGHT = 40;
     const NOTE_SPEED = 3; // pixels per frame
     const HIT_LINE_Y = 450;
 
+    let allMusicData = [];
+    let currentSong = null;
+    let currentBeatmap = null;
     let score = 0;
     let combo = 0;
     let notes = [];
-    let beatmap = null;
-    let songPath = '';
     let gameStartTime = 0;
     let isPlaying = false;
+    let isPaused = false;
+    let animationFrameId = null;
+
+    let perfectCount = 0;
+    let goodCount = 0;
+    let okCount = 0;
+    let missCount = 0;
 
     canvas.width = 400;
     canvas.height = 500;
@@ -32,60 +54,89 @@ document.addEventListener('DOMContentLoaded', () => {
     const GOOD_WINDOW = 0.1;
     const OK_WINDOW = 0.15;
 
-    async function loadGameData() {
+    async function loadAllMusicData() {
         try {
-            const musicResponse = await fetch('../music_data.json');
-            const musicData = await musicResponse.json();
-            const song = musicData[0]; // Use first song for now
-            songPath = `../../..${song.path}`;
-
-            const beatmapResponse = await fetch('./beatmaps/thought-bubble.beatmap.json');
-            beatmap = await beatmapResponse.json();
-
+            const response = await fetch('../music_data.json');
+            allMusicData = await response.json();
+            populateSongSelect();
+            if (allMusicData.length > 0) {
+                currentSong = allMusicData[0];
+                await loadBeatmap(currentSong.id);
+            }
         } catch (error) {
-            console.error('Error loading game data:', error);
+            console.error('Error loading music data:', error);
+        }
+    }
+
+    function populateSongSelect() {
+        songSelect.innerHTML = '';
+        allMusicData.forEach(song => {
+            const option = document.createElement('option');
+            option.value = song.id;
+            option.textContent = song.title;
+            songSelect.appendChild(option);
+        });
+    }
+
+    async function loadBeatmap(songId) {
+        try {
+            const beatmapResponse = await fetch(`./beatmaps/${songId}.beatmap.json`);
+            currentBeatmap = await beatmapResponse.json();
+            startBtn.disabled = false;
+            startBtn.textContent = '게임 시작';
+        } catch (error) {
+            console.error(`Error loading beatmap for ${songId}:`, error);
+            startBtn.textContent = '비트맵 로딩 실패';
+            startBtn.disabled = true;
         }
     }
 
     function prepareNotes() {
-        notes = beatmap.notes.map(note => ({
+        notes = currentBeatmap.notes.map(note => ({
             time: note.time,
-            lane: 0, // All notes in one lane
+            lane: 0, 
             y: -NOTE_HEIGHT,
             isHit: false
         }));
     }
 
-    function gameLoop(timestamp) {
-        if (!isPlaying) return;
+    function gameLoop() {
+        if (!isPlaying || isPaused) return;
 
         update();
         draw();
 
-        requestAnimationFrame(gameLoop);
+        animationFrameId = requestAnimationFrame(gameLoop);
     }
 
     function update() {
-        const elapsedTime = (Date.now() - gameStartTime) / 1000;
+        const elapsedTime = (audioPlayer.currentTime || 0);
+
+        let allNotesProcessed = true;
 
         notes.forEach(note => {
             if (!note.isHit) {
+                allNotesProcessed = false;
                 const timeDiff = note.time - elapsedTime;
                 note.y = HIT_LINE_Y - (timeDiff * NOTE_SPEED * 60); 
 
-                if (note.y > canvas.height) {
+                if (note.y > canvas.height && !note.isHit) {
                     note.isHit = true; 
+                    missCount++;
                     resetCombo();
                     showFeedback('Miss');
                 }
             }
         });
+
+        if (allNotesProcessed && audioPlayer.ended) {
+            endGame();
+        }
     }
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw hit line
         ctx.strokeStyle = '#f1c40f';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -94,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.stroke();
         ctx.lineWidth = 1;
 
-        // Draw notes
         notes.forEach(note => {
             if (!note.isHit && note.y > -NOTE_HEIGHT && note.y < canvas.height) {
                 ctx.fillStyle = '#3498db';
@@ -103,18 +153,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function handleInput(event) {
-        if (!isPlaying) return;
+    function handleInput() {
+        if (!isPlaying || isPaused) return;
 
-        const elapsedTime = (Date.now() - gameStartTime) / 1000;
+        const elapsedTime = (audioPlayer.currentTime || 0);
         let hit = false;
 
-        // Find the closest un-hit note
         let closestNote = null;
         let minTimeDiff = Infinity;
 
         for (const note of notes) {
-            if (!note.isHit) {
+            if (!note.isHit && note.y > HIT_LINE_Y - NOTE_HEIGHT && note.y < HIT_LINE_Y + NOTE_HEIGHT) { // Only consider notes near hit line
                 const timeDiff = Math.abs(note.time - elapsedTime);
                 if (timeDiff < minTimeDiff) {
                     minTimeDiff = timeDiff;
@@ -129,18 +178,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (minTimeDiff <= PERFECT_WINDOW) {
                 score += 100;
                 combo++;
+                perfectCount++;
                 showFeedback('Perfect');
             } else if (minTimeDiff <= GOOD_WINDOW) {
                 score += 50;
                 combo++;
+                goodCount++;
                 showFeedback('Good');
             } else {
                 score += 20;
                 combo++;
+                okCount++;
                 showFeedback('OK');
             }
         } else {
-            // Tapping with no note nearby doesn't reset combo
+            // If no note was hit within the window, it's a miss for combo purposes
+            resetCombo();
         }
 
         scoreDisplay.textContent = `점수: ${score}`;
@@ -160,33 +213,119 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }
 
+    function resetStats() {
+        score = 0;
+        combo = 0;
+        perfectCount = 0;
+        goodCount = 0;
+        okCount = 0;
+        missCount = 0;
+        scoreDisplay.textContent = '점수: 0';
+        comboDisplay.textContent = '콤보: 0';
+        perfectCountDisplay.textContent = '0';
+        goodCountDisplay.textContent = '0';
+        okCountDisplay.textContent = '0';
+        missCountDisplay.textContent = '0';
+        finalScoreDisplay.textContent = '0';
+    }
+
     async function startGame() {
-        startBtn.disabled = true;
-        startBtn.textContent = '로딩 중...';
-        await loadGameData();
-        
-        if (!beatmap) {
-            startBtn.textContent = '데이터 로딩 실패';
+        if (!currentBeatmap) {
+            alert('음악을 먼저 로드해주세요!');
             return;
         }
 
-        prepareNotes();
-        score = 0;
-        combo = 0;
-        scoreDisplay.textContent = '점수: 0';
-        comboDisplay.textContent = '콤보: 0';
-        isPlaying = true;
+        gameSetup.style.display = 'none';
+        gameControls.style.display = 'flex';
+        startBtn.style.display = 'none';
+        pauseBtn.style.display = 'inline-block';
+        resumeBtn.style.display = 'none';
+        restartBtn.style.display = 'inline-block';
+        statsContainer.style.display = 'none';
 
-        audioPlayer.src = songPath;
+        resetStats();
+        prepareNotes();
+        isPlaying = true;
+        isPaused = false;
+
+        audioPlayer.src = `../../..${currentSong.path}`;
+        audioPlayer.currentTime = 0;
         audioPlayer.play();
         gameStartTime = Date.now();
 
-        startBtn.style.display = 'none';
-
-        requestAnimationFrame(gameLoop);
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        gameLoop();
     }
 
+    function pauseGame() {
+        if (!isPlaying || isPaused) return;
+        isPaused = true;
+        audioPlayer.pause();
+        cancelAnimationFrame(animationFrameId);
+        pauseBtn.style.display = 'none';
+        resumeBtn.style.display = 'inline-block';
+    }
+
+    function resumeGame() {
+        if (!isPlaying || !isPaused) return;
+        isPaused = false;
+        audioPlayer.play();
+        gameLoop();
+        pauseBtn.style.display = 'inline-block';
+        resumeBtn.style.display = 'none';
+    }
+
+    async function restartGame() {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        isPlaying = false;
+        isPaused = false;
+        gameSetup.style.display = 'flex';
+        gameControls.style.display = 'flex';
+        startBtn.style.display = 'inline-block';
+        pauseBtn.style.display = 'none';
+        resumeBtn.style.display = 'none';
+        restartBtn.style.display = 'none';
+        statsContainer.style.display = 'none';
+        resetStats();
+        // Re-load beatmap for the current song to ensure fresh notes
+        if (currentSong) {
+            await loadBeatmap(currentSong.id);
+        }
+    }
+
+    function endGame() {
+        isPlaying = false;
+        audioPlayer.pause();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        gameControls.style.display = 'flex';
+        startBtn.style.display = 'inline-block';
+        pauseBtn.style.display = 'none';
+        resumeBtn.style.display = 'none';
+        restartBtn.style.display = 'none';
+        statsContainer.style.display = 'block';
+        perfectCountDisplay.textContent = perfectCount;
+        goodCountDisplay.textContent = goodCount;
+        okCountDisplay.textContent = okCount;
+        missCountDisplay.textContent = missCount;
+        finalScoreDisplay.textContent = score;
+    }
+
+    // Event Listeners
+    loadSongBtn.addEventListener('click', async () => {
+        const selectedSongId = songSelect.value;
+        currentSong = allMusicData.find(song => song.id === selectedSongId);
+        if (currentSong) {
+            await loadBeatmap(currentSong.id);
+        }
+    });
     startBtn.addEventListener('click', startGame);
+    pauseBtn.addEventListener('click', pauseGame);
+    resumeBtn.addEventListener('click', resumeGame);
+    restartBtn.addEventListener('click', restartGame);
     canvas.addEventListener('click', handleInput);
     canvas.addEventListener('touchstart', handleInput);
+
+    loadAllMusicData();
 });

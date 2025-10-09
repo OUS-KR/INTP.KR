@@ -1,8 +1,13 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board');
     const startGameBtn = document.getElementById('start-game-btn');
     const messageElement = document.getElementById('message');
+    const songSelect = document.getElementById('song-select');
+    const shuffleAllCheckbox = document.getElementById('shuffle-all');
+    const gameControls = document.getElementById('game-controls');
 
+    let allMusicData = [];
     let songPath = '';
 
     let cards = [];
@@ -15,28 +20,62 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadMusicData() {
         try {
             const response = await fetch('../music_data.json');
-            const data = await response.json();
-            const song = data[0];
-            songPath = `../../..${song.path}`;
-            return song;
+            allMusicData = await response.json();
+            populateSongSelect();
         } catch (error) {
             console.error('Error loading music data:', error);
             messageElement.textContent = '음악 데이터를 불러오는 데 실패했습니다.';
         }
     }
 
-    function createBoard(song) {
+    function populateSongSelect() {
+        songSelect.innerHTML = '';
+        allMusicData.forEach(song => {
+            const option = document.createElement('option');
+            option.value = song.id;
+            option.textContent = song.title;
+            songSelect.appendChild(option);
+        });
+        // Select the first song by default
+        if (allMusicData.length > 0) {
+            songPath = `../../..${allMusicData[0].path}`;
+        }
+    }
+
+    function createBoard(selectedSongId, shuffleAll) {
         gameBoard.innerHTML = '';
         matchedPairs = 0;
         cards = [];
         lockBoard = false;
 
-        let sections = song.sections;
-        if (!sections || sections.length < 6) {
-            sections = generateRandomSections(song.duration, 6);
+        let gameSections = [];
+
+        if (shuffleAll) {
+            // Mix sections from all songs
+            const allSections = allMusicData.flatMap(song => {
+                let sections = song.sections;
+                if (!sections || sections.length < 6) {
+                    sections = generateRandomSections(song.duration, 6);
+                }
+                return sections.slice(0, 6).map(s => ({ ...s, songId: song.id, songPath: `../../..${song.path}` }));
+            });
+            shuffle(allSections);
+            gameSections = allSections.slice(0, 6).flatMap(section => [section, section]);
+        } else {
+            // Use sections from a single selected song
+            const selectedSong = allMusicData.find(song => song.id === selectedSongId);
+            if (!selectedSong) {
+                messageElement.textContent = '선택된 음악을 찾을 수 없습니다.';
+                return;
+            }
+            songPath = `../../..${selectedSong.path}`;
+            let sections = selectedSong.sections;
+            if (!sections || sections.length < 6) {
+                sections = generateRandomSections(selectedSong.duration, 6);
+            }
+            gameSections = sections.slice(0, 6).flatMap(section => [section, section]);
         }
 
-        const gameSections = sections.slice(0, 6).flatMap(section => [section, section]);
         shuffle(gameSections);
 
         gameSections.forEach((section, index) => {
@@ -45,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.dataset.id = index;
             card.dataset.startTime = section.start;
             card.dataset.endTime = section.end;
+            card.dataset.songPath = section.songPath || songPath; // Use specific songPath if shuffled
 
             card.innerHTML = `
                 <div class="card-face card-front">?</div>
@@ -74,19 +114,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function flipCard(card) {
         if (lockBoard || card.classList.contains('flip') || card.classList.contains('matched')) return;
 
-        lockBoard = true; // Lock the board immediately
         card.classList.add('flip');
-        playSnippet(card.dataset.startTime, card.dataset.endTime);
-
         flippedCards.push(card);
 
-        if (flippedCards.length === 2) {
-            checkForMatch();
-        }
+        lockBoard = true; // Lock the board immediately when a card is flipped
+
+        playSnippet(card.dataset.songPath, card.dataset.startTime, card.dataset.endTime, () => {
+            // Callback after snippet finishes
+            if (flippedCards.length === 1) { // If only one card is flipped, unlock the board
+                lockBoard = false;
+            } else if (flippedCards.length === 2) { // If two cards are flipped, proceed to check for match
+                checkForMatch();
+            }
+        });
     }
 
-    function playSnippet(startTime, endTime) {
-        audioPlayer.src = songPath;
+    function playSnippet(path, startTime, endTime, callback) {
+        audioPlayer.src = path;
         audioPlayer.currentTime = startTime;
         audioPlayer.play();
 
@@ -94,58 +138,56 @@ document.addEventListener('DOMContentLoaded', () => {
             if (audioPlayer.currentTime >= endTime || audioPlayer.paused) {
                 audioPlayer.pause();
                 clearInterval(checkTime);
-                // If it was the first card, unlock board. If it was the second, checkForMatch handles the lock.
-                if (flippedCards.length < 2) {
-                    lockBoard = false;
-                }
+                if (callback) callback(); // Execute callback after audio finishes
             }
         }, 100);
     }
 
     function checkForMatch() {
-        // lockBoard is already true from the second card's flipCard call
         const [card1, card2] = flippedCards;
 
-        if (card1.dataset.startTime === card2.dataset.startTime) {
+        if (card1.dataset.startTime === card2.dataset.startTime && card1.dataset.songPath === card2.dataset.songPath) {
             // Match
             card1.classList.add('matched');
             card2.classList.add('matched');
             matchedPairs++;
-            resetFlippedCards();
+            resetFlippedCards(); // This will unlock the board
             if (matchedPairs === 6) {
                 endGame();
             }
         } else {
-            // No match - unflip after a delay
+            // No match - unflip after a delay, then unlock board
             setTimeout(() => {
                 card1.classList.remove('flip');
                 card2.classList.remove('flip');
-                resetFlippedCards();
+                resetFlippedCards(); // This will unlock the board
             }, 1500);
         }
     }
 
     function resetFlippedCards() {
         flippedCards = [];
-        lockBoard = false;
+        lockBoard = false; // Always unlock here
     }
 
     function startGame() {
         startGameBtn.disabled = true;
         messageElement.textContent = '';
+        gameControls.style.display = 'none'; // Hide controls during game
+
+        const selectedSongId = songSelect.value;
+        const shuffleAll = shuffleAllCheckbox.checked;
         
-        loadMusicData().then(song => {
-            if (song) {
-                createBoard(song);
-            }
-        });
+        createBoard(selectedSongId, shuffleAll);
     }
 
     function endGame() {
         lockBoard = true;
         messageElement.textContent = '축하합니다! 모든 쌍을 맞췄습니다!';
         startGameBtn.disabled = false;
+        gameControls.style.display = 'flex'; // Show controls after game
     }
 
     startGameBtn.addEventListener('click', startGame);
+    loadMusicData(); // Load music data on page load
 });
