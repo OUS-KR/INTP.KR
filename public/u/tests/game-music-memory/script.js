@@ -58,13 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mix sections from all songs
             const allSections = allMusicData.flatMap(song => {
                 let sections = song.sections;
-                if (!sections || sections.length < 6) {
-                    sections = generateRandomSections(song.duration, 6);
+                if (!sections || sections.length < 8) {
+                    sections = generateRandomSections(song.duration, 8);
                 }
-                return sections.slice(0, 6).map(s => ({ ...s, songId: song.id, songPath: `../../..${song.path}` }));
+                return sections.slice(0, 8).map(s => ({ ...s, songId: song.id, songPath: `../../..${song.path}` }));
             });
             shuffle(allSections);
-            gameSections = allSections.slice(0, 6).flatMap(section => [section, section]);
+            gameSections = allSections.slice(0, 8).flatMap(section => [section, section]);
         } else {
             // Use sections from a single selected song
             const selectedSong = allMusicData.find(song => song.id === selectedSongId);

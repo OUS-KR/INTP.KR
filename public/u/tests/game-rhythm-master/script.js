@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalScoreDisplay = document.getElementById('final-score');
     const gameSetup = document.getElementById('game-setup');
     const gameControls = document.getElementById('game-controls');
+    const loadingMessage = document.getElementById('loading-message');
 
     const audioPlayer = new Audio();
 

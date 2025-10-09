@@ -138,8 +138,8 @@
 
 /* Style for when shuffle-all is checked */
 #shuffle-all:checked + #shuffle-all-label {
-    background-color: var(--h-color); /* Active background */
-    color: var(--bg-color); /* Active text color */
+    background-color: var(--h-color) !important; /* Active background */
+    color: var(--bg-color) !important; /* Active text color */
     border-color: var(--h-color); /* Active border */
 }
 
