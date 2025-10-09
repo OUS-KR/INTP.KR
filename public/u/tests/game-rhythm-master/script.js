@@ -253,11 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function startGame() {
-        if (!currentBeatmap) {
-            alert('음악을 먼저 로드해주세요!');
-            return;
-        }
-
         gameSetup.style.display = 'none';
         gameControls.style.display = 'flex';
         startBtn.style.display = 'none';
@@ -265,6 +260,31 @@ document.addEventListener('DOMContentLoaded', () => {
         resumeBtn.style.display = 'none';
         restartBtn.style.display = 'inline-block';
         statsContainer.style.display = 'none';
+
+        loadingMessage.style.display = 'block'; // Show loading message
+        startBtn.disabled = true; // Disable start button during loading
+
+        const selectedSongId = songSelect.value;
+        currentSong = allMusicData.find(song => song.id === selectedSongId);
+
+        if (!currentSong) {
+            alert('선택된 음악을 찾을 수 없습니다!');
+            loadingMessage.style.display = 'none';
+            startBtn.disabled = false;
+            return;
+        }
+
+        try {
+            await loadBeatmap(currentSong.id);
+        } catch (error) {
+            alert('비트맵 로딩 실패: ' + error.message);
+            loadingMessage.style.display = 'none';
+            startBtn.disabled = false;
+            return;
+        }
+
+        loadingMessage.style.display = 'none'; // Hide loading message
+        startBtn.disabled = false; // Re-enable start button
 
         resetStats();
         prepareNotes();
@@ -276,8 +296,11 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.play();
         gameStartTime = Date.now();
 
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        gameLoop();
+        // Wait for the start delay before notes appear
+        setTimeout(() => {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            gameLoop();
+        }, START_DELAY * 1000); // Convert seconds to milliseconds
     }
 
     function pauseGame() {
