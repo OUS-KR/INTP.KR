@@ -4,91 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 운세 - INTP</title>
-    <link rel="stylesheet" href="../../../css/style.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        header {
-            background-color: var(--header-bg-color);
+        /* Custom styles for fortune page, if any, can go here */
+        .fortune-section {
+            margin-bottom: 1.5em;
             padding: 1em;
-            border-bottom: 1px solid var(--border-color);
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: space-around;
-        }
-        nav a {
-            color: var(--link-color);
-            text-decoration: none;
-            padding: 0.5em 1em;
-            display: block;
-        }
-        main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2em;
-            text-align: center;
-        }
-        .fortune-card {
-            background-color: var(--card-bg-color);
             border-radius: 8px;
+            background-color: var(--card-bg-color);
             box-shadow: var(--card-shadow);
-            padding: 2em;
-            max-width: 600px;
-            width: 100%;
         }
-        .fortune-card h1 {
+        .fortune-section h2 {
             color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5em;
             margin-bottom: 1em;
         }
-        .fortune-text {
-            font-size: 1.2em;
+        .fortune-section p, .fortune-section ul {
+            font-size: 1.1em;
             line-height: 1.6;
         }
-        footer {
-            background-color: var(--footer-bg-color);
-            color: var(--footer-text-color);
-            text-align: center;
-            padding: 1em;
-            border-top: 1px solid var(--border-color);
+        .fortune-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .fortune-section ul li::before {
+            content: '• ';
+            color: var(--primary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="../../index.html">홈</a></li>
-                <li><a href="../index.html">오늘의 콘텐츠</a></li>
-                <li><a href="../../info-characteristics/index.html">INTP 특징</a></li>
-                <li><a href="../../test-logic-quiz/index.html">논리 퀴즈</a></li>
-                <li><a href="../../game-abstract-reasoning/index.html">추상적 사고 게임</a></li>
-            </ul>
-        </nav>
+    <header class="main-nav">
+        <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">오늘의 콘텐츠</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/today/fortune/">오늘의 운세</a>
+                        <a href="/u/tests/today/game/">오늘의 게임</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
+                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
 
-    <main>
-        <div class="fortune-card">
-            <h1>오늘의 INTP 운세</h1>
-            <p id="fortuneDisplay" class="fortune-text">운세를 불러오는 중...</p>
+    <div class="container">
+        <h1>오늘의 INTP 운세</h1>
+        <div id="fortuneContent">
+            <!-- Fortune content will be loaded here by JavaScript -->
+            <div class="fortune-section">
+                <h2>오늘의 조언</h2>
+                <p id="adviceDisplay">조언을 불러오는 중...</p>
+            </div>
+            <div class="fortune-section">
+                <h2>오늘의 과제</h2>
+                <p id="taskDisplay">과제를 불러오는 중...</p>
+            </div>
+            <div class="fortune-section">
+                <h2>INTP 지수</h2>
+                <p id="intpIndexDisplay">INTP 지수를 불러오는 중...</p>
+            </div>
+            <div class="fortune-section">
+                <h2>행운의 키워드</h2>
+                <p id="keywordDisplay">키워드를 불러오는 중...</p>
+            </div>
         </div>
-    </main>
+    </div>
 
-    <footer>
-        <p>&copy; 2025 INTP.KR</p>
-    </footer>
-
+    <script src="/assets/js/main.js" defer></script>
     <script>
         function getDailySeed() {
             const today = new Date();
@@ -105,24 +132,46 @@
             }
         }
 
-        const fortunes = [
-            "오늘은 복잡한 문제 해결에 탁월한 날입니다. 당신의 논리적 사고가 빛을 발할 것입니다.",
-            "새로운 아이디어가 샘솟는 하루가 될 것입니다. 기록하고 발전시켜 보세요.",
-            "예상치 못한 지적 자극이 당신을 기다립니다. 호기심을 따라가세요.",
-            "오늘은 혼자만의 시간을 통해 깊은 통찰을 얻기 좋은 날입니다. 내면의 목소리에 귀 기울이세요.",
-            "당신의 독창적인 관점이 주변에 신선한 영감을 줄 것입니다. 주저하지 말고 표현하세요.",
-            "논쟁보다는 건설적인 토론이 필요한 날입니다. 상대방의 관점을 분석해 보세요.",
-            "오랫동안 미뤄왔던 연구나 학습에 몰두하기 좋은 시기입니다. 집중력이 최고조에 달할 것입니다.",
-            "오늘은 비판적 사고가 중요한 역할을 할 것입니다. 겉모습에 속지 마세요.",
-            "당신의 분석적인 접근 방식이 혼란스러운 상황을 명확하게 정리해 줄 것입니다.",
-            "새로운 기술이나 이론을 탐구하며 즐거움을 찾을 수 있는 하루입니다. 지적 유희를 만끽하세요."
+        const advices = [
+            "복잡한 문제에 직면했을 때, 한 걸음 물러서서 전체 시스템을 조망해 보세요. 예상치 못한 패턴이 보일 것입니다.",
+            "새로운 아이디어가 떠오르면 즉시 기록하세요. 당신의 뇌는 끊임없이 혁신적인 생각을 만들어냅니다.",
+            "지적 호기심을 자극하는 분야에 몰두하는 시간을 가지세요. 깊이 있는 탐구가 당신의 에너지를 충전할 것입니다.",
+            "타인의 감정을 이해하기 어렵다면, 그들의 행동 뒤에 숨겨진 논리를 찾아보려 노력해 보세요. 새로운 관점을 얻을 수 있습니다.",
+            "완벽을 추구하는 것도 좋지만, 때로는 '충분히 좋다'는 것을 인정하고 다음 단계로 나아가는 용기가 필요합니다."
+        ];
+
+        const tasks = [
+            "오늘의 과제: 평소 궁금했던 과학적 현상이나 철학적 개념에 대해 30분간 깊이 탐구해 보세요.",
+            "오늘의 과제: 복잡한 문제를 단순화할 수 있는 새로운 시스템이나 알고리즘을 구상해 보세요.",
+            "오늘의 과제: 당신의 아이디어를 비판적으로 검토하고, 예상되는 반론에 대한 논리적인 답변을 준비해 보세요.",
+            "오늘의 과제: 주변 사람들과 당신의 독특한 관점을 공유하고, 그들의 반응을 관찰해 보세요.",
+            "오늘의 과제: 미루고 있던 작은 프로젝트를 시작하고, 첫 번째 단계를 완료해 보세요."
+        ];
+
+        const intpIndices = [
+            "85% - 오늘은 당신의 논리 회로가 최고조에 달하는 날입니다. 분석적인 통찰력이 빛을 발할 것입니다.",
+            "70% - 지적 탐구에 좋은 날이지만, 현실적인 제약도 고려해야 합니다. 균형을 찾아보세요.",
+            "92% - 당신의 독창적인 아이디어가 세상을 바꿀 잠재력을 가집니다. 과감하게 시도해 보세요.",
+            "60% - 오늘은 감성적인 교류가 필요한 날입니다. 잠시 논리를 내려놓고 마음을 열어보세요.",
+            "78% - 새로운 지식을 습득하기에 최적의 날입니다. 흥미로운 다큐멘터리나 책을 찾아보세요."
+        ];
+
+        const keywords = [
+            "#분석 #통찰 #시스템 #아이디어 #탐구",
+            "#논리 #패턴 #해결 #지식 #독립",
+            "#혁신 #질문 #이론 #발견 #사색",
+            "#전략 #구조 #개념 #실험 #정의",
+            "#명확성 #객관성 #합리성 #진실 #탐험"
         ];
 
         window.onload = function() {
             const seed = getDailySeed();
             const rand = mulberry32(seed);
-            const randomIndex = Math.floor(rand() * fortunes.length);
-            document.getElementById('fortuneDisplay').innerText = fortunes[randomIndex];
+
+            document.getElementById('adviceDisplay').innerText = advices[Math.floor(rand() * advices.length)];
+            document.getElementById('taskDisplay').innerText = tasks[Math.floor(rand() * tasks.length)];
+            document.getElementById('intpIndexDisplay').innerText = intpIndices[Math.floor(rand() * intpIndices.length)];
+            document.getElementById('keywordDisplay').innerText = keywords[Math.floor(rand() * keywords.length)];
         };
     </script>
 </body>

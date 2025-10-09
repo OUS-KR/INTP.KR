@@ -4,49 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 콘텐츠 - INTP</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        header {
-            background-color: var(--header-bg-color);
-            padding: 1em;
-            border-bottom: 1px solid var(--border-color);
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: space-around;
-        }
-        nav a {
-            color: var(--link-color);
-            text-decoration: none;
-            padding: 0.5em 1em;
-            display: block;
-        }
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2em;
-            text-align: center;
-        }
         .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2em;
             max-width: 900px;
             width: 100%;
+            margin-top: 2em;
         }
         .content-card {
             background-color: var(--card-bg-color);
@@ -56,6 +22,10 @@
             text-decoration: none;
             color: var(--text-color);
             transition: transform 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .content-card:hover {
             transform: translateY(-5px);
@@ -63,30 +33,68 @@
         .content-card h2 {
             color: var(--primary-color);
             margin-top: 0;
+            margin-bottom: 0.5em;
         }
-        footer {
-            background-color: var(--footer-bg-color);
-            color: var(--footer-text-color);
+        .content-card p {
+            font-size: 1em;
             text-align: center;
-            padding: 1em;
-            border-top: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="../index.html">홈</a></li>
-                <li><a href="./index.html">오늘의 콘텐츠</a></li>
-                <li><a href="../info-characteristics/index.html">INTP 특징</a></li>
-                <li><a href="../test-logic-quiz/index.html">논리 퀴즈</a></li>
-                <li><a href="../game-abstract-reasoning/index.html">추상적 사고 게임</a></li>
-            </ul>
-        </nav>
+    <header class="main-nav">
+        <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">오늘의 콘텐츠</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/today/fortune/">오늘의 운세</a>
+                        <a href="/u/tests/today/game/">오늘의 게임</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
+                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
 
-    <main>
+    <div class="container">
         <h1>오늘의 콘텐츠</h1>
         <div class="content-grid">
             <a href="./fortune/index.html" class="content-card">
@@ -98,10 +106,8 @@
                 <p>INTP의 사고력을 자극하는 게임을 추천합니다.</p>
             </a>
         </div>
-    </main>
+    </div>
 
-    <footer>
-        <p>&copy; 2025 INTP.KR</p>
-    </footer>
+    <script src="/assets/js/main.js" defer></script>
 </body>
 </html>

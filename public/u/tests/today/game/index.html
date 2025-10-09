@@ -4,91 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 게임 - INTP</title>
-    <link rel="stylesheet" href="../../../css/style.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        header {
-            background-color: var(--header-bg-color);
-            padding: 1em;
-            border-bottom: 1px solid var(--border-color);
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: space-around;
-        }
-        nav a {
-            color: var(--link-color);
-            text-decoration: none;
-            padding: 0.5em 1em;
-            display: block;
-        }
-        main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .game-container {
+            max-width: 700px;
+            margin: 2em auto;
             padding: 2em;
-            text-align: center;
-        }
-        .game-card {
             background-color: var(--card-bg-color);
             border-radius: 8px;
             box-shadow: var(--card-shadow);
-            padding: 2em;
-            max-width: 600px;
-            width: 100%;
+            text-align: center;
         }
-        .game-card h1 {
-            color: var(--primary-color);
+        .sequence-display {
+            font-size: 2em;
+            margin-bottom: 1em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .sequence-display span {
+            margin: 0 0.3em;
+            padding: 0.1em 0.4em;
+            border-radius: 4px;
+            background-color: var(--primary-color-light);
+            color: var(--primary-color-dark);
+        }
+        .sequence-display .missing {
+            background-color: var(--accent-color);
+            color: var(--text-color-inverted);
+        }
+        .game-input {
             margin-bottom: 1em;
         }
-        .game-text {
+        .game-input input[type="number"] {
+            padding: 0.5em;
             font-size: 1.2em;
-            line-height: 1.6;
+            width: 100px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
         }
-        footer {
-            background-color: var(--footer-bg-color);
-            color: var(--footer-text-color);
-            text-align: center;
-            padding: 1em;
-            border-top: 1px solid var(--border-color);
+        .game-input button {
+            padding: 0.6em 1.5em;
+            font-size: 1.1em;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .game-input button:hover {
+            background-color: var(--primary-color-dark);
+        }
+        .feedback-message {
+            margin-top: 1em;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .feedback-message.correct {
+            color: var(--success-color);
+        }
+        .feedback-message.incorrect {
+            color: var(--error-color);
+        }
+        .new-game-button {
+            margin-top: 1.5em;
+            padding: 0.8em 2em;
+            font-size: 1.1em;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .new-game-button:hover {
+            background-color: var(--secondary-color-dark);
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="../../index.html">홈</a></li>
-                <li><a href="../index.html">오늘의 콘텐츠</a></li>
-                <li><a href="../../info-characteristics/index.html">INTP 특징</a></li>
-                <li><a href="../../test-logic-quiz/index.html">논리 퀴즈</a></li>
-                <li><a href="../../game-abstract-reasoning/index.html">추상적 사고 게임</a></li>
-            </ul>
-        </nav>
+    <header class="main-nav">
+        <a href="/u/tests/" class="logo">INTP.KR Tests</a>
+        <div class="nav-right-section">
+            <nav class="nav-links" id="nav-links">
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">오늘의 콘텐츠</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/today/fortune/">오늘의 운세</a>
+                        <a href="/u/tests/today/game/">오늘의 게임</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">정보</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/info-characteristics/">특징</a>
+                        <a href="/u/tests/info-careers/">커리어</a>
+                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
+                        <a href="/u/tests/info-subtypes/">하위유형</a>
+                        <a href="/u/tests/info-relationships/">인간관계</a>
+                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">테스트</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
+                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
+                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
+                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
+                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
+                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <button class="dropdown-toggle">게임</button>
+                    <div class="dropdown-menu">
+                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
+                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
+                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
+                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
+                        <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
+                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
+                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
+                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
+                    </div>
+                </div>
+            </nav>
+            <button id="theme-switcher" class="theme-switcher">🌙</button>
+            <button id="hamburger" class="hamburger">☰</button>
+        </div>
     </header>
 
-    <main>
-        <div class="game-card">
-            <h1>오늘의 INTP 게임</h1>
-            <p id="gameDisplay" class="game-text">게임을 불러오는 중...</p>
+    <div class="container">
+        <h1>오늘의 INTP 게임: 숫자 시퀀스 추론</h1>
+        <div class="game-container">
+            <p>주어진 숫자 시퀀스의 다음 숫자를 추론해 보세요. 당신의 논리력을 시험할 시간입니다!</p>
+            <div id="sequenceDisplay" class="sequence-display"></div>
+            <div class="game-input">
+                <input type="number" id="userGuess" placeholder="다음 숫자" autofocus>
+                <button id="submitGuess">제출</button>
+            </div>
+            <p id="feedbackMessage" class="feedback-message"></p>
+            <button id="newGameButton" class="new-game-button" style="display:none;">새로운 시퀀스</button>
         </div>
-    </main>
+    </div>
 
-    <footer>
-        <p>&copy; 2025 INTP.KR</p>
-    </footer>
-
+    <script src="/assets/js/main.js" defer></script>
     <script>
         function getDailySeed() {
             const today = new Date();
@@ -105,24 +168,113 @@
             }
         }
 
-        const gameSuggestions = [
-            "오늘의 게임: 체스 또는 바둑. 전략적 사고와 예측 능력을 발휘해 보세요.",
-            "오늘의 게임: 퍼즐 게임 (예: 스도쿠, 비정상회담). 논리적 문제 해결 능력을 시험해 보세요.",
-            "오늘의 게임: 코딩 챌린지. 새로운 알고리즘을 탐구하거나 기존 코드를 최적화해 보세요.",
-            "오늘의 게임: 추리 게임 (예: 방 탈출, 마피아 게임). 단서를 조합하여 진실을 밝혀내세요.",
-            "오늘의 게임: 시뮬레이션 게임 (예: 문명, 팩토리오). 복잡한 시스템을 구축하고 관리해 보세요.",
-            "오늘의 게임: 퀴즈 게임 (예: 상식 퀴즈, 과학 퀴즈). 지식을 확장하고 새로운 사실을 배워보세요.",
-            "오늘의 게임: 전략 보드 게임 (예: 아그리콜라, 테라포밍 마스). 장기적인 계획을 세우고 실행해 보세요.",
-            "오늘의 게임: 암호 해독 게임. 숨겨진 메시지를 찾아내고 패턴을 분석해 보세요.",
-            "오늘의 게임: 논리 회로 설계 시뮬레이션. 가상의 회로를 만들어 작동 원리를 이해해 보세요.",
-            "오늘의 게임: 철학적 딜레마 토론. 가상의 상황에서 당신의 윤리적, 논리적 판단을 시험해 보세요."
-        ];
+        let currentSequence = [];
+        let correctAnswer = 0;
+        let rand = null;
+
+        function generateSequence(seed) {
+            rand = mulberry32(seed);
+            const type = Math.floor(rand() * 3); // 0: arithmetic, 1: geometric, 2: Fibonacci-like
+            const start = Math.floor(rand() * 10) + 1; // 1-10
+            const length = 5; // 5 numbers in sequence
+            let sequence = [];
+            let nextNum = 0;
+
+            if (type === 0) { // Arithmetic progression
+                const diff = Math.floor(rand() * 5) + 1; // 1-5
+                for (let i = 0; i < length; i++) {
+                    sequence.push(start + i * diff);
+                }
+                nextNum = start + length * diff;
+            } else if (type === 1) { // Geometric progression
+                const ratio = Math.floor(rand() * 3) + 2; // 2-4
+                for (let i = 0; i < length; i++) {
+                    sequence.push(start * Math.pow(ratio, i));
+                }
+                nextNum = start * Math.pow(ratio, length);
+            } else { // Fibonacci-like
+                let a = start;
+                let b = start + Math.floor(rand() * 5) + 1;
+                sequence.push(a, b);
+                for (let i = 2; i < length; i++) {
+                    let c = a + b;
+                    sequence.push(c);
+                    a = b;
+                    b = c;
+                }
+                nextNum = a + b;
+            }
+            return { sequence, nextNum };
+        }
+
+        function displaySequence(sequence) {
+            const display = document.getElementById('sequenceDisplay');
+            display.innerHTML = '';
+            sequence.forEach((num, index) => {
+                const span = document.createElement('span');
+                span.innerText = num;
+                display.appendChild(span);
+            });
+            const missingSpan = document.createElement('span');
+            missingSpan.innerText = '?';
+            missingSpan.classList.add('missing');
+            display.appendChild(missingSpan);
+        }
+
+        function checkGuess() {
+            const userGuess = parseInt(document.getElementById('userGuess').value);
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const submitButton = document.getElementById('submitGuess');
+            const newGameButton = document.getElementById('newGameButton');
+            const guessInput = document.getElementById('userGuess');
+
+            if (isNaN(userGuess)) {
+                feedbackMessage.innerText = "숫자를 입력해 주세요!";
+                feedbackMessage.className = "feedback-message incorrect";
+                return;
+            }
+
+            if (userGuess === correctAnswer) {
+                feedbackMessage.innerText = "정답입니다! 당신의 논리력은 완벽하군요.";
+                feedbackMessage.className = "feedback-message correct";
+                submitButton.disabled = true;
+                guessInput.disabled = true;
+                newGameButton.style.display = 'block';
+                // Optionally reveal the full sequence
+                const display = document.getElementById('sequenceDisplay');
+                display.lastChild.innerText = correctAnswer;
+                display.lastChild.classList.remove('missing');
+            } else {
+                feedbackMessage.innerText = "오답입니다. 다시 시도해 보세요!";
+                feedbackMessage.className = "feedback-message incorrect";
+            }
+        }
+
+        function initGame() {
+            const seed = getDailySeed();
+            const { sequence, nextNum } = generateSequence(seed);
+            currentSequence = sequence;
+            correctAnswer = nextNum;
+
+            displaySequence(currentSequence);
+
+            document.getElementById('userGuess').value = '';
+            document.getElementById('userGuess').disabled = false;
+            document.getElementById('submitGuess').disabled = false;
+            document.getElementById('feedbackMessage').innerText = '';
+            document.getElementById('feedbackMessage').className = "feedback-message";
+            document.getElementById('newGameButton').style.display = 'none';
+        }
 
         window.onload = function() {
-            const seed = getDailySeed();
-            const rand = mulberry32(seed);
-            const randomIndex = Math.floor(rand() * gameSuggestions.length);
-            document.getElementById('gameDisplay').innerText = gameSuggestions[randomIndex];
+            initGame();
+            document.getElementById('submitGuess').addEventListener('click', checkGuess);
+            document.getElementById('userGuess').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    checkGuess();
+                }
+            });
+            document.getElementById('newGameButton').addEventListener('click', initGame);
         };
     </script>
 </body>
