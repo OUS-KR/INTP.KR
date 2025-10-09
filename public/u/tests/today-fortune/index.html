@@ -147,7 +147,7 @@
 
     function generateTask(randFn, parts) {
         const pick = (arr) => arr[Math.floor(randFn() * arr.length)];
-        return `오늘의 과제 (${pick(parts.types)}) ${pick(parts.actions)} ${pick(parts.subjects)}${pick(parts.verbs}`;
+        return `오늘의 과제 (${pick(parts.types)}) ${pick(parts.actions)} ${pick(parts.subjects)}${pick(parts.verbs)}`;
     }
 
     function generateIntpIndex(randFn, parts) {
