@@ -44,8 +44,14 @@
             padding: 12px 30px;
             font-size: 1.2em;
         }
+        #level-display {
+            margin-top: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            min-height: 22px;
+        }
         #message {
-            margin-top: 20px;
+            margin-top: 5px;
             font-size: 1.2em;
             font-weight: bold;
             min-height: 25px;
@@ -96,7 +102,7 @@
                     <div class="dropdown-menu">
                         <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
                         <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
-                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
                         <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
                         <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
                         <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
@@ -123,6 +129,7 @@
             <div class="controls">
                 <button id="start-btn" class="btn btn-primary">시작</button>
             </div>
+            <div id="level-display"></div>
             <div id="message"></div>
         </div>
     </div>
@@ -139,6 +146,7 @@
             };
             const startBtn = document.getElementById('start-btn');
             const messageElement = document.getElementById('message');
+            const levelDisplay = document.getElementById('level-display');
 
             let gameSequence = [];
             let playerSequence = [];
@@ -186,8 +194,9 @@
 
                 const lastIndex = playerSequence.length - 1;
                 if (playerSequence[lastIndex] !== gameSequence[lastIndex]) {
-                    messageElement.textContent = `게임 오버! ${level} 단계까지 도달했습니다.`;
+                    messageElement.textContent = '게임 오버!';
                     messageElement.style.color = 'var(--error-color)';
+                    levelDisplay.textContent = `최종 단계: ${level}`;
                     startBtn.style.display = 'inline-block';
                     disablePlayerInteraction();
                     return;
@@ -203,7 +212,8 @@
 
             function nextRound() {
                 level++;
-                messageElement.textContent = `${level} 단계`;
+                levelDisplay.textContent = `현재 단계: ${level}`;
+                messageElement.textContent = '';
                 const nextColor = colors[Math.floor(Math.random() * colors.length)];
                 gameSequence.push(nextColor);
                 playSequence();
@@ -213,6 +223,8 @@
                 gameSequence = [];
                 playerSequence = [];
                 level = 0;
+                levelDisplay.textContent = '';
+                messageElement.textContent = '';
                 messageElement.style.color = 'var(--h-color)';
                 startBtn.style.display = 'none';
                 nextRound();

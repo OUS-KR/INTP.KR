@@ -6,51 +6,77 @@
     <title>암호 해독기</title>
     <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        .game-board { margin-top: 20px; }
-        .guess-row { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .game-board { 
+            margin-top: 20px; 
+            width: 100%;
+            max-width: 320px; /* Adjust as needed */
+        }
+        .guess-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .guess-pegs { display: flex; gap: 10px; }
-        .peg { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--card-border); }
-        .feedback-pegs { display: flex; gap: 5px; margin-left: 20px; width: 50px; flex-wrap: wrap; }
+        .peg { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--card-border); background-color: var(--secondary-bg); }
+        .feedback-pegs { display: flex; gap: 5px; width: 50px; flex-wrap: wrap; }
         .feedback-peg { width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--text-color); }
-        .black-peg { background-color: black; }
-        .white-peg { background-color: white; }
-        
-        .controls {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .controls button {
-            padding: 10px 25px;
-            font-size: 1.1em;
-            margin: 0 10px;
-            min-width: 100px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
-        #submit-guess-btn {
-            background-color: var(--btn-primary-bg);
-            color: var(--btn-primary-text);
-        }
-        #clear-guess-btn {
-            background-color: var(--secondary-bg);
-        }
+        .black-peg { background-color: var(--h-color); }
+        .white-peg { background-color: var(--text-color); border-color: var(--h-color);}
+
+        .secret-code-container { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; min-height: 44px; }
+        .secret-peg { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background-color: var(--card-border); }
 
         .color-palette { margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .color-btn { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
         .color-btn.selected { border-color: var(--nav-link-hover); }
         
-        .secret-code-container { text-align: center; margin-bottom: 15px; }
-        .secret-peg { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background-color: var(--card-border); margin: 0 5px; }
-        .hidden { background-color: var(--h-color) !important; }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .controls .btn {
+            padding: 10px 0; /* Remove horizontal padding */
+            font-size: 1.1em;
+            width: 130px; /* Fixed width */
+            border-radius: 5px;
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+        }
+        #submit-guess-btn {
+            background-color: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+            border-color: var(--btn-primary-bg);
+        }
+        #clear-guess-btn {
+            background-color: var(--secondary-bg);
+            color: var(--h-color);
+        }
+        #new-game-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        #guess-counter {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 15px;
+        }
 
         @media (max-width: 480px) {
             .peg, .secret-peg { width: 35px; height: 35px; }
             .color-btn { width: 40px; height: 40px; }
-            .controls button {
-                width: 40%;
-                padding: 12px 10px;
-                font-size: 1em; /* Ensure font is readable */
+            .controls .btn {
+                width: 110px;
+                font-size: 1em;
             }
         }
     </style>
@@ -99,7 +125,7 @@
                     <div class="dropdown-menu">
                         <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
                         <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
-                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
                         <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
                         <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
                         <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
@@ -116,18 +142,22 @@
         <h1>암호 해독기 (Code Breaker)</h1>
         <p style="text-align:center;">컴퓨터가 생성한 4가지 색상의 비밀 코드를 맞춰보세요.<br>정답과 색상 및 위치가 모두 같으면 검은색, 색상만 같으면 흰색 힌트가 주어집니다.</p>
         
-        <div class="secret-code-container" id="secret-code-container"></div>
-        <div class="game-board" id="game-board"></div>
-        
-        <div class="controls">
-            <button id="submit-guess-btn">제출</button>
-            <button id="clear-guess-btn">지우기</button>
+        <div class="game-wrapper">
+            <div id="secret-code-container" class="secret-code-container"></div>
+            <div id="guess-counter"></div>
+            <div class="game-board" id="game-board"></div>
+            <div class="color-palette" id="color-palette"></div>
+            <div id="message" class="message" style="margin-top: 20px;"></div>
         </div>
 
-        <div class="color-palette" id="color-palette"></div>
-        <div id="message" class="message" style="margin-top: 20px;"></div>
-        <div style="text-align:center; margin-top:20px;">
-            <button id="new-game-btn" class="btn btn-primary">새 게임</button>
+        <div class="controls">
+            <div class="control-row">
+                <button id="submit-guess-btn" class="btn">제출</button>
+                <button id="clear-guess-btn" class="btn">지우기</button>
+            </div>
+            <div class="control-row">
+                <button id="new-game-btn" class="btn">새 게임</button>
+            </div>
         </div>
     </div>
 
@@ -141,6 +171,7 @@
         const secretContainer = document.getElementById('secret-code-container');
         const submitGuessBtn = document.getElementById('submit-guess-btn');
         const clearGuessBtn = document.getElementById('clear-guess-btn');
+        const guessCounter = document.getElementById('guess-counter');
 
         const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e67e22'];
         const codeLength = 4;
@@ -162,10 +193,12 @@
         }
 
         function selectColor(color) {
-            if (currentGuess.length >= codeLength) return;
+            if (currentGuess.length >= codeLength || !currentRow) return;
             currentGuess.push(color);
             const peg = currentRow.querySelector(`.peg:nth-child(${currentGuess.length})`);
-            peg.style.backgroundColor = color;
+            if (peg) {
+                peg.style.backgroundColor = color;
+            }
         }
         
         function clearGuess() {
@@ -177,7 +210,7 @@
 
         function createGuessRow() {
             if (guessCount >= maxGuesses) return null;
-            guessCount++;
+            
             const row = document.createElement('div');
             row.className = 'guess-row';
             
@@ -190,8 +223,12 @@
                 <div class="guess-pegs">${pegsHTML}</div>
                 <div class="feedback-pegs"></div>
             `;
-            board.appendChild(row);
-            return row;
+            board.insertBefore(row, board.firstChild);
+            return row.querySelector('.guess-pegs');
+        }
+
+        function updateGuessCounter() {
+            guessCounter.textContent = `현재 시도: ${guessCount} / ${maxGuesses}`;
         }
 
         function submitGuess() {
@@ -200,9 +237,11 @@
                 return;
             }
             message.textContent = '';
+            guessCount++;
+            updateGuessCounter();
 
             const feedback = getFeedback(currentGuess);
-            const feedbackContainer = currentRow.querySelector('.feedback-pegs');
+            const feedbackContainer = currentRow.parentElement.querySelector('.feedback-pegs');
             feedbackContainer.innerHTML = '';
             
             feedback.black.forEach(() => feedbackContainer.innerHTML += '<div class="feedback-peg black-peg"></div>');
@@ -216,7 +255,7 @@
             }
 
             if (guessCount >= maxGuesses) {
-                message.textContent = '게임 오버. 비밀 코드는...';
+                message.textContent = '게임 오버. 비밀 코드는 다음과 같습니다.';
                 revealSecretCode();
                 endGame();
                 return;
@@ -273,16 +312,11 @@
             guessCount = 0;
             board.innerHTML = '';
             message.textContent = '';
+            secretContainer.innerHTML = '';
+            updateGuessCounter();
             
             submitGuessBtn.disabled = false;
             clearGuessBtn.disabled = false;
-
-            secretContainer.innerHTML = '';
-            for(let i=0; i<codeLength; i++) {
-                const peg = document.createElement('div');
-                peg.className = 'secret-peg hidden';
-                secretContainer.appendChild(peg);
-            }
 
             setupPalette();
             currentGuess = [];

@@ -72,7 +72,7 @@
                     <div class="dropdown-menu">
                         <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
                         <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
-                        <a href="/u/tests/game-code-decryption/">암호 해독</a>
+                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
                         <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
                         <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
                         <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
@@ -270,14 +270,57 @@
             line.classList.remove('solution', 'hint');
             line.classList.toggle('drawn');
             const key = getLineKey(line.dataset);
-            if (line.classList.contains('drawn')) lines[key] = true;
-            else delete lines[key];
+            if (line.classList.contains('drawn')) {
+                lines[key] = true;
+            } else {
+                delete lines[key];
+            }
+            checkWinCondition(); // Automatic validation
+        }
+
+        function checkWinCondition() {
+            // Check if the number of drawn lines matches the solution
+            if (Object.keys(lines).length !== Object.keys(solution).length) {
+                return;
+            }
+
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    let surroundingLines = 0;
+                    if (lines[getLineKey({r1:r, c1:c, r2:r, c2:c+1})]) surroundingLines++;
+                    if (lines[getLineKey({r1:r+1, c1:c, r2:r+1, c2:c+1})]) surroundingLines++;
+                    if (lines[getLineKey({r1:r, c1:c, r2:r+1, c2:c})]) surroundingLines++;
+                    if (lines[getLineKey({r1:r, c1:c+1, r2:r+1, c2:c+1})]) surroundingLines++;
+                    if (surroundingLines !== puzzle[r][c]) {
+                        return; // Not a solution
+                    }
+                }
+            }
+
+            const allLineKeys = Object.keys(lines);
+            if (allLineKeys.length === 0) {
+                 return;
+            }
+            const points = {};
+            allLineKeys.forEach(key => {
+                const [r1, c1, r2, c2] = key.split(',').map(Number);
+                const p1Key = `${r1},${c1}`; const p2Key = `${r2},${c2}`;
+                points[p1Key] = (points[p1Key] || 0) + 1;
+                points[p2Key] = (points[p2Key] || 0) + 1;
+            });
+
+            for (const point in points) {
+                if (points[point] !== 2) {
+                    return; // Not a single loop
+                }
+            }
+            
+            showMessage('정답입니다! 완벽한 루프를 완성했습니다.', 'var(--success-color)');
         }
 
         function validateSolution() {
             for (let r = 0; r < size; r++) {
                 for (let c = 0; c < size; c++) {
-                    // Since all numbers are shown, we can validate all cells.
                     let surroundingLines = 0;
                     if (lines[getLineKey({r1:r, c1:c, r2:r, c2:c+1})]) surroundingLines++;
                     if (lines[getLineKey({r1:r+1, c1:c, r2:r+1, c2:c+1})]) surroundingLines++;
@@ -348,6 +391,7 @@
             if (line && !line.classList.contains('drawn')) {
                 line.classList.add('drawn', 'hint');
                 lines[randomKey] = true;
+                checkWinCondition(); // Check after hint
             }
         }
 
