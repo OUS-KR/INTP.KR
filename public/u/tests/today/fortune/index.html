@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 운세 - INTP</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        header {
+            background-color: var(--header-bg-color);
+            padding: 1em;
+            border-bottom: 1px solid var(--border-color);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+        nav a {
+            color: var(--link-color);
+            text-decoration: none;
+            padding: 0.5em 1em;
+            display: block;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2em;
+            text-align: center;
+        }
+        .fortune-card {
+            background-color: var(--card-bg-color);
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            padding: 2em;
+            max-width: 600px;
+            width: 100%;
+        }
+        .fortune-card h1 {
+            color: var(--primary-color);
+            margin-bottom: 1em;
+        }
+        .fortune-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        footer {
+            background-color: var(--footer-bg-color);
+            color: var(--footer-text-color);
+            text-align: center;
+            padding: 1em;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="../../index.html">홈</a></li>
+                <li><a href="../index.html">오늘의 콘텐츠</a></li>
+                <li><a href="../../info-characteristics/index.html">INTP 특징</a></li>
+                <li><a href="../../test-logic-quiz/index.html">논리 퀴즈</a></li>
+                <li><a href="../../game-abstract-reasoning/index.html">추상적 사고 게임</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="fortune-card">
+            <h1>오늘의 INTP 운세</h1>
+            <p id="fortuneDisplay" class="fortune-text">운세를 불러오는 중...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 INTP.KR</p>
+    </footer>
+
+    <script>
+        function getDailySeed() {
+            const today = new Date();
+            return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+        }
+
+        function mulberry32(seed) {
+            return function() {
+                seed |= 0;
+                seed = seed + 0x6D2B79F5 | 0;
+                let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+                t = t + Math.imul(t ^ t >>> 7, 61 | t) | 0;
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+
+        const fortunes = [
+            "오늘은 복잡한 문제 해결에 탁월한 날입니다. 당신의 논리적 사고가 빛을 발할 것입니다.",
+            "새로운 아이디어가 샘솟는 하루가 될 것입니다. 기록하고 발전시켜 보세요.",
+            "예상치 못한 지적 자극이 당신을 기다립니다. 호기심을 따라가세요.",
+            "오늘은 혼자만의 시간을 통해 깊은 통찰을 얻기 좋은 날입니다. 내면의 목소리에 귀 기울이세요.",
+            "당신의 독창적인 관점이 주변에 신선한 영감을 줄 것입니다. 주저하지 말고 표현하세요.",
+            "논쟁보다는 건설적인 토론이 필요한 날입니다. 상대방의 관점을 분석해 보세요.",
+            "오랫동안 미뤄왔던 연구나 학습에 몰두하기 좋은 시기입니다. 집중력이 최고조에 달할 것입니다.",
+            "오늘은 비판적 사고가 중요한 역할을 할 것입니다. 겉모습에 속지 마세요.",
+            "당신의 분석적인 접근 방식이 혼란스러운 상황을 명확하게 정리해 줄 것입니다.",
+            "새로운 기술이나 이론을 탐구하며 즐거움을 찾을 수 있는 하루입니다. 지적 유희를 만끽하세요."
+        ];
+
+        window.onload = function() {
+            const seed = getDailySeed();
+            const rand = mulberry32(seed);
+            const randomIndex = Math.floor(rand() * fortunes.length);
+            document.getElementById('fortuneDisplay').innerText = fortunes[randomIndex];
+        };
+    </script>
+</body>
+</html>
