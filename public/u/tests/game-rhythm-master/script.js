@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Game settings
     const LANES = 1; // Simplified to a single lane
-    const NOTE_HEIGHT = 20;
+    const NOTE_HEIGHT = 40;
     const NOTE_SPEED = 3; // pixels per frame
     const HIT_LINE_Y = 450;
 

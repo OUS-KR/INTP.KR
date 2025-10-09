@@ -8,10 +8,12 @@
 
 #game-board {
     display: grid;
-    grid-template-columns: repeat(4, 100px);
-    gap: 10px;
+    grid-template-columns: repeat(4, 80px); /* Smaller cards */
+    gap: 15px; /* Increased gap */
     margin-top: 20px;
     perspective: 1000px;
+    max-width: 380px; /* (80*4) + (15*3) = 320 + 45 = 365px, plus some padding */
+    justify-content: center; /* Center the grid */
 }
 
 .card {
