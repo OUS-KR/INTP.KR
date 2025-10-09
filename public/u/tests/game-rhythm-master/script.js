@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lane: 0, 
             y: -NOTE_HEIGHT,
             isHit: false
-        }));
+        })).filter(note => note.time >= START_DELAY); // Add this filter
     }
 
     function gameLoop() {
@@ -294,6 +294,9 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.currentTime = 0;
 
         // Wait for the start delay before notes appear AND audio starts
+        // Clear canvas before starting the game loop
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         setTimeout(() => {
             audioPlayer.play();
             gameStartTime = Date.now(); // Set game start time when audio actually begins
@@ -338,6 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentSong) {
             await loadBeatmap(currentSong.id);
         }
+        // Clear canvas after resetting and before potential re-start
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     function endGame() {
