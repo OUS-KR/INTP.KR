@@ -86,7 +86,7 @@ body {
 
 #feedback {
     position: absolute;
-    top: 50%; /* Center vertically */
+    top: 350px; /* Adjust this value to be roughly centered on the canvas */
     left: 50%; /* Center horizontally */
     transform: translate(-50%, -50%); /* Adjust for element's own size */
     font-size: 3em; /* Larger for visibility */

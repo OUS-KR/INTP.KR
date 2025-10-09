@@ -54,6 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const GOOD_WINDOW = 0.1;
     const OK_WINDOW = 0.15;
 
+    const currentPerfectCountDisplay = document.getElementById('current-perfect-count');
+    const currentGoodCountDisplay = document.getElementById('current-good-count');
+    const currentOkCountDisplay = document.getElementById('current-ok-count');
+    const currentMissCountDisplay = document.getElementById('current-miss-count');
+
     async function loadAllMusicData() {
         try {
             const response = await fetch('../music_data.json');
@@ -123,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (note.y > canvas.height && !note.isHit) {
                     note.isHit = true; 
                     missCount++;
+                    currentMissCountDisplay.textContent = `M: ${missCount}`; // Update display
                     resetCombo();
                     showFeedback('Miss');
                 }
@@ -180,16 +186,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 baseScore = 100;
                 combo++;
                 perfectCount++;
+                currentPerfectCountDisplay.textContent = `P: ${perfectCount}`; // Update display
                 showFeedback('Perfect');
             } else if (minTimeDiff <= GOOD_WINDOW) {
                 baseScore = 50;
                 combo++;
                 goodCount++;
+                currentGoodCountDisplay.textContent = `G: ${goodCount}`; // Update display
                 showFeedback('Good');
             } else {
                 baseScore = 20;
                 combo++;
                 okCount++;
+                currentOkCountDisplay.textContent = `O: ${okCount}`; // Update display
                 showFeedback('OK');
             }
             score += baseScore * (1 + combo / 10); // Apply combo multiplier
@@ -198,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resetCombo();
         }
 
-        scoreDisplay.textContent = `점수: ${score}`;
+        scoreDisplay.textContent = `점수: ${Math.round(score)}`;
         comboDisplay.textContent = `콤보: ${combo}`;
     }
 
@@ -229,6 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
         okCountDisplay.textContent = '0';
         missCountDisplay.textContent = '0';
         finalScoreDisplay.textContent = '0';
+        currentPerfectCountDisplay.textContent = 'P: 0'; // Reset display
+        currentGoodCountDisplay.textContent = 'G: 0';   // Reset display
+        currentOkCountDisplay.textContent = 'O: 0';     // Reset display
+        currentMissCountDisplay.textContent = 'M: 0';   // Reset display
     }
 
     async function startGame() {
@@ -311,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         goodCountDisplay.textContent = goodCount;
         okCountDisplay.textContent = okCount;
         missCountDisplay.textContent = missCount;
-        finalScoreDisplay.textContent = score;
+        finalScoreDisplay.textContent = Math.round(score);
 
         // Grading Logic
         const finalGradeDisplay = document.getElementById('final-grade');

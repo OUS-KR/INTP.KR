@@ -6,9 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const songSelect = document.getElementById('song-select');
     const shuffleAllCheckbox = document.getElementById('shuffle-all');
     const gameControls = document.getElementById('game-controls');
+    const stopAudioBtn = document.getElementById('stop-audio-btn'); // New
 
     let allMusicData = [];
     let songPath = '';
+    let currentAudioCallback = null; // New
 
     let cards = [];
     let flippedCards = [];
@@ -133,12 +135,19 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.src = path;
         audioPlayer.currentTime = startTime;
         audioPlayer.play();
+        stopAudioBtn.style.display = 'inline-block'; // Show stop button
+
+        currentAudioCallback = callback; // Store the callback
 
         const checkTime = setInterval(() => {
             if (audioPlayer.currentTime >= endTime || audioPlayer.paused) {
                 audioPlayer.pause();
                 clearInterval(checkTime);
-                if (callback) callback(); // Execute callback after audio finishes
+                stopAudioBtn.style.display = 'none'; // Hide stop button
+                if (currentAudioCallback) { // Use stored callback
+                    currentAudioCallback();
+                    currentAudioCallback = null;
+                }
             }
         }, 100);
     }
@@ -188,6 +197,17 @@ document.addEventListener('DOMContentLoaded', () => {
         gameControls.style.display = 'flex'; // Show controls after game
     }
 
+    function stopAudio() {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        stopAudioBtn.style.display = 'none';
+        if (currentAudioCallback) {
+            currentAudioCallback(); // Execute the stored callback
+            currentAudioCallback = null; // Clear the callback
+        }
+    }
+
     startGameBtn.addEventListener('click', startGame);
+    stopAudioBtn.addEventListener('click', stopAudio); // New event listener
     loadMusicData(); // Load music data on page load
 });
