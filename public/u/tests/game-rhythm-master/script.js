@@ -312,6 +312,32 @@ document.addEventListener('DOMContentLoaded', () => {
         okCountDisplay.textContent = okCount;
         missCountDisplay.textContent = missCount;
         finalScoreDisplay.textContent = score;
+
+        // Grading Logic
+        const finalGradeDisplay = document.getElementById('final-grade');
+        let totalNotes = currentBeatmap.notes.length;
+        let maxScore = totalNotes * 100; // Assuming 100 for perfect hit
+        let percentageScore = (score / maxScore) * 100;
+        let grade = 'F';
+
+        if (missCount === 0 && perfectCount === totalNotes) {
+            grade = 'S+'; // All perfects
+        } else if (percentageScore >= 95 && missCount <= totalNotes * 0.05) {
+            grade = 'S';
+        } else if (percentageScore >= 90 && missCount <= totalNotes * 0.1) {
+            grade = 'A+';
+        } else if (percentageScore >= 80 && missCount <= totalNotes * 0.15) {
+            grade = 'A';
+        } else if (percentageScore >= 70 && missCount <= totalNotes * 0.2) {
+            grade = 'B+';
+        } else if (percentageScore >= 60 && missCount <= totalNotes * 0.25) {
+            grade = 'B';
+        } else if (percentageScore >= 50 && missCount <= totalNotes * 0.3) {
+            grade = 'C';
+        } else {
+            grade = 'F';
+        }
+        finalGradeDisplay.textContent = grade;
     }
 
     // Event Listeners

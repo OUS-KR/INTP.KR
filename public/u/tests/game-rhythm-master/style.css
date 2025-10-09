@@ -83,3 +83,18 @@ body {
 #start-btn {
     margin-top: 0;
 }
+
+#feedback {
+    position: absolute;
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Adjust for element's own size */
+    font-size: 3em; /* Larger for visibility */
+    font-weight: bold;
+    color: var(--h-color); /* Theme color */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add some shadow for contrast */
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.1s ease-in-out; /* Smooth fade */
+    pointer-events: none; /* Allow clicks to pass through */
+    z-index: 10; /* Ensure it's above canvas */
+}

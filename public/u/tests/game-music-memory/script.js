@@ -121,11 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         playSnippet(card.dataset.songPath, card.dataset.startTime, card.dataset.endTime, () => {
             // Callback after snippet finishes
-            if (flippedCards.length === 2) { // If two cards are flipped, proceed to check for match
+            if (flippedCards.length === 1) { // If only one card is flipped, unlock the board so user can select second
+                lockBoard = false;
+            } else if (flippedCards.length === 2) { // If two cards are flipped, proceed to check for match
                 checkForMatch();
             }
-            // If it's the first card, music finished, but keep board locked until second card is chosen
-            // and its music finishes. lockBoard remains true.
         });
     }
 

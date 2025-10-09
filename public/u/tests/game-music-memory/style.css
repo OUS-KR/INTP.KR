@@ -8,11 +8,11 @@
 
 #game-board {
     display: grid;
-    grid-template-columns: repeat(4, 100px); /* Match card width */
-    gap: 25px; /* Increased gap for more spacing */
+    grid-template-columns: repeat(4, 90px); /* Reduced card width for more spacing */
+    gap: 25px; /* Consistent gap */
     margin-top: 20px;
     perspective: 1000px;
-    max-width: 475px; /* (100*4) + (25*3) = 400 + 75 = 475px */
+    max-width: 435px; /* (90*4) + (25*3) = 360 + 75 = 435px */
     justify-content: center; /* Center the grid */
 }
 
@@ -69,4 +69,60 @@
     margin-top: 20px;
     font-size: 1.2em;
     font-weight: bold;
+}
+
+/* Style for the select dropdown */
+#game-controls select {
+    padding: 8px 12px;
+    border: 2px solid var(--h-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1em;
+    cursor: pointer;
+    appearance: none; /* Remove default system styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%233498db%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%01-13%205.7H18.4c-5%200-9.3-1.8-12.9-5.7-3.6-3.9-5.4-8.3-5.4-13.3%200-5%201.8-9.4%205.4-13.3L139%201.3c4.6-3.9%209.2-5.7%2015.2-5.7s10.6%201.8%2015.2%205.7l121.6%20121.8c3.6%203.8%205.4%208.2%205.4%2013.2%200%205-1.8%209.4-5.4%2013.3z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* Style for the checkbox and its label */
+#game-controls label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+#game-controls input[type="checkbox"] {
+    appearance: none; /* Remove default system styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--h-color);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    margin-right: 8px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-controls input[type="checkbox"]:checked {
+    background-color: var(--h-color);
+    border-color: var(--h-color);
+}
+
+#game-controls input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: var(--bg-color);
+    font-size: 14px;
+    line-height: 1;
 }
