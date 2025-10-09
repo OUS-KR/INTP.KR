@@ -98,3 +98,28 @@ body {
     pointer-events: none; /* Allow clicks to pass through */
     z-index: 999; /* Ensure it's above all other elements */
 }
+
+/* Adjust existing styles */
+#ui-container {
+    display: flex;
+    flex-direction: column; /* Arrange rows vertically */
+    width: 400px; /* Match canvas width */
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--text-color); /* Ensure text color is consistent */
+}
+
+.ui-row {
+    display: flex;
+    justify-content: space-between; /* Score left, Combo right */
+    width: 100%;
+    margin-bottom: 5px; /* Space between rows */
+}
+
+.judgment-counts-row {
+    display: flex;
+    justify-content: space-around; /* Distribute counts evenly */
+    width: 100%;
+    font-size: 0.9em; /* Slightly smaller for counts */
+}

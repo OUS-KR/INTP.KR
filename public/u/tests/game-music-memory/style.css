@@ -48,7 +48,7 @@
 
 .card-back {
     background-color: var(--card-bg);
-    border: 2px solid var(--h-color);
+    /* border: 2px solid var(--h-color); */ /* Removed border as per request */
     color: var(--text-color);
     transform: rotateY(180deg);
 }

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allMusicData = [];
     let songPath = '';
     let currentAudioCallback = null; // New
+    let currentAudioInterval = null; // New
 
     let cards = [];
     let flippedCards = [];
@@ -140,10 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentAudioCallback = callback; // Store the callback
 
-        const checkTime = setInterval(() => {
+        currentAudioInterval = setInterval(() => { // Store interval ID
             if (audioPlayer.currentTime >= endTime || audioPlayer.paused) {
                 audioPlayer.pause();
-                clearInterval(checkTime);
+                clearInterval(currentAudioInterval); // Clear stored interval
+                currentAudioInterval = null; // Clear reference
                 stopAudioBtn.style.display = 'none'; // Hide stop button
                 if (currentAudioCallback) { // Use stored callback
                     currentAudioCallback();
@@ -202,6 +204,10 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.pause();
         audioPlayer.currentTime = 0;
         stopAudioBtn.style.display = 'none';
+        if (currentAudioInterval) { // Clear interval if it exists
+            clearInterval(currentAudioInterval);
+            currentAudioInterval = null;
+        }
         if (currentAudioCallback) {
             currentAudioCallback(); // Execute the stored callback
             currentAudioCallback = null; // Clear the callback
