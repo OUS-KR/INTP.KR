@@ -9,10 +9,10 @@
 #game-board {
     display: grid;
     grid-template-columns: repeat(4, 100px); /* Match card width */
-    gap: 20px; /* Increased gap */
+    gap: 25px; /* Increased gap for more spacing */
     margin-top: 20px;
     perspective: 1000px;
-    max-width: 460px; /* (100*4) + (20*3) = 400 + 60 = 460px */
+    max-width: 475px; /* (100*4) + (25*3) = 400 + 75 = 475px */
     justify-content: center; /* Center the grid */
 }
 

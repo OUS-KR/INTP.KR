@@ -175,22 +175,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closestNote && minTimeDiff <= OK_WINDOW) {
             closestNote.isHit = true;
             hit = true;
+            let baseScore = 0;
             if (minTimeDiff <= PERFECT_WINDOW) {
-                score += 100;
+                baseScore = 100;
                 combo++;
                 perfectCount++;
                 showFeedback('Perfect');
             } else if (minTimeDiff <= GOOD_WINDOW) {
-                score += 50;
+                baseScore = 50;
                 combo++;
                 goodCount++;
                 showFeedback('Good');
             } else {
-                score += 20;
+                baseScore = 20;
                 combo++;
                 okCount++;
                 showFeedback('OK');
             }
+            score += baseScore * (1 + combo / 10); // Apply combo multiplier
         } else {
             // If no note was hit within the window, it's a miss for combo purposes
             resetCombo();
