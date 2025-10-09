@@ -6,9 +6,20 @@
     <title>오늘의 게임 - INTP</title>
     <link rel="stylesheet" href="/assets/css/main.css">
     <style>
-        .game-container {
-            max-width: 700px;
+        .game-wrapper {
+            max-width: 800px;
             margin: 2em auto;
+        }
+        .game-info {
+            text-align: center;
+            margin-bottom: 2em;
+        }
+        .game-info h1 {
+            margin-bottom: 0.5em;
+        }
+        .game-container {
+            max-width: 100%;
+            margin: 0;
             padding: 2em;
             background-color: var(--card-bg-color);
             border-radius: 8px;
@@ -63,16 +74,16 @@
         .game-input button {
             padding: 0.6em 1.5em;
             font-size: 1.1em;
-            background-color: var(--primary-color);
-            color: var(--btn-primary-text, white);
-            border: none;
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #0069d9;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             margin-left: 0.5em;
         }
         .game-input button:hover {
-            background-color: var(--primary-color-dark);
+            background-color: #0069d9;
         }
         .feedback-message {
             margin-top: 1em;
@@ -141,17 +152,21 @@
     </header>
 
     <div class="container">
-        <h1 id="gameTitle">오늘의 INTP 게임</h1>
-        <div class="game-container">
-            <p id="gameDescription">게임을 불러오는 중...</p>
-            <div id="gameArea" class="game-area">
-                <!-- Game content will be loaded here by JavaScript -->
+        <div class="game-wrapper">
+            <div class="game-info">
+                <h1 id="gameTitle">오늘의 INTP 게임</h1>
+                <p id="gameDescription">게임을 불러오는 중...</p>
             </div>
-            <div class="game-input">
-                <input type="text" id="userGuess" placeholder="정답 입력" autofocus>
-                <button id="submitGuess">제출</button>
+            <div class="game-container">
+                <div id="gameArea" class="game-area">
+                    <!-- Game content will be loaded here by JavaScript -->
+                </div>
+                <div class="game-input">
+                    <input type="text" id="userGuess" placeholder="정답 입력" autofocus>
+                    <button id="submitGuess">제출</button>
+                </div>
+                <p id="feedbackMessage" class="feedback-message"></p>
             </div>
-            <p id="feedbackMessage" class="feedback-message"></p>
         </div>
     </div>
 
