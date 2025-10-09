@@ -84,8 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadBeatmap(songId) {
         try {
-            const beatmapResponse = await fetch(`./beatmaps/${songId}.beatmap.json`);
+            console.log(`Attempting to load beatmap for songId: ${songId}`);
+            const beatmapUrl = `./beatmaps/${songId}.beatmap.json`;
+            console.log(`Fetching beatmap from URL: ${beatmapUrl}`);
+            const beatmapResponse = await fetch(beatmapUrl);
+            if (!beatmapResponse.ok) {
+                throw new Error(`HTTP error! status: ${beatmapResponse.status}`);
+            }
             currentBeatmap = await beatmapResponse.json();
+            console.log(`Successfully loaded beatmap for ${songId}`);
             startBtn.disabled = false;
             startBtn.textContent = '게임 시작';
         } catch (error) {

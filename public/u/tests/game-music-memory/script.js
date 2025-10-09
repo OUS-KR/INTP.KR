@@ -217,7 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
     shuffleAllCheckbox.addEventListener('change', () => {
         songSelect.disabled = shuffleAllCheckbox.checked;
         if (shuffleAllCheckbox.checked) {
-            songSelect.value = ''; // Optionally clear selection when shuffling all
+            songSelect.value = ''; // Clear selection when shuffling all
+        } else {
+            // Select the first song when shuffle is off
+            if (allMusicData.length > 0) {
+                songSelect.value = allMusicData[0].id;
+            }
         }
     });
 

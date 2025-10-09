@@ -73,52 +73,16 @@
 
 /* Style for the select dropdown */
 #game-controls select {
-    padding: 8px 12px;
-    border: 2px solid var(--h-color);
-    border-radius: 8px;
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    font-size: 1em;
-    cursor: pointer;
-    appearance: none; /* Remove default system styling */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%233498db%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%01-13%205.7H18.4c-5%200-9.3-1.8-12.9-5.7-3.6-3.9-5.4-8.3-5.4-13.3%200-5%201.8-9.4%205.4-13.3L139%201.3c4.6-3.9%209.2-5.7%2015.2-5.7s10.6%201.8%2015.2%205.7l121.6%20121.8c3.6%203.8%205.4%208.2%205.4%2013.2%200%205-1.8%209.4-5.4%2013.3z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 12px;
-    height: 40px; /* Consistent height */
-    line-height: 40px; /* Vertically center text */
-}
-
-/* Style for the checkbox and its label */
-#game-controls label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: var(--text-color);
-    font-size: 1em;
-}
-
-#game-controls select,
-#shuffle-all-label {
-    height: 40px; /* Consistent height */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    /* padding: 8px 12px; */ /* Remove this line */
+    height: 40px;
+    line-height: 40px;
+    /* ... other styles ... */
+    vertical-align: middle;
 }
 
 #shuffle-all-label {
-    /* Inherit btn styles or define new ones */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-    white-space: nowrap; /* Prevent text wrapping */
-    border: 2px solid var(--h-color); /* Default border */
-    background-color: var(--card-bg); /* Default background */
-    color: var(--text-color); /* Default text color */
+    /* ... other styles ... */
+    vertical-align: middle;
 }
 
 /* Style for the checkbox and its label */
@@ -206,4 +170,21 @@
 /* Hide the actual checkbox */
 #shuffle-all {
     display: none;
+}
+
+@media (max-width: 768px) { /* Adjust breakpoint as needed */
+    .controls {
+        flex-direction: column;
+        align-items: stretch; /* Stretch items to fill width */
+    }
+    .control-row {
+        width: 100%; /* Ensure rows take full width */
+        justify-content: center; /* Center content within each row */
+    }
+    #game-controls select,
+    #shuffle-all-label,
+    #start-game-btn {
+        width: 100%; /* Make buttons/select full width */
+        max-width: none; /* Remove max-width constraint */
+    }
 }
