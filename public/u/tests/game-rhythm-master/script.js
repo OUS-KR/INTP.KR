@@ -253,7 +253,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function startGame() {
-        gameSetup.style.display = 'none';
+        // gameSetup.style.display = 'none'; // This hides the entire game-setup div
+
+        // Keep gameSetup visible, but disable songSelect
+        songSelect.disabled = true;
         gameControls.style.display = 'flex';
         startBtn.style.display = 'none';
         pauseBtn.style.display = 'inline-block';
@@ -337,6 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
         restartBtn.style.display = 'none';
         statsContainer.style.display = 'none';
         resetStats();
+        // Re-enable songSelect
+        songSelect.disabled = false;
         // Re-load beatmap for the current song to ensure fresh notes
         if (currentSong) {
             await loadBeatmap(currentSong.id);
@@ -360,6 +365,11 @@ document.addEventListener('DOMContentLoaded', () => {
         okCountDisplay.textContent = okCount;
         missCountDisplay.textContent = missCount;
                 finalScoreDisplay.textContent = Math.round(score);
+
+        // Re-enable songSelect
+        songSelect.disabled = false;
+        gameSetup.style.display = 'flex'; // Ensure gameSetup is visible again
+        startBtn.style.display = 'inline-block'; // Ensure start button is visible again
 
         // Grading Logic
         const finalGradeDisplay = document.getElementById('final-grade');
