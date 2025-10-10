@@ -53,6 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generateGrid(data) {
         contentGrid.innerHTML = ''; // Clear existing grid
+
+        const typeClassMap = {
+            '정보': 'info',
+            '테스트': 'test',
+            '게임': 'game',
+            '운세': 'info' // Map '운세' to 'info' style as a fallback
+        };
         
         // Flatten all items from all menus
         const allItems = data.flatMap(mainMenu => mainMenu.items);
@@ -63,9 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = 'content-card';
 
             const typeSpan = document.createElement('span');
-            const typeClass = item.type.toLowerCase().replace(/ /g, '-');
+            const typeName = item.type;
+            const typeClass = typeClassMap[typeName] || 'info'; // Default to 'info' if type not found
+
             typeSpan.className = `card-type ${typeClass}`;
-            typeSpan.textContent = item.type;
+            typeSpan.textContent = typeName;
 
             const titleH3 = document.createElement('h3');
             titleH3.textContent = item.title;
