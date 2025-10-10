@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>경로 탐색기</title>
-    <link rel="stylesheet" href="/assets/css/main.css?20251010130000">
+    <link rel="stylesheet" href="/assets/css/main.css?20251010140000">
     <style>
         #game-grid { display: grid; grid-template-columns: repeat(5, 60px); grid-template-rows: repeat(5, 60px); border: 2px solid var(--h-color); position: relative; background-color: var(--card-bg); }
         .grid-cell { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: var(--h-color); }
@@ -385,6 +385,22 @@
             const line = document.querySelector(`[data-r1='${r1}'][data-c1='${c1}'][data-r2='${r2}'][data-c2='${c2}']`);
             if (line && !line.classList.contains('drawn')) {
                 line.classList.add('drawn', 'hint');
+                lines[randomKey] = true;
+                checkWinCondition(); // Check after hint
+            }
+        }
+
+        validateBtn.addEventListener('click', validateSolution);
+        newGameBtn.addEventListener('click', startNewGame);
+        showSolutionBtn.addEventListener('click', showSolution);
+        hintBtn.addEventListener('click', showHint);
+
+        startNewGame();
+    });
+    </script>
+</body>
+</html>
+, 'hint');
                 lines[randomKey] = true;
                 checkWinCondition(); // Check after hint
             }

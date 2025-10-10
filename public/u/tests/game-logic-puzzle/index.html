@@ -125,7 +125,7 @@
         </div>
     </div>
 
-    <script src="/assets/js/main.js?20251010120000" defer></script>
+    <script src="/assets/js/main.js?20251010140000" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const boardElement = document.getElementById('game-board');
@@ -269,6 +269,23 @@
                             toggleLights(r, c, board, true);
                             if(lightElement) lightElement.classList.remove('solving');
                             i++;
+                            pressNext();
+                        }, 2000);
+                    }
+                    pressNext();
+                }, 100);
+            }
+
+            newGameBtn.addEventListener('click', startNewGame);
+            resetBtn.addEventListener('click', resetBoard);
+            solveBtn.addEventListener('click', solvePuzzle);
+
+            startNewGame();
+        });
+    </script>
+</body>
+</html>
+         i++;
                             pressNext();
                         }, 2000);
                     }

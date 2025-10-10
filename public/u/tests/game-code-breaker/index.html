@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>암호 해독기</title>
-    <link rel="stylesheet" href="/assets/css/main.css?20251010130000">
+    <link rel="stylesheet" href="/assets/css/main.css?20251010140000">
     <style>
         .game-wrapper {
             display: flex;
@@ -311,6 +311,23 @@
             updateGuessCounter();
             
             submitGuessBtn.disabled = false;
+            clearGuessBtn.disabled = false;
+
+            setupPalette();
+            currentGuess = [];
+            currentRow = createGuessRow();
+        }
+
+        submitGuessBtn.addEventListener('click', submitGuess);
+        clearGuessBtn.addEventListener('click', clearGuess);
+        newGameBtn.addEventListener('click', newGame);
+        
+        newGame();
+    });
+    </script>
+</body>
+</html>
+    submitGuessBtn.disabled = false;
             clearGuessBtn.disabled = false;
 
             setupPalette();
