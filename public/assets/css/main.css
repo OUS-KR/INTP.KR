@@ -88,8 +88,25 @@ body {
 }
 
 .main-nav .nav-links {
-    display: flex;
+    display: none; /* Hidden by default */
     align-items: center; /* Align dropdowns with other items */
+}
+
+.main-nav .nav-links.active {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 70px; /* Below the header */
+    right: 0; /* Align to the right */
+    background-color: var(--nav-bg);
+    border: 1px solid var(--nav-border);
+    border-radius: 5px;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    min-width: 200px; /* Adjust as needed */
+    max-height: calc(100vh - 70px); /* Max height to prevent overflow */
+    overflow-y: auto; /* Enable scrolling for long menus */
+    z-index: 999; /* Ensure it's above other content */
+    padding: 10px 0;
 }
 
 .main-nav .nav-links a {
@@ -114,7 +131,6 @@ body {
 }
 
 .hamburger {
-    display: none;
     cursor: pointer;
     font-size: 1.8em;
     margin-left: 15px;
@@ -157,6 +173,11 @@ body {
     display: block;
 }
 
+/* When hamburger menu is active, hide individual dropdowns on PC */
+.main-nav .nav-links.active .dropdown-menu {
+    display: none;
+}
+
 .dropdown-toggle {
     cursor: pointer;
     background: none;
@@ -192,6 +213,15 @@ body {
 
     .main-nav .nav-links.active {
         display: flex;
+        /* Override PC dropdown styles for mobile */
+        position: absolute; /* Keep absolute for mobile */
+        top: 70px;
+        left: 0;
+        right: 0;
+        width: 100%; /* Full width on mobile */
+        min-width: unset; /* Remove min-width constraint */
+        transform: none; /* Remove transform */
+        z-index: 1000; /* Adjust z-index if needed */
     }
 
     .main-nav .nav-links a {

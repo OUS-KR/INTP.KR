@@ -1,5 +1,5 @@
 body {
-    touch-action: none; /* Disable double-tap to zoom on mobile */
+    /* touch-action: none; Disable double-tap to zoom on mobile */
 }
 
 #game-container {
@@ -76,7 +76,7 @@ body {
     background-color: var(--bg-color);
     border: 2px solid var(--h-color);
     border-radius: 8px;
-    touch-action: none; /* Ensure touch events are handled by JS */
+    /* touch-action: none; Ensure touch events are handled by JS */
 }
 
 /* Remove #start-btn margin-top as it's now part of game-controls */
