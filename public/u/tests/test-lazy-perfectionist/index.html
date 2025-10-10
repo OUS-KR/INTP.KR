@@ -84,7 +84,7 @@
         </div>
     </div>
 
-    <script src="/assets/js/main.js?20251010120000" defer></script>
+    <script src="/assets/js/main.js?20251010130000" defer></script>
     <script>
         const quizContainer = document.getElementById('quiz-container');
         const startArea = document.getElementById('start-area');
@@ -249,6 +249,13 @@
         function updateProgressBar() {
             const progress = (currentQuestionIndex / quizData.length) * 100;
             progressBar.style.width = `${progress}%`;
+        }
+
+        setInitialView();
+    </script>
+</body>
+</html>
+ progressBar.style.width = `${progress}%`;
         }
 
         setInitialView();
