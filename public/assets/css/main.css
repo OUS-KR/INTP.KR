@@ -240,22 +240,30 @@ body {
         margin-left: 0;
     }
     .dropdown-toggle {
-        display: none; /* Hide dropdown button */
+        display: block; /* Show dropdown button on mobile */
+        width: 100%; /* Full width for better tap target */
+        text-align: left; /* Align text to left */
+        padding: 18px; /* Add padding for better tap target */
+        border-bottom: 1px solid var(--nav-border); /* Separator */
     }
     .dropdown-menu {
-        display: block;
-        position: static;
-        background-color: transparent;
-        border: none;
-        box-shadow: none;
+        display: none; /* Hidden by default on mobile, will be toggled by JS */
+        position: static; /* Keep static for flow within the hamburger menu */
+        background-color: var(--nav-bg); /* Use nav background */
+        border: none; /* No border */
+        box-shadow: none; /* No shadow */
         min-width: unset;
         transform: none;
         padding: 0;
         margin-top: 0;
     }
+    .dropdown-menu.show { /* Class to be added by JS */
+        display: block;
+    }
     .dropdown-menu a {
+        padding: 10px 20px 10px 40px; /* Indent sub-items */
+        text-align: left; /* Align text to left */
         border-bottom: 1px solid var(--nav-border);
-        padding: 18px;
     }
 }
 
