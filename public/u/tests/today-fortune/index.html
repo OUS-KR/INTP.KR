@@ -18,51 +18,7 @@
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
         <div class="nav-right-section">
-            <nav class="nav-links" id="nav-links">
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">오늘의 콘텐츠</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/today-fortune/">오늘의 운세</a>
-                        <a href="/u/tests/today-game/">오늘의 게임</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">정보</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/info-characteristics/">특징</a>
-                        <a href="/u/tests/info-careers/">커리어</a>
-                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
-                        <a href="/u/tests/info-subtypes/">하위유형</a>
-                        <a href="/u/tests/info-relationships/">인간관계</a>
-                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">테스트</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
-                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
-                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
-                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
-                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
-                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
-                        <a href="/u/tests/test-lazy-perfectionist/">게으른 완벽주의자 테스트</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">게임</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
-                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
-                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
-                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
-                        <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
-                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
-                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
-                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
-                    </div>
-                </div>
-            </nav>
+            <nav class="nav-links" id="nav-links"></nav>
             <button id="theme-switcher" class="theme-switcher">🌙</button>
             <button id="hamburger" class="hamburger">☰</button>
         </div>
@@ -151,6 +107,75 @@
             results: ["분석적 사고력이 극대화됩니다.", "새로운 아이디어를 현실화할 가능성이 높습니다.", "복잡한 문제도 쉽게 해결할 수 있습니다.", "지적인 만족감을 크게 느낄 수 있습니다."]
         },
         keywords: ["논리", "분석", "시스템", "통찰", "혁신", "아이디어", "탐구", "지식", "독립", "패턴", "융합", "추상화", "전략", "효율", "원리", "개념", "가설", "검증", "모델링", "알고리즘"]
+    };
+
+    // --- Generator Functions ---
+    function generateAdvice(randFn, parts) {
+        const pick = (arr) => arr[Math.floor(randFn() * arr.length)];
+        
+        const structureType = randFn();
+        if (structureType < 0.4) {
+            // Structure 1: Subject + Verb
+            return `${pick(parts.subjects)} ${pick(parts.verbs)}`;
+        } else if (structureType < 0.8) {
+            // Structure 2: Opening + Subject + Verb
+            return `${pick(parts.openings)} ${pick(parts.subjects)} ${pick(parts.verbs)}`;
+        } else {
+            // Structure 3: Full Sentence
+            return `${pick(parts.openings)} ${pick(parts.subjects)} ${pick(parts.verbs)} ${pick(parts.connectors)} ${pick(parts.actions)}`;
+        }
+    }
+
+    function generateTask(randFn, parts) {
+        const pick = (arr) => arr[Math.floor(randFn() * arr.length)];
+        
+        const type = pick(parts.types);
+        const action = pick(parts.actions);
+        const subject = pick(parts.subjects);
+        const verb = pick(parts.verbs);
+
+        // 문장 조합: action + subject + verb
+        let rawSentence = `${action} ${subject}${verb}`;
+
+        // 조사 처리
+        rawSentence = rawSentence
+            .replace("을(를)", josa(subject, "을/를"))
+            .replace("은(는)", josa(subject, "은/는"))
+            .replace("이(가)", josa(subject, "이/가"))
+            .replace("과/와", josa(subject, "과/와"));
+
+        return `${type} ${rawSentence}`;
+    }
+
+    function generateIntpIndex(randFn, parts) {
+        const pick = (arr) => arr[Math.floor(randFn() * arr.length)];
+        const percentage = 65 + Math.floor(randFn() * 31); // 65% to 95%
+        return `${percentage}% - ${pick(parts.reasons)} ${pick(parts.results)}`;
+    }
+
+    function generateKeywords(randFn, keywords, count) {
+        const shuffled = [...keywords].sort(() => randFn() - 0.5);
+        return shuffled.slice(0, count).map(k => `#${k}`).join(" ");
+    }
+
+    // --- Main Execution ---
+    window.onload = function() {
+        try {
+            const seed = getDailySeed();
+            const randFn = mulberry32(seed);
+
+            document.getElementById('adviceDisplay').innerText = generateAdvice(randFn, data.advice);
+            document.getElementById('taskDisplay').innerText = generateTask(randFn, data.task);
+            document.getElementById('intpIndexDisplay').innerText = generateIntpIndex(randFn, data.intpIndex);
+            document.getElementById('keywordDisplay').innerText = generateKeywords(randFn, data.keywords, 5);
+        } catch (e) {
+            console.error("오늘의 운세 생성 중 오류 발생:", e);
+            document.getElementById('adviceDisplay').innerText = "콘텐츠를 불러오는 데 실패했습니다. 페이지를 새로고침해 주세요.";
+        }
+    };
+</script>
+</body>
+</html>념", "가설", "검증", "모델링", "알고리즘"]
     };
 
     // --- Generator Functions ---

@@ -72,50 +72,7 @@
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
         <div class="nav-right-section">
-            <nav class="nav-links" id="nav-links">
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">오늘의 콘텐츠</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/today-fortune/">오늘의 운세</a>
-                        <a href="/u/tests/today-game/">오늘의 게임</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">정보</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/info-characteristics/">특징</a>
-                        <a href="/u/tests/info-careers/">커리어</a>
-                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
-                        <a href="/u/tests/info-subtypes/">하위유형</a>
-                        <a href="/u/tests/info-relationships/">인간관계</a>
-                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">테스트</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
-                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
-                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
-                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
-                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
-                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">게임</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
-                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
-                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
-                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
-                        <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
-                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
-                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
-                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
-                    </div>
-                </div>
-            </nav>
+            <nav class="nav-links" id="nav-links"></nav>
             <button id="theme-switcher" class="theme-switcher">🌙</button>
             <button id="hamburger" class="hamburger">☰</button>
         </div>
@@ -190,6 +147,74 @@
             
             // Ensure start and end are clear
             maze[startPosition.y][startPosition.x] = 0;
+            maze[endPosition.y][endPosition.x] = 0;
+
+            drawMaze();
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        function drawMaze() {
+            mazeContainer.innerHTML = '';
+            mazeContainer.style.gridTemplateColumns = `repeat(${cols}, 20px)`;
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'maze-cell';
+                    if (x === playerPosition.x && y === playerPosition.y) {
+                        cell.classList.add('player');
+                    } else if (x === startPosition.x && y === startPosition.y) {
+                        cell.classList.add('start');
+                    } else if (x === endPosition.x && y === endPosition.y) {
+                        cell.classList.add('end');
+                    } else if (maze[y][x] === 1) {
+                        cell.classList.add('wall');
+                    } else {
+                        cell.classList.add('path');
+                    }
+                    mazeContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function movePlayer(dx, dy) {
+            if (gameEnded) return;
+            const newX = playerPosition.x + dx;
+            const newY = playerPosition.y + dy;
+
+            if (newY >= 0 && newY < rows && newX >= 0 && newX < cols && maze[newY][newX] !== 1) {
+                playerPosition.x = newX;
+                playerPosition.y = newY;
+                drawMaze();
+
+                if (playerPosition.x === endPosition.x && playerPosition.y === endPosition.y) {
+                    messageElement.textContent = '성공! 미로를 탈출했습니다.';
+                    gameEnded = true;
+                    document.removeEventListener('keydown', handleKeyDown);
+                }
+            }
+        }
+        
+        function handleKeyDown(e) {
+            switch (e.key) {
+                case 'ArrowUp': movePlayer(0, -1); break;
+                case 'ArrowDown': movePlayer(0, 1); break;
+                case 'ArrowLeft': movePlayer(-1, 0); break;
+                case 'ArrowRight': movePlayer(1, 0); break;
+            }
+        }
+
+        document.getElementById('up-btn').addEventListener('click', () => movePlayer(0, -1));
+        document.getElementById('down-btn').addEventListener('click', () => movePlayer(0, 1));
+        document.getElementById('left-btn').addEventListener('click', () => movePlayer(-1, 0));
+        document.getElementById('right-btn').addEventListener('click', () => movePlayer(1, 0));
+        resetBtn.addEventListener('click', generateMaze);
+        
+        generateMaze();
+    });
+    </script>
+</body>
+</html>
+osition.y][startPosition.x] = 0;
             maze[endPosition.y][endPosition.x] = 0;
 
             drawMaze();
