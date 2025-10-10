@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>미로 챌린지</title>
-    <link rel="stylesheet" href="/assets/css/main.css?20251010140000">
+    <link rel="stylesheet" href="/assets/css/main.css?20251010170000">
     <style>
         .game-container {
             display: flex;
@@ -208,6 +208,12 @@
         document.getElementById('left-btn').addEventListener('click', () => movePlayer(-1, 0));
         document.getElementById('right-btn').addEventListener('click', () => movePlayer(1, 0));
         resetBtn.addEventListener('click', generateMaze);
+        
+        generateMaze();
+    });
+    </script>
+</body>
+</html>enerateMaze);
         
         generateMaze();
     });
