@@ -51,7 +51,43 @@
                         
             
         
-    </head>
+        <style>
+        @media (max-width: 991.98px) { /* Target mobile devices */
+            body[data-kt-app-sidebar-minimize="on"] #kt_app_sidebar {
+                display: block !important; /* Show when toggled */
+                position: absolute !important; /* Override fixed positioning */
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: auto !important; /* Allow height to be content-driven */
+                width: 100% !important; /* Full width */
+                max-width: none !important; /* Remove any max-width */
+                height: auto !important; /* Height based on content */
+                transform: none !important; /* Remove any transform for sliding */
+                visibility: visible !important; /* Ensure it's visible when active */
+                opacity: 1 !important; /* Ensure it's visible when active */
+                z-index: 1000; /* Ensure it's on top */
+                background-color: var(--kt-app-sidebar-bg-color, #ffffff); /* Use theme color or default */
+                box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Add a subtle shadow */
+            }
+
+            #kt_app_sidebar {
+                display: none !important; /* Hide by default on mobile */
+            }
+
+            #kt_app_sidebar_menu_scroll {
+                overflow-y: visible !important; /* Disable internal scrolling */
+                height: auto !important; /* Allow full height */
+                max-height: none !important; /* Remove max-height */
+            }
+
+            /* Ensure the toggle button is always visible on mobile */
+            .d-lg-none {
+                display: flex !important; /* Use flex to align items */
+            }
+        }
+    </style>
+</head>
     
     
 
