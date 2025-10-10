@@ -122,7 +122,7 @@ body {
     color: var(--text-color);
 }
 
-/* --- Dropdown Menu (for both Desktop and Mobile) --- */
+/* --- Dropdown Menu --- */
 .nav-item.dropdown {
     position: relative;
     margin-left: 25px;
@@ -144,7 +144,7 @@ body {
 }
 
 .dropdown-menu {
-    display: none; /* Hidden by default, shown by JS with .show */
+    display: none;
     position: absolute;
     top: 100%;
     left: 50%;
@@ -158,8 +158,11 @@ body {
     padding: 5px 0;
 }
 
-.dropdown-menu.show {
-    display: block;
+/* Show on DESKTOP HOVER */
+@media (min-width: 993px) {
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+    }
 }
 
 .dropdown-menu a {
@@ -194,6 +197,11 @@ body {
         display: block; /* Show hamburger on mobile */
     }
 
+    /* On mobile, disable the hover effect that might interfere */
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: none;
+    }
+
     .nav-item.dropdown {
         margin-left: 0;
         width: 100%;
@@ -219,12 +227,18 @@ body {
     }
 
     .dropdown-menu {
-        position: static;
+        position: static; /* Remove absolute positioning */
         width: 100%;
         border: none;
         box-shadow: none;
         padding: 0;
         background-color: rgba(0,0,0,0.05);
+        transform: none; /* Reset transform */
+    }
+
+    /* Show on MOBILE CLICK */
+    .dropdown-menu.show {
+        display: block;
     }
     
     [data-theme='dark'] .dropdown-menu {
@@ -232,7 +246,7 @@ body {
     }
 
     .dropdown-menu a {
-        padding: 12px 40px;
+        padding: 12px 40px; /* Indent sub-items */
         text-align: left;
         border-top: 1px solid var(--nav-border);
     }
