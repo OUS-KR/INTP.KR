@@ -5,14 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageElement = document.getElementById('message');
     const songSelect = document.getElementById('song-select');
     const shuffleAllCheckbox = document.getElementById('shuffle-all');
-    const shuffleAllLabel = document.getElementById('shuffle-all-label'); // New
+    const shuffleAllLabel = document.getElementById('shuffle-all-label');
     const gameControls = document.getElementById('game-controls');
-    const stopAudioBtn = document.getElementById('stop-audio-btn'); // New
+    const stopAudioBtn = document.getElementById('stop-audio-btn');
 
     let allMusicData = [];
     let songPath = '';
-    let currentAudioCallback = null; // New
-    let currentAudioInterval = null; // New
+    let currentAudioCallback = null;
+    let currentAudioInterval = null;
+    let lastMatchedSongInfo = null; // Store info of the last matched song
 
     let cards = [];
     let flippedCards = [];
@@ -40,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = song.title;
             songSelect.appendChild(option);
         });
-        // Select the first song by default
         if (allMusicData.length > 0) {
             songPath = `../../..${allMusicData[0].path}`;
         }
@@ -51,11 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         matchedPairs = 0;
         cards = [];
         lockBoard = false;
+        lastMatchedSongInfo = null; // Reset for new game
 
         let gameSections = [];
 
         if (shuffleAll) {
-            // Mix sections from all songs
             const allSections = allMusicData.flatMap(song => {
                 let sections = song.sections;
                 if (!sections || sections.length < 8) {
@@ -66,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
             shuffle(allSections);
             gameSections = allSections.slice(0, 8).flatMap(section => [section, section]);
         } else {
-            // Use sections from a single selected song
             const selectedSong = allMusicData.find(song => song.id === selectedSongId);
             if (!selectedSong) {
                 messageElement.textContent = '선택된 음악을 찾을 수 없습니다.';
@@ -88,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.dataset.id = index;
             card.dataset.startTime = section.start;
             card.dataset.endTime = section.end;
-            card.dataset.songPath = section.songPath || songPath; // Use specific songPath if shuffled
+            card.dataset.songPath = section.songPath || songPath;
 
             card.innerHTML = `
                 <div class="card-face card-front">?</div>
@@ -121,13 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.add('flip');
         flippedCards.push(card);
 
-        lockBoard = true; // Lock the board immediately when a card is flipped
+        lockBoard = true;
 
         playSnippet(card.dataset.songPath, card.dataset.startTime, card.dataset.endTime, () => {
-            // Callback after snippet finishes
-            if (flippedCards.length === 1) { // If only one card is flipped, unlock the board so user can select second
+            if (flippedCards.length === 1) {
                 lockBoard = false;
-            } else if (flippedCards.length === 2) { // If two cards are flipped, proceed to check for match
+            } else if (flippedCards.length === 2) {
                 checkForMatch();
             }
         });
@@ -137,17 +135,17 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.src = path;
         audioPlayer.currentTime = startTime;
         audioPlayer.play();
-        stopAudioBtn.style.display = 'inline-block'; // Show stop button
+        stopAudioBtn.style.display = 'inline-block';
 
-        currentAudioCallback = callback; // Store the callback
+        currentAudioCallback = callback;
 
-        currentAudioInterval = setInterval(() => { // Store interval ID
+        currentAudioInterval = setInterval(() => {
             if (audioPlayer.currentTime >= endTime || audioPlayer.paused) {
                 audioPlayer.pause();
-                clearInterval(currentAudioInterval); // Clear stored interval
-                currentAudioInterval = null; // Clear reference
-                stopAudioBtn.style.display = 'none'; // Hide stop button
-                if (currentAudioCallback) { // Use stored callback
+                clearInterval(currentAudioInterval);
+                currentAudioInterval = null;
+                stopAudioBtn.style.display = 'none';
+                if (currentAudioCallback) {
                     currentAudioCallback();
                     currentAudioCallback = null;
                 }
@@ -159,33 +157,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const [card1, card2] = flippedCards;
 
         if (card1.dataset.startTime === card2.dataset.startTime && card1.dataset.songPath === card2.dataset.songPath) {
-            // Match
             card1.classList.add('matched');
             card2.classList.add('matched');
+            
+            lastMatchedSongInfo = { path: card1.dataset.songPath }; // Save last matched song path
+            
             matchedPairs++;
-            resetFlippedCards(); // This will unlock the board
+            resetFlippedCards();
             if (matchedPairs === cards.length / 2) {
                 endGame();
             }
         } else {
-            // No match - unflip after a delay, then unlock board
             setTimeout(() => {
                 card1.classList.remove('flip');
                 card2.classList.remove('flip');
-                resetFlippedCards(); // This will unlock the board
+                resetFlippedCards();
             }, 1500);
         }
     }
 
     function resetFlippedCards() {
         flippedCards = [];
-        lockBoard = false; // Always unlock here
+        lockBoard = false;
     }
 
     function startGame() {
         startGameBtn.disabled = true;
         messageElement.textContent = '';
-        gameControls.style.display = 'none'; // Hide controls during game
+        gameControls.style.display = 'none';
 
         const selectedSongId = songSelect.value;
         const shuffleAll = shuffleAllCheckbox.checked;
@@ -196,45 +195,67 @@ document.addEventListener('DOMContentLoaded', () => {
     function endGame() {
         lockBoard = true;
         messageElement.textContent = '축하합니다! 모든 쌍을 맞췄습니다!';
-        startGameBtn.disabled = false;
-        gameControls.style.display = 'flex'; // Show controls after game
+        
+        if (lastMatchedSongInfo && lastMatchedSongInfo.path) {
+            setTimeout(() => { // Add a small delay before playing
+                playFullSong(lastMatchedSongInfo.path);
+            }, 500);
+        }
+
+        setTimeout(() => { // Show controls after a longer delay
+            startGameBtn.disabled = false;
+            gameControls.style.display = 'flex';
+        }, 2000);
+    }
+
+    function playFullSong(path) {
+        messageElement.textContent = '전체 곡을 재생합니다...';
+        audioPlayer.src = path;
+        audioPlayer.currentTime = 0;
+        audioPlayer.play();
+        stopAudioBtn.style.display = 'inline-block';
+
+        audioPlayer.onended = () => {
+            stopAudio();
+            messageElement.textContent = '축하합니다! 모든 쌍을 맞췄습니다!';
+        };
     }
 
     function stopAudio() {
         audioPlayer.pause();
         audioPlayer.currentTime = 0;
         stopAudioBtn.style.display = 'none';
-        if (currentAudioInterval) { // Clear interval if it exists
+        if (currentAudioInterval) {
             clearInterval(currentAudioInterval);
             currentAudioInterval = null;
         }
         if (currentAudioCallback) {
-            currentAudioCallback(); // Execute the stored callback
-            currentAudioCallback = null; // Clear the callback
+            currentAudioCallback();
+            currentAudioCallback = null;
         }
+        // Also clear the onended handler to prevent conflicts
+        audioPlayer.onended = null;
     }
 
     shuffleAllCheckbox.addEventListener('change', () => {
         songSelect.disabled = shuffleAllCheckbox.checked;
         if (shuffleAllCheckbox.checked) {
-            songSelect.value = ''; // Clear selection when shuffling all
-            shuffleAllLabel.classList.add('shuffle-active'); // Add class
+            songSelect.value = '';
+            shuffleAllLabel.classList.add('shuffle-active');
         } else {
-            // Select the first song when shuffle is off
             if (allMusicData.length > 0) {
                 songSelect.value = allMusicData[0].id;
             }
-            shuffleAllLabel.classList.remove('shuffle-active'); // Remove class
+            shuffleAllLabel.classList.remove('shuffle-active');
         }
     });
 
     startGameBtn.addEventListener('click', startGame);
-    stopAudioBtn.addEventListener('click', stopAudio); // New event listener
-    loadMusicData(); // Load music data on page load
+    stopAudioBtn.addEventListener('click', stopAudio);
+    loadMusicData();
 
     document.addEventListener('click', (event) => {
-        // Check if audio is playing and the click is not on a card
-        if (!audioPlayer.paused && !event.target.closest('.card')) {
+        if (!audioPlayer.paused && !event.target.closest('.card') && !event.target.closest('.controls')) {
             stopAudio();
         }
     });

@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadBeatmap(songId) {
         try {
             console.log(`Attempting to load beatmap for songId: ${songId}`);
-            const beatmapUrl = `../beatmaps/${songId}.beatmap.json`;
+            const beatmapUrl = `beatmaps/${songId}.beatmap.json`;
             console.log(`Fetching beatmap from URL: ${beatmapUrl}`);
             const beatmapResponse = await fetch(beatmapUrl);
             if (!beatmapResponse.ok) {

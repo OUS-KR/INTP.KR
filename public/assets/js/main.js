@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         hamburger.addEventListener('click', (e) => {
             e.stopPropagation();
             navLinks.classList.toggle('active');
-            // When opening hamburger, close any open dropdowns
             if (navLinks.classList.contains('active')) {
                 document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
                     menu.classList.remove('show');
@@ -45,16 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Dropdown Menu Toggle (for MOBILE ONLY) --- //
-    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-        toggle.addEventListener('click', (e) => {
-            // Only run this click logic if the hamburger is visible (i.e., on mobile)
-            if (window.getComputedStyle(hamburger).display === 'block') {
+    // --- Dropdown Menu Toggle (using Event Delegation) --- //
+    if (navLinks) {
+        navLinks.addEventListener('click', (e) => {
+            const toggle = e.target.closest('.dropdown-toggle');
+            if (toggle && window.getComputedStyle(hamburger).display === 'block') {
                 e.preventDefault();
                 const dropdownMenu = toggle.nextElementSibling;
 
-                // Close other open dropdowns within the mobile nav
-                toggle.closest('.nav-links').querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                // Close other open dropdowns
+                navLinks.querySelectorAll('.dropdown-menu.show').forEach(menu => {
                     if (menu !== dropdownMenu) {
                         menu.classList.remove('show');
                         menu.previousElementSibling.classList.remove('open');
@@ -66,14 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggle.classList.toggle('open');
             }
         });
-    });
+    }
 
     // --- Close Menus When Clicking Outside --- //
     document.addEventListener('click', (e) => {
-        // Close hamburger menu if click is outside
-        if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+        if (navLinks && navLinks.classList.contains('active') && !navLinks.contains(e.target) && !hamburger.contains(e.target)) {
             navLinks.classList.remove('active');
-            // Also close any open dropdowns when closing the hamburger menu
             document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
                 menu.classList.remove('show');
                 menu.previousElementSibling.classList.remove('open');
