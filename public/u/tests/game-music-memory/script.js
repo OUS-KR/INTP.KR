@@ -209,16 +209,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playFullSong(path) {
-        messageElement.textContent = '전체 곡을 재생합니다...';
+        const fullSongMessage = document.createElement('p');
+        fullSongMessage.id = 'full-song-message';
+        fullSongMessage.style.marginTop = '10px';
+        fullSongMessage.textContent = '전체 곡을 재생합니다...';
+        messageElement.appendChild(fullSongMessage);
+
         audioPlayer.src = path;
         audioPlayer.currentTime = 0;
         audioPlayer.play();
         stopAudioBtn.style.display = 'inline-block';
 
-        audioPlayer.onended = () => {
-            stopAudio();
-            messageElement.textContent = '축하합니다! 모든 쌍을 맞췄습니다!';
-        };
+        audioPlayer.onended = stopAudio;
     }
 
     function stopAudio() {
@@ -235,6 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Also clear the onended handler to prevent conflicts
         audioPlayer.onended = null;
+
+        const fullSongMessage = document.getElementById('full-song-message');
+        if (fullSongMessage) {
+            fullSongMessage.remove();
+        }
     }
 
     shuffleAllCheckbox.addEventListener('change', () => {
