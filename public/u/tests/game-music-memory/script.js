@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadMusicData() {
         try {
-            const response = await fetch('../music_data.json');
+            const response = await fetch('/u/tests/assets/music_data.json');
             allMusicData = await response.json();
             populateSongSelect();
         } catch (error) {
