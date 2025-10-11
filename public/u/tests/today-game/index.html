@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 게임 - INTP</title>
-    <link rel="stylesheet" href="/u/tests/assets/css/main.css?20251010130000">
+    <link rel="stylesheet" href="/u/tests/assets/css/main.css?20251011000000">
     <style>
         .game-card-content {
             text-align: center;
@@ -18,7 +18,7 @@
             align-items: center;
         }
         .game-display {
-            font-size: 2em;
+            font-size: 1.8em;
             margin-bottom: 1em;
             font-weight: bold;
             color: var(--text-color);
@@ -26,9 +26,10 @@
             gap: 0.5em;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
         }
         .game-display span {
-            margin: 0 0.3em;
+            margin: 0 0.2em;
             padding: 0.1em 0.4em;
             border-radius: 4px;
             background-color: var(--primary-color-light);
@@ -86,55 +87,7 @@
     <header class="main-nav">
         <a href="/u/tests/" class="logo">INTP.KR Tests</a>
         <div class="nav-right-section">
-            <nav class="nav-links" id="nav-links">
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">오늘의 콘텐츠</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/today-fortune/">오늘의 운세</a>
-                        <a href="/u/tests/today-game/">오늘의 게임</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">정보</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/info-characteristics/">특징</a>
-                        <a href="/u/tests/info-careers/">커리어</a>
-                        <a href="/u/tests/info-cognitive-functions/">인지기능</a>
-                        <a href="/u/tests/info-subtypes/">하위유형</a>
-                        <a href="/u/tests/info-relationships/">인간관계</a>
-                        <a href="/u/tests/info-misconceptions/">흔한 오해</a>
-                        <a href="/u/tests/info-hobbies/">추천 취미</a>
-                        <a href="/u/tests/info-productivity/">생산성 가이드</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">테스트</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/test-logic-quiz/">논리력 퀴즈</a>
-                        <a href="/u/tests/test-relationship-style/">연애 스타일 테스트</a>
-                        <a href="/u/tests/test-stress-triggers/">스트레스 테스트</a>
-                        <a href="/u/tests/test-brain-utilization/">두뇌 활용 테스트</a>
-                        <a href="/u/tests/test-bingo/">빙고 챌린지</a>
-                        <a href="/u/tests/test-empathy-quiz/">INTP 공감 퀴즈</a>
-                        <a href="/u/tests/test-lazy-perfectionist/">게으른 완벽주의자 테스트</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <button class="dropdown-toggle">게임</button>
-                    <div class="dropdown-menu">
-                        <a href="/u/tests/game-logic-puzzle/">논리 퍼즐</a>
-                        <a href="/u/tests/game-strategy-simulation/">전략 시뮬레이션</a>
-                        <a href="/u/tests/game-code-decryption/">기억력 게임</a>
-                        <a href="/u/tests/game-abstract-reasoning/">추상적 사고 게임</a>
-                        <a href="/u/tests/game-travel-planner/">여행 계획 챌린지</a>
-                        <a href="/u/tests/game-maze-challenge/">미로 챌린지</a>
-                        <a href="/u/tests/game-code-breaker/">암호 해독기</a>
-                        <a href="/u/tests/game-pathfinder/">경로 탐색기</a>
-                        <a href="/u/tests/game-music-memory/">음악 메모리 게임</a>
-                        <a href="/u/tests/game-rhythm-master/">리듬 게임</a>
-                    </div>
-                </div>
-            </nav>
+            <nav class="nav-links" id="nav-links"></nav>
             <button id="theme-switcher" class="theme-switcher">🌙</button>
             <button id="hamburger" class="hamburger">☰</button>
         </div>
@@ -158,7 +111,7 @@
         </div>
     </div>
 
-    <script src="/u/tests/assets/js/main.js?20251010150000" defer></script>
+    <script src="/u/tests/assets/js/main.js?20251011000000" defer></script>
     <script src="/u/tests/assets/js/dynamic-menu.js" defer></script>
     <script>
     function getDailySeed() {
@@ -195,7 +148,7 @@
     }
 
     function generateNumberSequence(randFn) {
-        const type = Math.floor(randFn() * 5); // 5 types now
+        const type = Math.floor(randFn() * 5);
         const start = Math.floor(randFn() * 20) + 1;
         const length = 4 + Math.floor(randFn() * 3);
         let sequence = [];
@@ -235,7 +188,7 @@
     }
 
     // Game 1: Word Scramble
-    const intpWords = ["ALGORITHM", "ABSTRACTION", "ANALYTICS", "AXIOM", "BINARY", "BOOLEAN", "CALCULUS", "COGNITION", "COMPILER", "CONJECTURE", "DEDUCTION", "EMPIRICISM", "ENIGMA", "EPISTEMOLOGY", "HEURISTIC", "INFERENCE", "INTELLECT", "LOGIC", "METAPHYSICS", "ONTOLOGY", "PARADIGM", "PARADOX", "PATTERNS", "PHILOSOPHY", "QUANTUM", "RATIONALITY", "RECURSION", "SEMANTICS", "SYNTAX", "SYSTEM", "THEORY", "TOPOLOGY", "HYPOTHESIS", "FRAMEWORK", "MODELING"];
+    const intpWords = ["ALGORITHM", "ABSTRACTION", "ANALYTICS", "AXIOM", "BINARY", "BOOLEAN", "CALCULUS", "COGNITION", "COMPILER", "CONJECTURE", "DEDUCTION", "EMPIRICISM", "ENIGMA", "EPISTEMOLOGY", "HEURISTIC", "INFERENCE", "INTELLECT", "LOGIC", "METAPHYSICS", "ONTOLOGY", "PARADIGM", "PARADOX", "PATTERNS", "PHILOSOPHY", "QUANTUM", "RATIONALITY", "RECURSION", "SEMANTICS", "SYNTAX", "SYSTEM", "THEORY", "TOPOLOGY", "HYPOTHESIS", "FRAMEWORK", "MODELING", "ASYMPTOTIC", "BIG-O", "COMPLEXITY", "DETERMINISM", "EIGENVALUE", "FRACTAL", "GÖDEL", "ISOMORPHISM", "JUXTAPOSITION", "KLEIN-BOTTLE", "LAMBDA", "MANDELBROT", "NON-EUCLIDEAN", "ORTHOGONAL", "PRAGMATISM", "QUASAR", "RELATIVITY", "SCHRÖDINGER", "TURING", "UNIVERSE", "VECTOR", "WAVE-FUNCTION", "XENOPARADOX", "Y-COMBINATOR", "ZENITH"];
     function setupWordScrambleGame() {
         document.getElementById('gameTitle').innerText = "오늘의 게임: 단어 스크램블";
         document.getElementById('userGuess').type = "text";
@@ -254,7 +207,7 @@
         document.getElementById('userGuess').type = "number";
         document.getElementById('userGuess').placeholder = "결과";
         const gameArea = document.getElementById('gameArea');
-        const gates = ["AND", "OR", "XOR", "NAND"];
+        const gates = ["AND", "OR", "XOR", "NAND", "NOR", "XNOR"];
         const gate = gates[Math.floor(currentRandFn() * gates.length)];
         const input1 = Math.floor(currentRandFn() * 2);
         const input2 = Math.floor(currentRandFn() * 2);
@@ -262,7 +215,9 @@
         if (gate === "AND") answer = input1 & input2;
         else if (gate === "OR") answer = input1 | input2;
         else if (gate === "XOR") answer = input1 ^ input2;
-        else answer = 1 - (input1 & input2);
+        else if (gate === "NAND") answer = 1 - (input1 & input2);
+        else if (gate === "NOR") answer = 1 - (input1 | input2);
+        else if (gate === "XNOR") answer = 1 - (input1 ^ input2);
         currentCorrectAnswer = answer;
         gameArea.innerHTML = `<div class="game-display"><span>${input1}</span> <span>${gate}</span> <span>${input2}</span> <span>=</span> <span class="missing">?</span></div>`;
     }
@@ -275,7 +230,7 @@
         document.getElementById('userGuess').placeholder = "다른 하나";
         const gameArea = document.getElementById('gameArea');
         const { items, answer } = generateOddOneOut(currentRandFn);
-        currentCorrectAnswer = answer;
+        currentCorrectAnswer = answer.toUpperCase();
         gameArea.innerHTML = `<div class="game-display">${items.map(item => `<span>${item}</span>`).join('')}</div>`;
     }
 
@@ -284,14 +239,17 @@
             { name: "vowels", items: ["A", "E", "I", "O", "U"], odd: ["B", "C", "D", "F", "G", "K"] },
             { name: "evens", items: [2, 4, 6, 8, 10, 12], odd: [1, 3, 5, 7, 9, 11] },
             { name: "primes", items: [2, 3, 5, 7, 11, 13], odd: [4, 6, 8, 9, 10, 12] },
-            { name: "shapes", items: ["■", "▲", "●", "◆"], odd: ["□", "△", "○", "◇"] }
+            { name: "shapes", items: ["■", "▲", "●", "◆"], odd: ["□", "△", "○", "◇"] },
+            { name: "scientists", items: ["EINSTEIN", "NEWTON", "CURIE", "GALILEO"], odd: ["SHAKESPEARE", "PICASSO", "MOZART"] },
+            { name: "concepts", items: ["LOGIC", "REASON", "ANALYSIS", "SYSTEM"], odd: ["EMOTION", "FEELING", "PASSION"] },
+            { name: "languages", items: ["PYTHON", "JAVA", "C++", "LISP"], odd: ["SPANISH", "FRENCH", "LATIN"] }
         ];
         const type = types[Math.floor(randFn() * types.length)];
         const shuffledItems = type.items.sort(() => randFn() - 0.5);
         const oddOne = type.odd[Math.floor(randFn() * type.odd.length)];
-        let items = shuffledItems.slice(0, 4);
+        let items = shuffledItems.slice(0, 3 + Math.floor(randFn()*2));
         const answer = oddOne.toString();
-        const insertPos = Math.floor(randFn() * 5);
+        const insertPos = Math.floor(randFn() * (items.length + 1));
         items.splice(insertPos, 0, oddOne);
         return { items, answer };
     }
@@ -344,8 +302,7 @@
         const dayOfWeek = today.getDay();
         document.getElementById('gameDescription').innerText = getDayOfWeekText(dayOfWeek);
 
-        // Slightly influence game choice by day of week, but still random
-        const gameTypeIndex = Math.floor(currentRandFn() * gameTypes.length + dayOfWeek) % gameTypes.length;
+        const gameTypeIndex = Math.floor(currentRandFn() * gameTypes.length);
         gameTypes[gameTypeIndex]();
 
         document.getElementById('userGuess').value = '';
