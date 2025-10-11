@@ -5,10 +5,10 @@
 ### [사용자 등록](https://github.com/OUS-KR/INTP.KR/issues/new?template=01-user-register-by-issue.yml)
 
 - `INTP.KR/u/{사용자 아이디}` 주소 기반의 사용자 등록
-  - 사용자 예제: [INTP.KR/u/intp](https://intp.kr/u/intp)
+  - 사용자 예제: [INTP.KR/u/intp](https://intp.kr/u/intp), [INTP.KR/u/tests/](https://intp.kr/u/tests)
   - [사용자 등록 예제](https://github.com/OUS-KR/INTP.KR/issues/1)
 - `INTP.KR/@{사용자 아이디}` 형태의 짧은 주소 지원
-  - 사용자 예제: [INTP.KR/@intp](https://intp.kr/@intp)
+  - 사용자 예제: [INTP.KR/@intp](https://intp.kr/@intp), [INTP.KR/@tests](https://intp.kr/@tests)
 - 부적절한 아이디 (욕설, 관리자 등)는 제한되어 등록 시 삭제
 
 ### [사용자 단축주소 생성](https://github.com/OUS-KR/INTP.KR/issues/new?template=02-user-short-url-register-by-issue.yml)
