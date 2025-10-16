@@ -357,7 +357,7 @@ const symposiumOutcomes = [
     {
         condition: (gs) => gs.researchers.some(r => r.collaboration < 50),
         weight: 20,
-        effect: (gs, researcher) => {
+        effect: (gs) => {
             const researcher = gs.researchers.find(r => r.collaboration < 50);
             const collaborationGain = getRandomValue(10, 4);
             const logicGain = getRandomValue(5, 2);
