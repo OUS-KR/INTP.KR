@@ -541,20 +541,18 @@ function calculateMinigameReward(minigameName, score) {
 
     switch (minigameName) {
         case "논리 회로 퍼즐":
-            if (score >= 51) {
+            if (score >= 3) { // 3 correct answers
                 rewards.logic = 15;
                 rewards.knowledge = 10;
                 rewards.focus = 5;
-                rewards.message = `완벽한 논리입니다! (+15 논리, +10 지식, +5 집중)`;
-            } else if (score >= 21) {
+                rewards.message = `완벽한 논리입니다! 모든 회로를 완성했습니다. (+15 논리, +10 지식, +5 집중)`;
+            } else if (score >= 1) { // 1-2 correct answers
                 rewards.logic = 10;
                 rewards.knowledge = 5;
                 rewards.message = `훌륭한 논리 회로입니다! (+10 논리, +5 지식)`;
-            } else if (score >= 0) {
-                rewards.logic = 5;
-                rewards.message = `논리 회로 퍼즐을 완료했습니다. (+5 논리)`;
             } else {
-                rewards.message = `논리 회로 퍼즐을 완료했지만, 아쉽게도 보상은 없습니다.`;
+                rewards.logic = 5;
+                rewards.message = `논리 회로 퍼즐을 완료했지만, 개선이 필요해 보입니다. (+5 논리)`;
             }
             break;
         // ... other minigame rewards
@@ -568,18 +566,58 @@ function calculateMinigameReward(minigameName, score) {
 const minigames = [
     {
         name: "논리 회로 퍼즐",
-        description: "주어진 입출력에 맞게 논리 게이트를 연결하여 회로를 완성하세요.",
+        description: "주어진 입출력에 맞게 올바른 논리 게이트를 선택하여 회로를 완성하세요.",
         start: (gameArea, choicesDiv) => {
-            // Placeholder implementation
-            gameState.minigameState = { score: 0 };
-            gameArea.innerHTML = `<p>${minigames[0].description}</p><p>게임을 시작합니다! (구현 예정)</p>`;
-            choicesDiv.innerHTML = `<button class="choice-btn" onclick="minigames[0].processAction('endGame')">게임 종료</button>`;
+            gameState.minigameState = {
+                stage: 1,
+                score: 0,
+                problems: [
+                    { a: true, b: true, gate: 'AND', answer: true },
+                    { a: true, b: false, gate: 'OR', answer: true },
+                    { a: false, b: false, gate: 'AND', answer: false },
+                    { a: true, gate: 'NOT', answer: false },
+                    { a: false, b: true, gate: 'OR', answer: true }
+                ].sort(() => currentRandFn() - 0.5).slice(0, 3) // Select 3 random problems
+            };
+            minigames[0].render(gameArea, choicesDiv);
         },
-        render: () => {}, 
-        processAction: (actionType) => {
-            if (actionType === 'endGame') {
-                gameState.minigameState.score = getRandomValue(30, 20); // Random score for placeholder
+        render: (gameArea, choicesDiv) => {
+            const state = gameState.minigameState;
+            if (state.stage > state.problems.length) {
                 minigames[0].end();
+                return;
+            }
+            const problem = state.problems[state.stage - 1];
+            let problemText = `<b>문제 ${state.stage}:</b><br>입력 A = ${problem.a}`;
+            if (problem.b !== undefined) {
+                problemText += `, 입력 B = ${problem.b}`;
+            }
+            problemText += `<br><b>${problem.gate}</b> 게이트의 출력값은?`;
+
+            gameArea.innerHTML = `
+                <p><b>단계:</b> ${state.stage}/${state.problems.length} | <b>점수:</b> ${state.score}</p>
+                <p>${problemText}</p>
+            `;
+            choicesDiv.innerHTML = `
+                <button class="choice-btn" data-action="answer" data-value="true">True</button>
+                <button class="choice-btn" data-action="answer" data-value="false">False</button>
+            `;
+            choicesDiv.querySelectorAll('.choice-btn').forEach(button => {
+                button.addEventListener('click', () => minigames[0].processAction('answer', button.dataset.value === 'true'));
+            });
+        },
+        processAction: (actionType, value) => {
+            if (actionType === 'answer') {
+                const state = gameState.minigameState;
+                const problem = state.problems[state.stage - 1];
+                if (value === problem.answer) {
+                    state.score++;
+                    updateGameDisplay("정답입니다!");
+                } else {
+                    updateGameDisplay("틀렸습니다.");
+                }
+                state.stage++;
+                setTimeout(() => minigames[0].render(document.getElementById('gameArea'), document.getElementById('gameChoices')), 1000);
             }
         },
         end: () => {
@@ -587,8 +625,6 @@ const minigames = [
             updateState({
                 logic: gameState.logic + rewards.logic,
                 knowledge: gameState.knowledge + rewards.knowledge,
-                efficiency: gameState.efficiency + rewards.efficiency,
-                innovation: gameState.innovation + rewards.innovation,
                 focus: gameState.focus + rewards.focus,
                 currentScenarioId: 'intro'
             }, rewards.message);
@@ -636,7 +672,7 @@ const gameActions = {
         let chosenOutcome = possibleOutcomes.find(outcome => {
             cumulativeWeight += outcome.weight;
             return rand < cumulativeWeight;
-        }) || talkOutcomes.find(o => o.condition(gs, researcher));
+        }) || talkOutcomes.find(o => o.condition(gameState, researcher));
         const result = chosenOutcome.effect(gameState, researcher);
         updateState({ ...result.changes, dailyActions: { ...gameState.dailyActions, talkedTo: [...gameState.dailyActions.talkedTo, researcher.id] } }, result.message);
     },
@@ -653,7 +689,147 @@ const gameActions = {
         const result = chosenOutcome.effect(gameState);
         updateState(result.changes, result.message);
     },
-    // ... (The rest of the gameActions, translated and completed for INTP)
+    show_resource_generation_options: () => updateState({ currentScenarioId: 'action_resource_generation' }),
+    show_facility_options: () => updateState({ currentScenarioId: 'action_facility_management' }),
+    perform_generate_compute: () => {
+        if (!spendActionPoint()) return;
+        const successChance = Math.min(0.95, 0.6 + (gameState.techLevel * 0.1) + (gameState.dailyBonus.generationSuccess || 0));
+        let message = "";
+        let changes = {};
+        if (currentRandFn() < successChance) {
+            const computeGain = getRandomValue(5, 2);
+            message = `연산력 확보에 성공했습니다! (+${computeGain} 연산력)`;
+            changes.resources = { ...gameState.resources, compute: gameState.resources.compute + computeGain };
+        } else {
+            message = "연산력 확보에 실패했습니다.";
+        }
+        updateState(changes, message);
+    },
+    perform_synthesize_materials: () => {
+        if (!spendActionPoint()) return;
+        const successChance = Math.min(0.95, 0.6 + (gameState.techLevel * 0.1) + (gameState.dailyBonus.generationSuccess || 0));
+        let message = "";
+        let changes = {};
+        if (currentRandFn() < successChance) {
+            const materialsGain = getRandomValue(5, 2);
+            message = `재료 합성에 성공했습니다! (+${materialsGain} 재료)`;
+            changes.resources = { ...gameState.resources, materials: gameState.resources.materials + materialsGain };
+        } else {
+            message = "재료 합성에 실패했습니다.";
+        }
+        updateState(changes, message);
+    },
+    perform_condense_energy: () => {
+        if (!spendActionPoint()) return;
+        const successChance = Math.min(0.95, 0.6 + (gameState.techLevel * 0.1) + (gameState.dailyBonus.generationSuccess || 0));
+        let message = "";
+        let changes = {};
+        if (currentRandFn() < successChance) {
+            const energyGain = getRandomValue(5, 2);
+            message = `에너지 집약에 성공했습니다! (+${energyGain} 에너지)`;
+            changes.resources = { ...gameState.resources, energy: gameState.resources.energy + energyGain };
+        } else {
+            message = "에너지 집약에 실패했습니다.";
+        }
+        updateState(changes, message);
+    },
+    build_data_archive: () => {
+        if (!spendActionPoint()) return;
+        const cost = { compute: 50, materials: 20 };
+        let message = "";
+        let changes = {};
+        if (gameState.resources.compute >= cost.compute && gameState.resources.materials >= cost.materials) {
+            gameState.labFacilities.dataArchive.built = true;
+            const knowledgeGain = getRandomValue(10, 3);
+            message = `데이터 아카이브를 구축했습니다! (+${knowledgeGain} 지식)`;
+            changes.knowledge = gameState.knowledge + knowledgeGain;
+            changes.resources = { ...gameState.resources, compute: gameState.resources.compute - cost.compute, materials: gameState.resources.materials - cost.materials };
+        } else {
+            message = "자원이 부족하여 건설할 수 없습니다.";
+        }
+        updateState(changes, message);
+    },
+    build_fabrication_bay: () => {
+        if (!spendActionPoint()) return;
+        const cost = { materials: 30, energy: 30 };
+        let message = "";
+        let changes = {};
+        if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
+            gameState.labFacilities.fabricationBay.built = true;
+            const efficiencyGain = getRandomValue(10, 3);
+            message = `제작실을 구축했습니다! (+${efficiencyGain} 효율)`;
+            changes.efficiency = gameState.efficiency + efficiencyGain;
+            changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
+        } else {
+            message = "자원이 부족하여 건설할 수 없습니다.";
+        }
+        updateState(changes, message);
+    },
+    build_main_control_room: () => {
+        if (!spendActionPoint()) return;
+        const cost = { compute: 100, materials: 50, energy: 50 };
+        let message = "";
+        let changes = {};
+        if (gameState.resources.compute >= cost.compute && gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
+            gameState.labFacilities.mainControlRoom.built = true;
+            const logicGain = getRandomValue(15, 5);
+            const focusGain = getRandomValue(10, 3);
+            message = `중앙 통제실을 구축했습니다! (+${logicGain} 논리, +${focusGain} 집중)`;
+            changes.logic = gameState.logic + logicGain;
+            changes.focus = gameState.focus + focusGain;
+            changes.resources = { ...gameState.resources, compute: gameState.resources.compute - cost.compute, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
+        } else {
+            message = "자원이 부족하여 건설할 수 없습니다.";
+        }
+        updateState(changes, message);
+    },
+    build_theory_library: () => {
+        if (!spendActionPoint()) return;
+        const cost = { materials: 80, energy: 40 };
+        let message = "";
+        let changes = {};
+        if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
+            gameState.labFacilities.theoryLibrary.built = true;
+            const knowledgeGain = getRandomValue(15, 5);
+            const innovationGain = getRandomValue(10, 3);
+            message = `이론 라이브러리를 구축했습니다! (+${knowledgeGain} 지식, +${innovationGain} 혁신)`;
+            changes.knowledge = gameState.knowledge + knowledgeGain;
+            changes.innovation = gameState.innovation + innovationGain;
+            changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
+        } else {
+            message = "자원이 부족하여 건설할 수 없습니다.";
+        }
+        updateState(changes, message);
+    },
+    build_advanced_lab: () => {
+        if (!spendActionPoint()) return;
+        const cost = { materials: 50, energy: 100 };
+        let message = "";
+        let changes = {};
+        if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
+            gameState.labFacilities.advancedLab.built = true;
+            message = "고등 연구실을 구축했습니다! 이제 양자 비트를 활용할 수 있습니다.";
+            changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
+        } else {
+            message = "자원이 부족하여 건설할 수 없습니다.";
+        }
+        updateState(changes, message);
+    },
+    maintain_facility: (params) => {
+        if (!spendActionPoint()) return;
+        const facilityKey = params.facility;
+        const cost = { materials: 10, energy: 10 };
+        let message = "";
+        let changes = {};
+        if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
+            gameState.labFacilities[facilityKey].durability = 100;
+            message = `${gameState.labFacilities[facilityKey].name} 시설의 유지보수를 완료했습니다. 내구도가 100으로 회복되었습니다.`;
+            changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
+        } else {
+            message = "유지보수에 필요한 자원이 부족합니다.";
+        }
+        updateState(changes, message);
+    },
     return_to_intro: () => updateState({ currentScenarioId: 'intro' }),
     show_contemplation_options: () => updateState({ currentScenarioId: 'contemplation_menu' }),
     run_random_algorithm: () => {
@@ -706,6 +882,7 @@ const gameActions = {
         updateGameDisplay(minigame.description);
         minigame.start(document.getElementById('gameArea'), document.getElementById('gameChoices'));
     },
+    // ... other actions from ENFJ translated to INTP theme
 };
 
 // --- Daily/Initialization Logic ---
