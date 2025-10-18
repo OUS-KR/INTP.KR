@@ -1,4 +1,4 @@
-// today-game.js - 지식의 연구소 (The Lab of Knowledge)
+// today-game.js - INTP - 지식의 연구소 (Knowledge Lab)
 
 // --- Utility Functions ---
 function getDailySeed() {
@@ -23,7 +23,7 @@ function getRandomValue(base, variance) {
 }
 
 function getEulReParticle(word) {
-    if (!word || word.length === 0) return "를";
+    if (!word || word.length === 0) return "";
     const lastChar = word[word.length - 1];
     const uni = lastChar.charCodeAt(0);
     if (uni < 0xAC00 || uni > 0xD7A3) return "를";
@@ -31,7 +31,7 @@ function getEulReParticle(word) {
 }
 
 function getWaGwaParticle(word) {
-    if (!word || word.length === 0) return "와";
+    if (!word || word.length === 0) return "";
     const lastChar = word[word.length - 1];
     const uni = lastChar.charCodeAt(0);
     if (uni < 0xAC00 || uni > 0xD7A3) return "와";
@@ -57,56 +57,62 @@ function resetGameState() {
         knowledge: 50,
         efficiency: 50,
         innovation: 50,
-        focus: 50,
-        actionPoints: 10,
+        concentration: 50,
+        actionPoints: 10, // Internally actionPoints, but represents '행동력' in UI
         maxActionPoints: 10,
-        resources: { compute: 10, materials: 10, energy: 5, quantum_bits: 0 },
+        resources: { computing_power: 10, materials: 10, energy: 5, quantum_bits: 0 },
         researchers: [
-            { id: "newton", name: "뉴턴", personality: "분석적", skill: "물리학", collaboration: 70 },
-            { id: "curie", name: "퀴리", personality: "탐구적", skill: "화학", collaboration: 60 }
+            { id: "max", name: "맥스", personality: "분석적", skill: "물리학", trust: 70 },
+            { id: "eliza", name: "엘리자", personality: "탐구적", skill: "정보학", trust: 60 }
         ],
         maxResearchers: 5,
         currentScenarioId: "intro",
         lastPlayedDate: new Date().toISOString().slice(0, 10),
         manualDayAdvances: 0,
         dailyEventTriggered: false,
-        dailyBonus: { generationSuccess: 0 },
-        dailyActions: { explored: false, symposiumHeld: false, talkedTo: [], minigamePlayed: false },
-        labFacilities: {
-            dataArchive: { built: false, durability: 100, name: "데이터 아카이브", description: "연구 데이터를 저장하고 관리합니다.", effect_description: "지식 스탯 보너스 및 데이터 손실 방지." },
-            fabricationBay: { built: false, durability: 100, name: "제작실", description: "실험 장비와 재료를 제작합니다.", effect_description: "기술 레벨업 및 재료 생성 효율 증가." },
-            mainControlRoom: { built: false, durability: 100, name: "중앙 통제실", description: "연구소의 모든 시스템을 통제합니다.", effect_description: "신규 연구원 영입 및 기술 교류 이벤트 활성화." },
-            theoryLibrary: { built: false, durability: 100, name: "이론 라이브러리", description: "기초 과학 이론과 논문을 보관합니다.", effect_description: "고문서 분석을 통한 스탯 및 자원 획득 기회 제공." },
-            advancedLab: { built: false, durability: 100, name: "고등 연구실", description: "양자 비트를 사용하는 고급 연구를 수행합니다.", effect_description: "고급 기술 연구 및 양자 비트 활용 잠금 해제." }
+        dailyBonus: { researchSuccess: 0 }, // Re-themed from gatheringSuccess
+        dailyActions: { explored: false, discussed: false, symposiaHeld: false, minigamePlayed: false }, // Re-themed
+        researchFacilities: {
+            dataArchive: { built: false, durability: 100, name: "데이터 아카이브", description: "방대한 데이터를 저장하고 관리합니다.", effect_description: "지식 및 연산력 증가." },
+            fabricationLab: { built: false, durability: 100, name: "제작실", description: "새로운 재료와 장비를 제작합니다.", effect_description: "재료 및 혁신 증가." },
+            centralControl: { built: false, durability: 100, name: "중앙 통제실", description: "연구소의 모든 시스템을 효율적으로 제어합니다.", effect_description: "효율성 및 논리 증가." },
+            theoryLibrary: { built: false, durability: 100, name: "이론 라이브러리", description: "다양한 이론과 가설을 탐구합니다.", effect_description: "지식 및 집중 증가." },
+            advancedLab: { built: false, durability: 100, name: "고등 연구실", description: "최첨단 기술을 연구하고 양자 비트를 생성합니다.", effect_description: "양자 비트 및 혁신 증가." }
         },
-        techLevel: 0,
+        labLevel: 0, // Re-themed from toolsLevel
         minigameState: {}
     };
     currentRandFn = mulberry32(getDailySeed() + gameState.day);
 }
 
 function saveGameState() {
-    localStorage.setItem('intpLabGame', JSON.stringify(gameState));
+    localStorage.setItem('intpKnowledgeLabGame', JSON.stringify(gameState));
 }
 
 function loadGameState() {
-    const savedState = localStorage.getItem('intpLabGame');
+    const savedState = localStorage.getItem('intpKnowledgeLabGame');
     const today = new Date().toISOString().slice(0, 10);
     if (savedState) {
         let loaded = JSON.parse(savedState);
         // Patch for old save files
-        if (!loaded.dailyBonus) loaded.dailyBonus = { generationSuccess: 0 };
+        if (!loaded.dailyBonus) loaded.dailyBonus = { researchSuccess: 0 };
         if (!loaded.researchers || loaded.researchers.length === 0) {
             loaded.researchers = [
-                { id: "newton", name: "뉴턴", personality: "분석적", skill: "물리학", collaboration: 70 },
-                { id: "curie", name: "퀴리", personality: "탐구적", skill: "화학", collaboration: 60 }
+                { id: "max", name: "맥스", personality: "분석적", skill: "물리학", trust: 70 },
+                { id: "eliza", name: "엘리자", personality: "탐구적", skill: "정보학", trust: 60 }
             ];
         }
-        if (!loaded.innovation) loaded.innovation = 50;
-        if (!loaded.focus) loaded.focus = 50;
+        // Ensure new stats are initialized if loading old save
+        if (loaded.logic === undefined) loaded.logic = 50;
+        if (loaded.knowledge === undefined) loaded.knowledge = 50;
+        if (loaded.efficiency === undefined) loaded.efficiency = 50;
+        if (loaded.innovation === undefined) loaded.innovation = 50;
+        if (loaded.concentration === undefined) loaded.concentration = 50;
+        if (loaded.labLevel === undefined) loaded.labLevel = 0;
 
         Object.assign(gameState, loaded);
 
+        // Always initialize currentRandFn after loading state
         currentRandFn = mulberry32(getDailySeed() + gameState.day);
 
         if (gameState.lastPlayedDate !== today) {
@@ -144,17 +150,17 @@ function updateGameDisplay(text) {
 function renderStats() {
     const statsDiv = document.getElementById('gameStats');
     if (!statsDiv) return;
-    const researcherListHtml = gameState.researchers.map(r => `<li>${r.name} (${r.skill}) - 협력도: ${r.collaboration}</li>`).join('');
+    const researcherListHtml = gameState.researchers.map(r => `<li>${r.name} (${r.skill}) - 신뢰도: ${r.trust}</li>`).join('');
     statsDiv.innerHTML = `
-        <p><b>연구일:</b> ${gameState.day}일</p>
+        <p><b>날짜:</b> ${gameState.day}일</p>
         <p><b>행동력:</b> ${gameState.actionPoints}/${gameState.maxActionPoints}</p>
-        <p><b>논리:</b> ${gameState.logic} | <b>지식:</b> ${gameState.knowledge} | <b>효율:</b> ${gameState.efficiency} | <b>혁신:</b> ${gameState.innovation} | <b>집중:</b> ${gameState.focus}</p>
-        <p><b>자원:</b> 연산력 ${gameState.resources.compute}, 재료 ${gameState.resources.materials}, 에너지 ${gameState.resources.energy}, 양자 비트 ${gameState.resources.quantum_bits || 0}</p>
-        <p><b>기술 레벨:</b> ${gameState.techLevel}</p>
-        <p><b>소속 연구원 (${gameState.researchers.length}/${gameState.maxResearchers}):</b></p>
+        <p><b>논리:</b> ${gameState.logic} | <b>지식:</b> ${gameState.knowledge} | <b>효율:</b> ${gameState.efficiency} | <b>혁신:</b> ${gameState.innovation} | <b>집중:</b> ${gameState.concentration}</p>
+        <p><b>자원:</b> 연산력 ${gameState.resources.computing_power}, 재료 ${gameState.resources.materials}, 에너지 ${gameState.resources.energy}, 양자 비트 ${gameState.resources.quantum_bits || 0}</p>
+        <p><b>연구소 레벨:</b> ${gameState.labLevel}</p>
+        <p><b>연구원 (${gameState.researchers.length}/${gameState.maxResearchers}):</b></p>
         <ul>${researcherListHtml}</ul>
-        <p><b>구축된 시설:</b></p>
-        <ul>${Object.values(gameState.labFacilities).filter(f => f.built).map(f => `<li>${f.name} (내구성: ${f.durability}) - ${f.effect_description}</li>`).join('') || '없음'}</ul>
+        <p><b>구축된 연구 시설:</b></p>
+        <ul>${Object.values(gameState.researchFacilities).filter(f => f.built).map(f => `<li>${f.name} (내구도: ${f.durability}) - ${f.effect_description}</li>`).join('') || '없음'}</ul>
     `;
     const manualDayCounter = document.getElementById('manualDayCounter');
     if(manualDayCounter) manualDayCounter.innerText = gameState.manualDayAdvances;
@@ -169,21 +175,23 @@ function renderChoices(choices) {
         dynamicChoices = gameScenarios.intro.choices;
     } else if (gameState.currentScenarioId === 'action_facility_management') {
         dynamicChoices = gameScenarios.action_facility_management.choices ? [...gameScenarios.action_facility_management.choices] : [];
-        if (!gameState.labFacilities.dataArchive.built) dynamicChoices.push({ text: "데이터 아카이브 구축 (연산력 50, 재료 20)", action: "build_data_archive" });
-        if (!gameState.labFacilities.fabricationBay.built) dynamicChoices.push({ text: "제작실 구축 (재료 30, 에너지 30)", action: "build_fabrication_bay" });
-        if (!gameState.labFacilities.mainControlRoom.built) dynamicChoices.push({ text: "중앙 통제실 구축 (연산력 100, 재료 50, 에너지 50)", action: "build_main_control_room" });
-        if (!gameState.labFacilities.theoryLibrary.built) dynamicChoices.push({ text: "이론 라이브러리 구축 (재료 80, 에너지 40)", action: "build_theory_library" });
-        if (gameState.labFacilities.fabricationBay.built && gameState.labFacilities.fabricationBay.durability > 0 && !gameState.labFacilities.advancedLab.built) {
-            dynamicChoices.push({ text: "고등 연구실 구축 (재료 50, 에너지 100)", action: "build_advanced_lab" });
+        // Build options
+        if (!gameState.researchFacilities.dataArchive.built) dynamicChoices.push({ text: "데이터 아카이브 구축 (연산력 50, 재료 20)", action: "build_dataArchive" });
+        if (!gameState.researchFacilities.fabricationLab.built) dynamicChoices.push({ text: "제작실 구축 (재료 30, 에너지 30)", action: "build_fabricationLab" });
+        if (!gameState.researchFacilities.centralControl.built) dynamicChoices.push({ text: "중앙 통제실 구축 (연산력 100, 재료 50, 에너지 50)", action: "build_centralControl" });
+        if (!gameState.researchFacilities.theoryLibrary.built) dynamicChoices.push({ text: "이론 라이브러리 구축 (재료 80, 에너지 40)", action: "build_theoryLibrary" });
+        if (gameState.researchFacilities.fabricationLab.built && gameState.researchFacilities.fabricationLab.durability > 0 && !gameState.researchFacilities.advancedLab.built) {
+            dynamicChoices.push({ text: "고등 연구실 구축 (재료 50, 에너지 100)", action: "build_advancedLab" });
         }
-        Object.keys(gameState.labFacilities).forEach(key => {
-            const facility = gameState.labFacilities[key];
+        // Maintenance options
+        Object.keys(gameState.researchFacilities).forEach(key => {
+            const facility = gameState.researchFacilities[key];
             if (facility.built && facility.durability < 100) {
                 dynamicChoices.push({ text: `${facility.name} 유지보수 (재료 10, 에너지 10)`, action: "maintain_facility", params: { facility: key } });
             }
         });
         dynamicChoices.push({ text: "취소", action: "return_to_intro" });
-    } else {
+    } else { // For any other scenario, use its predefined choices
         dynamicChoices = choices ? [...choices] : [];
     }
 
@@ -202,7 +210,7 @@ function renderAll(customDisplayMessage = null) {
     const desc = document.getElementById('gameDescription');
     if (desc) desc.style.display = 'none';
     renderStats();
-    
+
     if (!gameState.currentScenarioId.startsWith('minigame_')) {
         const scenario = gameScenarios[gameState.currentScenarioId] || gameScenarios.intro;
         updateGameDisplay(customDisplayMessage || scenario.text);
@@ -212,103 +220,114 @@ function renderAll(customDisplayMessage = null) {
 
 // --- Game Data ---
 const gameScenarios = {
-    "intro": { text: "무엇을 연구할까요?", choices: [
-        { text: "연구소 탐사", action: "explore" },
-        { text: "연구원과 토론", action: "talk_to_researchers" },
-        { text: "아이디어 심포지엄", action: "hold_symposium" },
+    "intro": { text: "지식의 연구소에서 무엇을 할까요?", choices: [
+        { text: "탐사하기", action: "explore_area" },
+        { text: "연구원과 토론하기", action: "discuss_with_researcher" },
+        { text: "심포지엄 개최", action: "hold_symposium" },
         { text: "자원 생성", action: "show_resource_generation_options" },
-        { text: "연구 시설 관리", action: "show_facility_options" },
+        { text: "연구 시설 관리", action: "show_facility_management_options" },
         { text: "사색의 시간", action: "show_contemplation_options" },
-        { text: "오늘의 미니게임", action: "play_minigame" }
+        { text: "오늘의 발견", action: "play_minigame" }
     ]},
-    "daily_event_paradox": {
-        text: "연구원 뉴턴과 퀴리 사이에 논리적 모순이 발견되었습니다. 둘 다 자신의 가설이 맞다고 주장하고 있습니다.",
+    "daily_event_server_overload": {
+        text: "", // Set by onTrigger
+        choices: [{ text: "확인", action: "return_to_intro" }]
+    },
+    "daily_event_research_breakthrough": {
+        text: "", // Set by onTrigger
+        choices: [{ text: "확인", action: "return_to_intro" }]
+    },
+    "daily_event_system_hacking": {
+        text: "연구소 시스템에 해킹 시도가 감지되었습니다. 연구소의 효율이 흔들리고 있습니다.",
         choices: [
-            { text: "뉴턴의 가설을 검증한다.", action: "handle_paradox", params: { first: "newton", second: "curie" } },
-            { text: "퀴리의 실험 데이터를 분석한다.", action: "handle_paradox", params: { first: "curie", second: "newton" } },
-            { text: "둘의 연구를 통합할 새로운 가설을 제시한다.", action: "mediate_paradox" },
-            { text: "흥미롭지만, 내 연구가 아니다.", action: "ignore_event" }
+            { text: "보안 시스템을 강화하고 해킹을 방어한다 (행동력 1 소모)", action: "defend_hacking" },
+            { text: "해킹을 무시하고 연구에 집중한다", action: "ignore_hacking" }
         ]
     },
-    "daily_event_overload": { text: "", choices: [{ text: "확인", action: "return_to_intro" }] },
-    "daily_event_corruption": { text: "", choices: [{ text: "확인", action: "return_to_intro" }] },
-    "daily_event_tech_exchange": {
-        text: "외부 기관에서 기술 교류를 제안했습니다. [재료 50개]를 [양자 비트 5개]와 교환하자고 합니다.",
+    "daily_event_resource_depletion": {
+        text: "", // Set by onTrigger
+        choices: [{ text: "확인", action: "return_to_intro" }]
+    },
+    "daily_event_researcher_dispute": {
+        text: "맥스와 엘리자 사이에 연구 방향에 대한 작은 의견 차이가 생겼습니다. 둘 다 당신의 판단을 기다리는 것 같습니다.",
         choices: [
-            { text: "제안을 수락한다", action: "accept_exchange" },
-            { text: "제안을 거절한다", action: "decline_exchange" }
+            { text: "맥스의 관점을 먼저 들어준다.", action: "handle_researcher_dispute", params: { first: "max", second: "eliza" } },
+            { text: "엘리자의 관점을 먼저 들어준다.", action: "handle_researcher_dispute", params: { first: "eliza", second: "max" } },
+            { text: "둘을 불러 효율적인 해결책을 찾는다.", action: "mediate_researcher_dispute" },
+            { text: "신경 쓰지 않는다.", action: "ignore_event" }
         ]
     },
     "daily_event_new_researcher": {
         choices: [
-            { text: "환영하고 연구 주제를 논의한다.", action: "welcome_new_unique_researcher" },
-            { text: "그의 연구 실적을 검토해본다.", action: "observe_researcher" },
-            { text: "연구소와 방향이 맞지 않는 것 같다.", action: "reject_researcher" }
+            { text: "유능한 인재를 영입한다.", action: "welcome_new_unique_researcher" },
+            { text: "연구소에 필요한지 좀 더 지켜본다.", action: "observe_researcher" },
+            { text: "정중히 거절한다.", action: "reject_researcher" }
         ]
     },
-    "daily_event_breakthrough": { text: "", choices: [{ text: "확인", action: "return_to_intro" }] },
-    "daily_event_legacy_code": {
-        text: "데이터 아카이브에서 오래된 레거시 코드를 발견했습니다. 분석해볼까요?",
+    "daily_event_external_funding": {
+        text: "외부 기관에서 연구 자금 지원을 제안했습니다. 그들은 [연산력 50개]를 [양자 비트 5개]와 교환하자고 제안합니다.",
         choices: [
-            { text: "분석한다 (에너지 5 소모)", action: "analyze_legacy_code" },
-            { text: "시간이 아깝다. 무시한다", action: "ignore_legacy_code" }
+            { text: "제안을 수락한다", action: "accept_funding" },
+            { text: "제안을 거절한다", action: "decline_funding" }
         ]
     },
-    "daily_event_visiting_scholar": {
-        text: "저명한 초빙 학자가 연구소에 방문했습니다. 그의 강연은 항상 새로운 영감을 줍니다.",
+    "daily_event_theory_breakdown": {
+        text: "연구 중 핵심 이론에 중대한 결함이 발견되었습니다. 연구소의 논리가 흔들리고 있습니다.",
         choices: [
-            { text: "강연을 듣는다 (행동력 1 소모)", action: "listen_to_scholar" },
-            { text: "내 연구에 집중한다", action: "decline_scholar" }
+            { text: "이론의 결함을 분석하고 재정립한다 (행동력 1 소모)", action: "reestablish_theory" },
+            { text: "결함을 무시하고 연구를 계속한다", action: "ignore_theory_breakdown" }
         ]
     },
-    "daily_event_system_hack": {
-        text: "외부에서 시스템 해킹 시도가 감지되었습니다! 연산력의 일부를 방어에 사용해야 합니다.",
+    "daily_event_innovation_crisis": {
+        text: "갑자기 새로운 아이디어가 떠오르지 않습니다. 연구소의 혁신이 침체되는 것 같습니다.",
         choices: [
-            { text: "방어 프로토콜 가동 (연산력 손실)", action: "hack_defend" },
-            { text: "해커의 역량을 과소평가하고 무시한다 (큰 위험)", action: "hack_ignore" }
+            { text: "새로운 관점을 탐색한다 (행동력 1 소모)", action: "seek_new_perspective" },
+            { text: "기존 연구에 집중한다", action: "focus_on_existing_research" }
         ]
     },
-    "daily_event_research_paradox": {
-        text: "핵심 연구에서 심각한 패러독스가 발생했습니다. 연구가 중단될 위기입니다.",
-        choices: [
-            { text: "밤을 새워 해결책을 찾는다 (행동력 소모)", action: "paradox_solve" },
-            { text: "다른 연구원에게 책임을 넘긴다 (협력도 하락)", action: "paradox_pass_buck" },
-            { text: "문제를 잠시 덮어둔다 (더 큰 문제 발생 위험)", action: "paradox_ignore" }
-        ]
-    },
-    "daily_event_data_corruption": {
-        text: "핵심 데이터가 오염되었습니다. 연구원들의 지식 수준이 떨어지고 있습니다.",
-        choices: [
-            { text: "백업 데이터로 복구 (자원 소모, 지식 회복)", action: "data_recover" },
-            { text: "오염된 데이터를 기반으로 연구를 강행한다 (지식 추가 하락 위험)", action: "data_ignore" }
-        ]
-    },
-    "game_over_logic": { text: "연구소의 논리 지수가 너무 낮아 비합리적인 결론만 도출됩니다. 연구는 중단되었습니다.", choices: [], final: true },
-    "game_over_knowledge": { text: "연구원들의 지식 수준이 정체되었습니다. 더 이상의 혁신은 일어나지 않습니다.", choices: [], final: true },
-    "game_over_efficiency": { text: "연구소의 효율이 무너져 시스템이 마비되었습니다. 아무것도 진행할 수 없습니다.", choices: [], final: true },
-    "game_over_innovation": { text: "연구소의 혁신성이 고갈되어 새로운 아이디어가 나오지 않습니다. 연구소는 활력을 잃었습니다.", choices: [], final: true },
-    "game_over_focus": { text: "연구원들의 집중력이 바닥나 사소한 실수가 반복됩니다. 신뢰성을 잃었습니다.", choices: [], final: true },
-    "game_over_resources": { text: "연구소의 자원이 고갈되어 더 이상 연구를 진행할 수 없습니다.", choices: [], final: true },
+    "game_over_logic": { text: "연구소의 논리가 붕괴되어 더 이상 합리적인 판단을 내릴 수 없습니다. 지식의 연구소는 혼란에 빠졌습니다.", choices: [], final: true },
+    "game_over_knowledge": { text: "연구소의 지식이 고갈되어 더 이상 새로운 기술을 개발할 수 없습니다. 연구는 중단되었습니다.", choices: [], final: true },
+    "game_over_efficiency": { text: "연구소의 효율이 바닥을 쳤습니다. 모든 작업이 지연되고 자원이 낭비됩니다.", choices: [], final: true },
+    "game_over_innovation": { text: "연구소의 혁신이 사라져 모든 연구원들이 목표를 잃었습니다. 지식의 연구소는 폐쇄되었습니다.", choices: [], final: true },
+    "game_over_concentration": { text: "연구원들의 집중력이 바닥을 쳤습니다. 더 이상 정밀한 연구를 진행할 수 없습니다.", choices: [], final: true },
+    "game_over_resources": { text: "연구소의 자원이 모두 고갈되어 더 이상 운영할 수 없습니다.", choices: [], final: true },
     "action_resource_generation": {
         text: "어떤 자원을 생성하시겠습니까?",
         choices: [
-            { text: "연산력 확보", action: "perform_generate_compute" },
-            { text: "재료 합성", action: "perform_synthesize_materials" },
-            { text: "에너지 집약", action: "perform_condense_energy" },
-            { text: "취소", action: "return_to_intro" }
+            { text: "연산력 생성", action: "generate_computing_power" },
+            { text: "재료 수집", action: "gather_materials" },
+            { text: "에너지 확보", "action": "secure_energy" },
+            { text: "취소", "action": "return_to_intro" }
         ]
     },
-    "action_facility_management": { text: "어떤 시설을 관리하시겠습니까?", choices: [] },
-    "resource_generation_result": { text: "", choices: [{ text: "확인", action: "show_resource_generation_options" }] },
-    "facility_management_result": { text: "", choices: [{ text: "확인", action: "show_facility_options" }] },
-    "paradox_resolution_result": { text: "", choices: [{ text: "확인", action: "return_to_intro" }] },
-    "hack_result": { text: "", choices: [{ text: "확인", action: "return_to_intro" }] },
-    "research_paradox_result": { text: "", choices: [{ text: "확인", action: "return_to_intro" }] },
-    "data_corruption_result": { text: "", choices: [{ text: "확인", action: "return_to_intro" }] },
+    "action_facility_management": {
+        text: "어떤 연구 시설을 관리하시겠습니까?",
+        choices: [] // Choices will be dynamically added in renderChoices
+    },
+    "resource_generation_result": {
+        text: "", // Text will be set dynamically by updateGameDisplay
+        choices: [{ text: "확인", action: "show_resource_generation_options" }] // Return to gathering menu
+    },
+    "facility_management_result": {
+        text: "", // Text will be set dynamically by updateGameDisplay
+        choices: [{ text: "확인", action: "show_facility_management_options" }] // Return to facility management menu
+    },
+    "researcher_dispute_resolution_result": {
+        text: "", // This will be set dynamically
+        choices: [{ text: "확인", action: "return_to_intro" }]
+    },
+    "hacking_defense_result": {
+        text: "", // This will be set dynamically
+        choices: [{ text: "확인", action: "return_to_intro" }]
+    },
+    "theory_reestablishment_result": {
+        text: "", // This will be set dynamically
+        choices: [{ text: "확인", action: "return_to_intro" }]
+    },
     "contemplation_menu": {
-        text: "어떤 사색에 잠기시겠습니까?",
+        text: "어떤 사색의 시간을 가지시겠습니까?",
         choices: [
-            { text: "알고리즘 실행 (행동력 1 소모)", action: "run_random_algorithm" },
+            { text: "알고리즘 실행 (행동력 1 소모)", action: "execute_algorithm" },
             { text: "레거시 코드 디버깅 (행동력 1 소모)", action: "debug_legacy_code" },
             { text: "취소", action: "return_to_intro" }
         ]
@@ -317,94 +336,94 @@ const gameScenarios = {
 
 const symposiumOutcomes = [
     {
-        condition: (gs) => gs.knowledge < 40,
+        condition: (gs) => gs.efficiency < 40,
         weight: 40,
         effect: (gs) => {
-            const knowledgeLoss = getRandomValue(10, 4);
-            const efficiencyLoss = getRandomValue(5, 2);
-            const focusLoss = getRandomValue(5, 2);
+            const efficiencyLoss = getRandomValue(10, 4);
+            const innovationLoss = getRandomValue(5, 2);
+            const logicLoss = getRandomValue(5, 2);
             return {
-                changes: { knowledge: gs.knowledge - knowledgeLoss, efficiency: gs.efficiency - efficiencyLoss, focus: gs.focus - focusLoss },
-                message: `기초 지식 부족으로 심포지엄의 논의가 길을 잃었습니다. (-${knowledgeLoss} 지식, -${efficiencyLoss} 효율, -${focusLoss} 집중)`
+                changes: { efficiency: gs.efficiency - efficiencyLoss, innovation: gs.innovation - innovationLoss, logic: gs.logic - logicLoss },
+                message: "심포지엄이 시작되자마자 연구원들의 불만이 터져 나왔습니다. 낮은 효율성으로 인해 분위기가 험악합니다. (-${efficiencyLoss} 효율, -${innovationLoss} 혁신, -${logicLoss} 논리)"
             };
         }
     },
     {
-        condition: (gs) => gs.logic > 70 && gs.innovation > 60,
+        condition: (gs) => gs.logic > 70 && gs.knowledge > 60,
         weight: 30,
         effect: (gs) => {
-            const innovationGain = getRandomValue(15, 5);
-            const knowledgeGain = getRandomValue(10, 3);
-            const focusGain = getRandomValue(10, 3);
+            const efficiencyGain = getRandomValue(15, 5);
+            const innovationGain = getRandomValue(10, 3);
+            const logicGain = getRandomValue(10, 3);
             return {
-                changes: { innovation: gs.innovation + innovationGain, knowledge: gs.knowledge + knowledgeGain, focus: gs.focus + focusGain },
-                message: `높은 논리와 혁신성을 바탕으로 획기적인 아이디어가 도출되었습니다! (+${innovationGain} 혁신, +${knowledgeGain} 지식, +${focusGain} 집중)`
+                changes: { efficiency: gs.efficiency + efficiencyGain, innovation: gs.innovation + innovationGain, logic: gs.logic + logicGain },
+                message: "높은 논리와 지식을 바탕으로 건설적인 심포지엄이 진행되었습니다! (+${efficiencyGain} 효율, +${innovationGain} 혁신, +${logicGain} 논리)"
             };
         }
     },
     {
-        condition: (gs) => gs.resources.compute < gs.researchers.length * 4,
+        condition: (gs) => gs.resources.computing_power < gs.researchers.length * 4,
         weight: 25,
         effect: (gs) => {
-            const logicGain = getRandomValue(10, 3);
-            const focusGain = getRandomValue(5, 2);
+            const knowledgeGain = getRandomValue(10, 3);
+            const logicGain = getRandomValue(5, 2);
             return {
-                changes: { logic: gs.logic + logicGain, focus: gs.focus + focusGain },
-                message: `연산력 부족 문제에 대해 논의했습니다. 자원 분배를 최적화하여 위기를 극복했습니다. (+${logicGain} 논리, +${focusGain} 집중)`
+                changes: { knowledge: gs.knowledge + knowledgeGain, logic: gs.logic + logicGain },
+                message: "연산력이 부족한 상황에 대해 논의했습니다. 모두가 효율적인 자원 관리에 동의하며 당신의 리더십을 신뢰했습니다. (+${knowledgeGain} 지식, +${logicGain} 논리)"
             };
         }
     },
     {
-        condition: (gs) => gs.researchers.some(r => r.collaboration < 50),
+        condition: (gs) => gs.researchers.some(r => r.trust < 50),
         weight: 20,
         effect: (gs) => {
-            const researcher = gs.researchers.find(r => r.collaboration < 50);
-            const collaborationGain = getRandomValue(10, 4);
+            const researcher = gs.researchers.find(r => r.trust < 50);
+            const trustGain = getRandomValue(10, 4);
+            const efficiencyGain = getRandomValue(5, 2);
             const logicGain = getRandomValue(5, 2);
-            const focusGain = getRandomValue(5, 2);
-            const updatedResearchers = gs.researchers.map(r => r.id === researcher.id ? { ...r, collaboration: Math.min(100, r.collaboration + collaborationGain) } : r);
+            const updatedResearchers = gs.researchers.map(r => r.id === researcher.id ? { ...r, trust: Math.min(100, r.trust + trustGain) } : r);
             return {
-                changes: { researchers: updatedResearchers, logic: gs.logic + logicGain, focus: gs.focus + focusGain },
-                message: `심포지엄 중, ${researcher.name}이(가) 자신의 연구에 대한 비판적 의견을 제시했습니다. 그의 논리를 존중하고 토론하자 협력도가 상승했습니다. (+${collaborationGain} ${researcher.name} 협력도, +${logicGain} 논리, +${focusGain} 집중)`
+                changes: { researchers: updatedResearchers, efficiency: gs.efficiency + efficiencyGain, logic: gs.logic + logicGain },
+                message: "심포지엄 중, ${researcher.name}이(가) 조심스럽게 불만을 토로했습니다. 그의 의견을 존중하고 해결을 약속하자 신뢰를 얻었습니다. (+${trustGain} ${researcher.name} 신뢰도, +${efficiencyGain} 효율, +${logicGain} 논리)"
             };
         }
     },
     {
-        condition: () => true,
+        condition: () => true, // Default positive outcome
         weight: 20,
         effect: (gs) => {
             const efficiencyGain = getRandomValue(5, 2);
-            const focusGain = getRandomValue(3, 1);
+            const innovationGain = getRandomValue(3, 1);
             return {
-                changes: { efficiency: gs.efficiency + efficiencyGain, focus: gs.focus + focusGain },
-                message: `평범한 심포지엄이었지만, 연구 진행 상황을 공유하며 효율성과 집중력이 약간 향상되었습니다. (+${efficiencyGain} 효율, +${focusGain} 집중)`
+                changes: { efficiency: gs.efficiency + efficiencyGain, innovation: gs.innovation + innovationGain },
+                message: "평범한 심포지엄이었지만, 모두가 한자리에 모여 지식을 나눈 것만으로도 의미가 있었습니다. (+${efficiencyGain} 효율, +${innovationGain} 혁신)"
             };
         }
     },
     {
-        condition: (gs) => gs.efficiency < 40 || gs.logic < 40,
-        weight: 25,
+        condition: (gs) => gs.logic < 40 || gs.knowledge < 40,
+        weight: 25, // Increased weight when conditions met
         effect: (gs) => {
-            const knowledgeLoss = getRandomValue(5, 2);
             const efficiencyLoss = getRandomValue(5, 2);
-            const focusLoss = getRandomValue(5, 2);
+            const innovationLoss = getRandomValue(5, 2);
+            const logicLoss = getRandomValue(5, 2);
             return {
-                changes: { knowledge: gs.knowledge - knowledgeLoss, efficiency: gs.efficiency - efficiencyLoss, focus: gs.focus - focusLoss },
-                message: `논의가 핵심을 벗어나며 소모적인 토론으로 끝났습니다. 지식, 효율, 집중력이 약간 감소했습니다. (-${knowledgeLoss} 지식, -${efficiencyLoss} 효율, -${focusLoss} 집중)`
+                changes: { efficiency: gs.efficiency - efficiencyLoss, innovation: gs.innovation - innovationLoss, logic: gs.logic - logicLoss },
+                message: "심포지엄은 길어졌지만, 의견 차이만 확인하고 끝났습니다. 연구원들의 효율과 혁신, 당신의 논리가 약간 감소했습니다. (-${efficiencyLoss} 효율, -${innovationLoss} 혁신, -${logicLoss} 논리)"
             };
         }
     }
 ];
 
-const exploreOutcomes = [
+const exploreAreaOutcomes = [
     {
-        condition: (gs) => gs.resources.compute < 20,
+        condition: (gs) => gs.resources.computing_power < 20,
         weight: 30,
         effect: (gs) => {
-            const computeGain = getRandomValue(10, 5);
+            const computingPowerGain = getRandomValue(10, 5);
             return {
-                changes: { resources: { ...gs.resources, compute: gs.resources.compute + computeGain } },
-                message: `연구소 서버실에서 미사용 연산력을 발견했습니다! (+${computeGain} 연산력)`
+                changes: { resources: { ...gs.resources, computing_power: gs.resources.computing_power + computingPowerGain } },
+                message: "탐사 중 새로운 연산 자원을 발견했습니다! (+${computingPowerGain} 연산력)"
             };
         }
     },
@@ -415,149 +434,172 @@ const exploreOutcomes = [
             const materialsGain = getRandomValue(10, 5);
             return {
                 changes: { resources: { ...gs.resources, materials: gs.resources.materials + materialsGain } },
-                message: `창고에서 재활용 가능한 재료를 찾아냈습니다! (+${materialsGain} 재료)`
+                message: "탐사 중 희귀 재료를 발견했습니다! (+${materialsGain} 재료)"
             };
         }
     },
     {
-        condition: (gs) => true,
+        condition: () => true, // General positive discovery
         weight: 20,
         effect: (gs) => {
-            const logicGain = getRandomValue(5, 2);
+            const knowledgeGain = getRandomValue(5, 2);
             const innovationGain = getRandomValue(5, 2);
             return {
-                changes: { logic: gs.logic + logicGain, innovation: gs.innovation + innovationGain },
-                message: `연구소를 탐사하며 새로운 아이디어를 구상했습니다. (+${logicGain} 논리, +${innovationGain} 혁신)`
+                changes: { knowledge: gs.knowledge + knowledgeGain, innovation: gs.innovation + innovationGain },
+                message: "탐사하며 새로운 지식과 혁신을 얻었습니다. (+${knowledgeGain} 지식, +${innovationGain} 혁신)"
             };
         }
     },
     {
-        condition: () => true,
-        weight: 25,
+        condition: () => true, // Always possible
+        weight: 25, // Increased weight for more frequent occurrence
         effect: (gs) => {
             const actionLoss = getRandomValue(2, 1);
-            const knowledgeLoss = getRandomValue(5, 2);
-            const focusLoss = getRandomValue(5, 2);
+            const efficiencyLoss = getRandomValue(5, 2);
+            const concentrationLoss = getRandomValue(5, 2);
             return {
-                changes: { actionPoints: gs.actionPoints - actionLoss, knowledge: gs.knowledge - knowledgeLoss, focus: gs.focus - focusLoss },
-                message: `복잡한 미로같은 복도를 헤매다 길을 잃었습니다. (-${actionLoss} 행동력, -${knowledgeLoss} 지식, -${focusLoss} 집중)`
+                changes: { actionPoints: gs.actionPoints - actionLoss, efficiency: gs.efficiency - efficiencyLoss, concentration: gs.concentration - concentrationLoss },
+                message: "탐사에 너무 깊이 빠져 행동력을 소모하고 효율과 집중이 감소했습니다. (-${actionLoss} 행동력, -${efficiencyLoss} 효율, -${concentrationLoss} 집중)"
             };
         }
     },
     {
-        condition: () => true,
-        weight: 15,
+        condition: () => true, // Always possible
+        weight: 15, // Increased weight for more frequent occurrence
         effect: (gs) => {
             const logicLoss = getRandomValue(5, 2);
-            const focusLoss = getRandomValue(5, 2);
+            const knowledgeLoss = getRandomValue(5, 2);
             return {
-                changes: { logic: gs.logic - logicLoss, focus: gs.focus - focusLoss },
-                message: `탐사 중 사소한 오류에 발목을 잡혀 논리와 집중력이 약간 감소했습니다. (-${logicLoss} 논리, -${focusLoss} 집중)`
+                changes: { logic: gs.logic - logicLoss, knowledge: gs.knowledge - knowledgeLoss },
+                message: "탐사 중 예상치 못한 오류에 부딪혀 논리와 지식이 약간 감소했습니다. (-${logicLoss} 논리, -${knowledgeLoss} 지식)"
             };
         }
     }
 ];
 
-const talkOutcomes = [
+const discussWithResearcherOutcomes = [
     {
-        condition: (gs, researcher) => researcher.collaboration < 60,
+        condition: (gs, researcher) => researcher.trust < 60,
         weight: 40,
         effect: (gs, researcher) => {
-            const collaborationGain = getRandomValue(10, 5);
+            const trustGain = getRandomValue(10, 5);
+            const knowledgeGain = getRandomValue(5, 2);
             const logicGain = getRandomValue(5, 2);
-            const focusGain = getRandomValue(5, 2);
-            const updatedResearchers = gs.researchers.map(r => r.id === researcher.id ? { ...r, collaboration: Math.min(100, r.collaboration + collaborationGain) } : r);
+            const updatedResearchers = gs.researchers.map(r => r.id === researcher.id ? { ...r, trust: Math.min(100, r.trust + trustGain) } : r);
             return {
-                changes: { researchers: updatedResearchers, logic: gs.logic + logicGain, focus: gs.focus + focusGain },
-                message: `${researcher.name}${getWaGwaParticle(researcher.name)} 깊은 토론을 나누며 협력도와 당신의 집중력을 얻었습니다. (+${collaborationGain} ${researcher.name} 협력도, +${logicGain} 논리, +${focusGain} 집중)`
+                changes: { researchers: updatedResearchers, knowledge: gs.knowledge + knowledgeGain, logic: gs.logic + logicGain },
+                message: "${researcher.name}${getWaGwaParticle(researcher.name)} 깊은 토론을 나누며 신뢰와 당신의 논리를 얻었습니다. (+${trustGain} ${researcher.name} 신뢰도, +${knowledgeGain} 지식, +${logicGain} 논리)"
             };
         }
     },
     {
-        condition: (gs, researcher) => researcher.personality === "분석적",
+        condition: (gs, researcher) => researcher.personality === "탐구적",
         weight: 20,
         effect: (gs, researcher) => {
-            const knowledgeGain = getRandomValue(10, 3);
-            const innovationGain = getRandomValue(5, 2);
+            const innovationGain = getRandomValue(10, 3);
+            const knowledgeGain = getRandomValue(5, 2);
             return {
-                changes: { knowledge: gs.knowledge + knowledgeGain, innovation: gs.innovation + innovationGain },
-                message: `${researcher.name}${getWaGwaParticle(researcher.name)} 날카로운 토론을 나누며 지식과 혁신성이 상승했습니다. (+${knowledgeGain} 지식, +${innovationGain} 혁신)`
+                changes: { innovation: gs.innovation + innovationGain, knowledge: gs.knowledge + knowledgeGain },
+                message: "${researcher.name}${getWaGwaParticle(researcher.name)}와 탐구적인 토론을 나누며 혁신과 지식이 상승했습니다. (+${innovationGain} 혁신, +${knowledgeGain} 지식)"
             };
         }
     },
     {
-        condition: (gs, researcher) => researcher.skill === "정보학",
+        condition: (gs, researcher) => researcher.skill === "물리학",
         weight: 15,
         effect: (gs, researcher) => {
-            const computeGain = getRandomValue(5, 2);
+            const computingPowerGain = getRandomValue(5, 2);
             return {
-                changes: { resources: { ...gs.resources, compute: gs.resources.compute + computeGain } },
-                message: `${researcher.name}${getWaGwaParticle(researcher.name)} 알고리즘에 대한 유용한 정보를 얻어 연산력을 추가로 확보했습니다. (+${computeGain} 연산력)`
+                changes: { resources: { ...gs.resources, computing_power: gs.resources.computing_power + computingPowerGain } },
+                message: "${researcher.name}${getWaGwaParticle(researcher.name)}에게서 물리학에 대한 유용한 정보를 얻어 연산력을 추가로 확보했습니다. (+${computingPowerGain} 연산력)"
             };
         }
     },
     {
-        condition: (gs, researcher) => true,
+        condition: (gs, researcher) => true, // Default positive outcome
         weight: 25,
         effect: (gs, researcher) => {
             const efficiencyGain = getRandomValue(5, 2);
-            const focusGain = getRandomValue(3, 1);
+            const concentrationGain = getRandomValue(3, 1);
             return {
-                changes: { efficiency: gs.efficiency + efficiencyGain, focus: gs.focus + focusGain },
-                message: `${researcher.name}${getWaGwaParticle(researcher.name)} 연구 진행 상황을 공유하며 효율성과 집중력이 조금 더 단단해졌습니다. (+${efficiencyGain} 효율, +${focusGain} 집중)`
+                changes: { efficiency: gs.efficiency + efficiencyGain, concentration: gs.concentration + concentrationGain },
+                message: "${researcher.name}${getWaGwaParticle(researcher.name)} 소소한 토론을 나누며 효율과 당신의 집중이 조금 더 단단해졌습니다. (+${efficiencyGain} 효율, +${concentrationGain} 집중)"
             };
         }
     },
     {
-        condition: (gs, researcher) => gs.efficiency < 40 || researcher.collaboration < 40,
-        weight: 20,
+        condition: (gs, researcher) => gs.efficiency < 40 || researcher.trust < 40,
+        weight: 20, // Increased weight when conditions met
         effect: (gs, researcher) => {
-            const collaborationLoss = getRandomValue(10, 3);
-            const knowledgeLoss = getRandomValue(5, 2);
-            const focusLoss = getRandomValue(5, 2);
-            const updatedResearchers = gs.researchers.map(r => r.id === researcher.id ? { ...r, collaboration: Math.max(0, r.collaboration - collaborationLoss) } : r);
+            const trustLoss = getRandomValue(10, 3);
+            const efficiencyLoss = getRandomValue(5, 2);
+            const logicLoss = getRandomValue(5, 2);
+            const updatedResearchers = gs.researchers.map(r => r.id === researcher.id ? { ...r, trust: Math.max(0, r.trust - trustLoss) } : r);
             return {
-                changes: { researchers: updatedResearchers, knowledge: gs.knowledge - knowledgeLoss, focus: gs.focus - focusLoss },
-                message: `${researcher.name}${getWaGwaParticle(researcher.name)} 토론 중 논리적 오류를 지적하다 감정이 상했습니다. (-${collaborationLoss} ${researcher.name} 협력도, -${knowledgeLoss} 지식, -${focusLoss} 집중)`
+                changes: { researchers: updatedResearchers, efficiency: gs.efficiency - efficiencyLoss, logic: gs.logic - logicLoss },
+                message: "${researcher.name}${getWaGwaParticle(researcher.name)} 토론 중 오해를 사서 신뢰도와 효율, 당신의 논리가 감소했습니다. (-${trustLoss} ${researcher.name} 신뢰도, -${efficiencyLoss} 효율, -${logicLoss} 논리)"
             };
         }
     },
     {
-        condition: (gs) => gs.knowledge < 30,
-        weight: 15,
+        condition: (gs) => gs.efficiency < 30,
+        weight: 15, // Increased weight when conditions met
         effect: (gs, researcher) => {
             const actionLoss = getRandomValue(1, 0);
-            const innovationLoss = getRandomValue(5, 2);
+            const knowledgeLoss = getRandomValue(5, 2);
             return {
-                changes: { actionPoints: gs.actionPoints - actionLoss, innovation: gs.innovation - innovationLoss },
-                message: `${researcher.name}${getWaGwaParticle(researcher.name)} 토론이 길어졌지만, 특별한 소득은 없었습니다. 당신의 혁신성이 감소했습니다. (-${actionLoss} 행동력, -${innovationLoss} 혁신)`
+                changes: { actionPoints: gs.actionPoints - actionLoss, knowledge: gs.knowledge - knowledgeLoss },
+                message: "${researcher.name}${getWaGwaParticle(researcher.name)} 토론이 길어졌지만, 특별한 소득은 없었습니다. 당신의 지식이 감소했습니다. (-${actionLoss} 행동력, -${knowledgeLoss} 지식)"
             };
         }
     }
 ];
 
 function calculateMinigameReward(minigameName, score) {
-    let rewards = { logic: 0, knowledge: 0, efficiency: 0, innovation: 0, focus: 0, message: "" };
+    let rewards = { logic: 0, knowledge: 0, efficiency: 0, innovation: 0, concentration: 0, message: "" };
 
     switch (minigameName) {
         case "논리 회로 퍼즐":
-            if (score >= 3) { // 3 correct answers
+            if (score >= 51) {
                 rewards.logic = 15;
                 rewards.knowledge = 10;
-                rewards.focus = 5;
-                rewards.message = `완벽한 논리입니다! 모든 회로를 완성했습니다. (+15 논리, +10 지식, +5 집중)`;
-            } else if (score >= 1) { // 1-2 correct answers
+                rewards.efficiency = 5;
+                rewards.innovation = 5;
+                rewards.message = "최고의 논리 회로 설계자가 되셨습니다! (+15 논리, +10 지식, +5 효율, +5 혁신)";
+            } else if (score >= 21) {
                 rewards.logic = 10;
                 rewards.knowledge = 5;
-                rewards.message = `훌륭한 논리 회로입니다! (+10 논리, +5 지식)`;
-            } else {
+                rewards.efficiency = 3;
+                rewards.message = "훌륭한 논리 회로입니다! (+10 논리, +5 지식, +3 효율)";
+            } else if (score >= 0) {
                 rewards.logic = 5;
-                rewards.message = `논리 회로 퍼즐을 완료했지만, 개선이 필요해 보입니다. (+5 논리)`;
+                rewards.message = "논리 회로 퍼즐을 완료했습니다. (+5 논리)";
+            } else {
+                rewards.message = "논리 회로 퍼즐을 완료했지만, 아쉽게도 보상은 없습니다.";
             }
             break;
-        // ... other minigame rewards
+        case "시스템 최적화": // Placeholder for now, but re-themed
+            rewards.efficiency = 2;
+            rewards.concentration = 1;
+            rewards.message = "시스템 최적화를 완료했습니다. (+2 효율, +1 집중)";
+            break;
+        case "알고리즘 설계 챌린지": // Placeholder for now, but re-themed
+            rewards.innovation = 2;
+            rewards.logic = 1;
+            rewards.message = "알고리즘 설계 챌린지를 완료했습니다. (+2 혁신, +1 논리)";
+            break;
+        case "이론 검증 시뮬레이션": // Placeholder for now, but re-themed
+            rewards.knowledge = 2;
+            rewards.efficiency = 1;
+            rewards.message = "이론 검증 시뮬레이션을 완료했습니다. (+2 지식, +1 효율)";
+            break;
+        case "양자 비트 정렬": // Placeholder for now, but re-themed
+            rewards.concentration = 2;
+            rewards.innovation = 1;
+            rewards.message = "양자 비트 정렬을 완료했습니다. (+2 집중, +1 혁신)";
+            break;
         default:
-            rewards.message = `미니게임 ${minigameName}을(를) 완료했습니다.`;
+            rewards.message = `미니게임 ${minigameName}${getEulReParticle(minigameName)} 완료했습니다.`;
             break;
     }
     return rewards;
@@ -566,58 +608,91 @@ function calculateMinigameReward(minigameName, score) {
 const minigames = [
     {
         name: "논리 회로 퍼즐",
-        description: "주어진 입출력에 맞게 올바른 논리 게이트를 선택하여 회로를 완성하세요.",
+        description: "주어진 논리 게이트들을 연결하여 목표 출력을 만드세요. 효율적인 회로일수록 높은 점수를 얻습니다!",
         start: (gameArea, choicesDiv) => {
+            const gates = ["AND", "OR", "NOT", "XOR"];
             gameState.minigameState = {
-                stage: 1,
+                targetOutput: Math.floor(currentRandFn() * 2), // 0 or 1
+                currentCircuit: [],
                 score: 0,
-                problems: [
-                    { a: true, b: true, gate: 'AND', answer: true },
-                    { a: true, b: false, gate: 'OR', answer: true },
-                    { a: false, b: false, gate: 'AND', answer: false },
-                    { a: true, gate: 'NOT', answer: false },
-                    { a: false, b: true, gate: 'OR', answer: true }
-                ].sort(() => currentRandFn() - 0.5).slice(0, 3) // Select 3 random problems
+                gateInput: ""
             };
             minigames[0].render(gameArea, choicesDiv);
         },
         render: (gameArea, choicesDiv) => {
             const state = gameState.minigameState;
-            if (state.stage > state.problems.length) {
-                minigames[0].end();
-                return;
-            }
-            const problem = state.problems[state.stage - 1];
-            let problemText = `<b>문제 ${state.stage}:</b><br>입력 A = ${problem.a}`;
-            if (problem.b !== undefined) {
-                problemText += `, 입력 B = ${problem.b}`;
-            }
-            problemText += `<br><b>${problem.gate}</b> 게이트의 출력값은?`;
-
             gameArea.innerHTML = `
-                <p><b>단계:</b> ${state.stage}/${state.problems.length} | <b>점수:</b> ${state.score}</p>
-                <p>${problemText}</p>
+                <p><b>목표 출력:</b> ${state.targetOutput}</p>
+                <p><b>현재 회로:</b> ${state.currentCircuit.join(' -> ')}</p>
+                <p><b>점수:</b> ${state.score}</p>
+                <input type="text" id="circuitGateInput" placeholder="게이트 (AND, OR, NOT, XOR) 또는 값 (0, 1) 입력" style="font-size: 1.2em; padding: 8px; width: 80%; margin-top: 10px;" autocomplete="off">
             `;
             choicesDiv.innerHTML = `
-                <button class="choice-btn" data-action="answer" data-value="true">True</button>
-                <button class="choice-btn" data-action="answer" data-value="false">False</button>
+                <button class="choice-btn" data-action="addGate">게이트/값 추가</button>
+                <button class="choice-btn" data-action="evaluateCircuit">회로 평가</button>
             `;
+            const input = document.getElementById('circuitGateInput');
+            input.value = state.gateInput;
+            input.focus();
+            input.addEventListener('input', (e) => { state.gateInput = e.target.value; });
             choicesDiv.querySelectorAll('.choice-btn').forEach(button => {
-                button.addEventListener('click', () => minigames[0].processAction('answer', button.dataset.value === 'true'));
+                button.addEventListener('click', () => {
+                    const action = button.dataset.action;
+                    if (action === "addGate") {
+                        minigames[0].processAction('addGate', state.gateInput);
+                    } else if (action === "evaluateCircuit") {
+                        minigames[0].processAction('evaluateCircuit');
+                    }
+                });
             });
         },
-        processAction: (actionType, value) => {
-            if (actionType === 'answer') {
-                const state = gameState.minigameState;
-                const problem = state.problems[state.stage - 1];
-                if (value === problem.answer) {
-                    state.score++;
-                    updateGameDisplay("정답입니다!");
+        processAction: (actionType, value = null) => {
+            const state = gameState.minigameState;
+            if (actionType === 'addGate') {
+                const input = value.trim().toUpperCase();
+                const validGates = ["AND", "OR", "NOT", "XOR", "0", "1"];
+                if (validGates.includes(input)) {
+                    state.currentCircuit.push(input);
+                    state.gateInput = "";
+                    minigames[0].render(document.getElementById('gameArea'), document.getElementById('gameChoices'));
                 } else {
-                    updateGameDisplay("틀렸습니다.");
+                    updateGameDisplay("유효하지 않은 입력입니다. (AND, OR, NOT, XOR, 0, 1 중 하나)");
                 }
-                state.stage++;
-                setTimeout(() => minigames[0].render(document.getElementById('gameArea'), document.getElementById('gameChoices')), 1000);
+            } else if (actionType === 'evaluateCircuit') {
+                try {
+                    let result = null;
+                    let currentVal = null;
+                    for (let i = 0; i < state.currentCircuit.length; i++) {
+                        const item = state.currentCircuit[i];
+                        if (item === "0" || item === "1") {
+                            currentVal = parseInt(item);
+                        } else if (["AND", "OR", "XOR"].includes(item)) {
+                            const nextVal = parseInt(state.currentCircuit[i + 1]);
+                            if (isNaN(nextVal)) throw new Error("논리 게이트 뒤에는 값이 와야 합니다.");
+                            if (item === "AND") currentVal = currentVal && nextVal;
+                            else if (item === "OR") currentVal = currentVal || nextVal;
+                            else if (item === "XOR") currentVal = currentVal ^ nextVal;
+                            i++; // Skip next value
+                        } else if (item === "NOT") {
+                            currentVal = currentVal === 0 ? 1 : 0;
+                        }
+                    }
+
+                    if (currentVal === state.targetOutput) {
+                        state.score += 100 - (state.currentCircuit.length * 5); // Reward for efficiency
+                        state.stage++;
+                        state.currentCircuit = [];
+                        state.gateInput = "";
+                        updateGameDisplay("정답입니다! 다음 단계로 넘어갑니다.");
+                        minigames[0].render(document.getElementById('gameArea'), document.getElementById('gameChoices'));
+                    } else {
+                        updateGameDisplay("틀렸습니다! 게임 종료.");
+                        minigames[0].end();
+                    }
+                } catch (e) {
+                    updateGameDisplay(`회로 평가 오류: ${e.message}. 게임 종료.`);
+                    minigames[0].end();
+                }
             }
         },
         end: () => {
@@ -625,13 +700,110 @@ const minigames = [
             updateState({
                 logic: gameState.logic + rewards.logic,
                 knowledge: gameState.knowledge + rewards.knowledge,
-                focus: gameState.focus + rewards.focus,
+                efficiency: gameState.efficiency + rewards.efficiency,
+                innovation: gameState.innovation + rewards.innovation,
+                concentration: gameState.concentration + rewards.concentration,
                 currentScenarioId: 'intro'
             }, rewards.message);
             gameState.minigameState = {};
         }
     },
-    // ... other 4 placeholder minigames
+    {
+        name: "시스템 최적화",
+        description: "주어진 시스템의 비효율적인 부분을 찾아 최적화하는 게임입니다.",
+        start: (gameArea, choicesDiv) => {
+            gameState.minigameState = { score: 10 };
+            gameArea.innerHTML = `<p>${minigames[1].description}</p><p>게임을 시작합니다!</p>`;
+            choicesDiv.innerHTML = `<button class="choice-btn" onclick="minigames[1].processAction('endGame')">게임 종료</button>`;
+        },
+        render: () => {},
+        processAction: (actionType) => {
+            if (actionType === 'endGame') {
+                minigames[1].end();
+            }
+        },
+        end: () => {
+            const rewards = calculateMinigameReward(minigames[1].name, gameState.minigameState.score);
+            updateState({
+                efficiency: gameState.efficiency + rewards.efficiency,
+                concentration: gameState.concentration + rewards.concentration,
+                currentScenarioId: 'intro'
+            }, rewards.message);
+            gameState.minigameState = {};
+        }
+    },
+    {
+        name: "알고리즘 설계 챌린지",
+        description: "주어진 문제를 해결하는 가장 효율적인 알고리즘을 설계하세요.",
+        start: (gameArea, choicesDiv) => {
+            gameState.minigameState = { score: 15 };
+            gameArea.innerHTML = `<p>${minigames[2].description}</p><p>게임을 시작합니다!</p>`;
+            choicesDiv.innerHTML = `<button class="choice-btn" onclick="minigames[2].processAction('endGame')">게임 종료</button>`;
+        },
+        render: () {},
+        processAction: (actionType) => {
+            if (actionType === 'endGame') {
+                minigames[2].end();
+            }
+        },
+        end: () => {
+            const rewards = calculateMinigameReward(minigames[2].name, gameState.minigameState.score);
+            updateState({
+                innovation: gameState.innovation + rewards.innovation,
+                logic: gameState.logic + rewards.logic,
+                currentScenarioId: 'intro'
+            }, rewards.message);
+            gameState.minigameState = {};
+        }
+    },
+    {
+        name: "이론 검증 시뮬레이션",
+        description: "새로운 이론의 타당성을 검증하기 위한 시뮬레이션을 설계하고 실행하세요.",
+        start: (gameArea, choicesDiv) => {
+            gameState.minigameState = { score: 20 };
+            gameArea.innerHTML = `<p>${minigames[3].description}</p><p>게임을 시작합니다!</p>`;
+            choicesDiv.innerHTML = `<button class="choice-btn" onclick="minigames[3].processAction('endGame')">게임 종료</button>`;
+        },
+        render: () {},
+        processAction: (actionType) => {
+            if (actionType === 'endGame') {
+                minigames[3].end();
+            }
+        },
+        end: () => {
+            const rewards = calculateMinigameReward(minigames[3].name, gameState.minigameState.score);
+            updateState({
+                knowledge: gameState.knowledge + rewards.knowledge,
+                efficiency: gameState.efficiency + rewards.efficiency,
+                currentScenarioId: 'intro'
+            }, rewards.message);
+            gameState.minigameState = {};
+        }
+    },
+    {
+        name: "양자 비트 정렬",
+        description: "복잡하게 얽힌 양자 비트들을 가장 효율적인 방법으로 정렬하세요.",
+        start: (gameArea, choicesDiv) => {
+            gameState.minigameState = { score: 25 };
+            gameArea.innerHTML = `<p>${minigames[4].description}</p><p>게임을 시작합니다!</p>`;
+            choicesDiv.innerHTML = `<button class="choice-btn" onclick="minigames[4].processAction('endGame')">게임 종료</button>`;
+        },
+        render: () {},
+        processAction: (actionType) => {
+            if (actionType === 'endGame') {
+                minigames[4].end();
+            }
+        },
+        end: () => {
+            const rewards = calculateMinigameReward(minigames[4].name, gameState.minigameState.score);
+            updateState({
+                concentration: gameState.concentration + rewards.concentration,
+                innovation: gameState.innovation + rewards.innovation,
+                currentScenarioId: 'intro'
+            }, rewards.message);
+            gameState.minigameState = {};
+        }
+    }
 ];
 
 // --- Game Actions ---
@@ -645,173 +817,382 @@ function spendActionPoint() {
 }
 
 const gameActions = {
-    explore: () => {
+    explore_area: () => {
         if (!spendActionPoint()) return;
-        const possibleOutcomes = exploreOutcomes.filter(outcome => outcome.condition(gameState));
+
+        const possibleOutcomes = exploreAreaOutcomes.filter(outcome => outcome.condition(gameState));
         const totalWeight = possibleOutcomes.reduce((sum, outcome) => sum + outcome.weight, 0);
         const rand = currentRandFn() * totalWeight;
+
         let cumulativeWeight = 0;
         let chosenOutcome = possibleOutcomes.find(outcome => {
             cumulativeWeight += outcome.weight;
             return rand < cumulativeWeight;
-        }) || exploreOutcomes.find(o => o.condition());
+        });
+
+        if (!chosenOutcome) { // Fallback to default if something goes wrong
+            chosenOutcome = exploreAreaOutcomes.find(o => o.condition());
+        }
+
         const result = chosenOutcome.effect(gameState);
         updateState({ ...result.changes, dailyActions: { ...gameState.dailyActions, explored: true } }, result.message);
     },
-    talk_to_researchers: () => {
+    discuss_with_researcher: () => {
         if (!spendActionPoint()) return;
         const researcher = gameState.researchers[Math.floor(currentRandFn() * gameState.researchers.length)];
-        if (gameState.dailyActions.talkedTo.includes(researcher.id)) {
-            updateState({}, `${researcher.name}${getWaGwaParticle(researcher.name)} 이미 충분히 토론했습니다.`);
-            return;
-        }
-        const possibleOutcomes = talkOutcomes.filter(outcome => outcome.condition(gameState, researcher));
+        if (gameState.dailyActions.discussed) { updateState({ dailyActions: { ...gameState.dailyActions, discussed: true } }, `${researcher.name}${getWaGwaParticle(researcher.name)} 이미 충분히 토론했습니다.`); return; }
+
+        const possibleOutcomes = discussWithResearcherOutcomes.filter(outcome => outcome.condition(gameState, researcher));
         const totalWeight = possibleOutcomes.reduce((sum, outcome) => sum + outcome.weight, 0);
         const rand = currentRandFn() * totalWeight;
+
         let cumulativeWeight = 0;
         let chosenOutcome = possibleOutcomes.find(outcome => {
             cumulativeWeight += outcome.weight;
             return rand < cumulativeWeight;
-        }) || talkOutcomes.find(o => o.condition(gameState, researcher));
+        });
+
+        if (!chosenOutcome) { // Fallback to default if something goes wrong
+            chosenOutcome = discussWithResearcherOutcomes.find(o => o.condition());
+        }
+
         const result = chosenOutcome.effect(gameState, researcher);
-        updateState({ ...result.changes, dailyActions: { ...gameState.dailyActions, talkedTo: [...gameState.dailyActions.talkedTo, researcher.id] } }, result.message);
+        updateState({ ...result.changes, dailyActions: { ...gameState.dailyActions, discussed: true } }, result.message);
     },
     hold_symposium: () => {
         if (!spendActionPoint()) return;
+
         const possibleOutcomes = symposiumOutcomes.filter(outcome => outcome.condition(gameState));
         const totalWeight = possibleOutcomes.reduce((sum, outcome) => sum + outcome.weight, 0);
         const rand = currentRandFn() * totalWeight;
+
         let cumulativeWeight = 0;
         let chosenOutcome = possibleOutcomes.find(outcome => {
             cumulativeWeight += outcome.weight;
             return rand < cumulativeWeight;
-        }) || symposiumOutcomes.find(o => o.condition());
+        });
+
+        if (!chosenOutcome) { // Fallback to default if something goes wrong
+            chosenOutcome = symposiumOutcomes.find(o => o.condition());
+        }
+
         const result = chosenOutcome.effect(gameState);
         updateState(result.changes, result.message);
     },
-    show_resource_generation_options: () => updateState({ currentScenarioId: 'action_resource_generation' }),
-    show_facility_options: () => updateState({ currentScenarioId: 'action_facility_management' }),
-    perform_generate_compute: () => {
+    manualNextDay: () => {
+        if (gameState.manualDayAdvances >= 5) { updateGameDisplay("오늘은 더 이상 수동으로 날짜를 넘길 수 없습니다. 내일 다시 시도해주세요."); return; }
+        updateState({
+            manualDayAdvances: gameState.manualDayAdvances + 1,
+            day: gameState.day + 1,
+            lastPlayedDate: new Date().toISOString().slice(0, 10),
+            dailyEventTriggered: false
+        });
+        processDailyEvents();
+    },
+    handle_researcher_dispute: (params) => {
         if (!spendActionPoint()) return;
-        const successChance = Math.min(0.95, 0.6 + (gameState.techLevel * 0.1) + (gameState.dailyBonus.generationSuccess || 0));
+        const { first, second } = params;
+        let message = "";
+        let reward = { efficiency: 0, innovation: 0, logic: 0 };
+
+        const trustGain = getRandomValue(10, 3);
+        const trustLoss = getRandomValue(5, 2);
+        const efficiencyGain = getRandomValue(5, 2);
+        const logicGain = getRandomValue(5, 2);
+
+        const updatedResearchers = gameState.researchers.map(r => {
+            if (r.id === first) {
+                r.trust = Math.min(100, r.trust + trustGain);
+                message += `${r.name}의 관점을 먼저 들어주었습니다. ${r.name}의 신뢰도가 상승했습니다. `;
+                reward.efficiency += efficiencyGain;
+                reward.logic += logicGain;
+            } else if (r.id === second) {
+                r.trust = Math.max(0, r.trust - trustLoss);
+                message += `${second}의 신뢰도가 약간 하락했습니다. `;
+            }
+            return r;
+        });
+
+        updateState({ ...reward, researchers: updatedResearchers, currentScenarioId: 'researcher_dispute_resolution_result' }, message);
+    },
+    mediate_researcher_dispute: () => {
+        if (!spendActionPoint()) return;
+        const efficiencyGain = getRandomValue(10, 3);
+        const innovationGain = getRandomValue(5, 2);
+        const logicGain = getRandomValue(5, 2);
+        const message = `당신의 효율적인 중재로 맥스와 엘리자의 의견 차이가 해결되었습니다. 연구소의 효율과 당신의 논리가 강화되었습니다! (+${efficiencyGain} 효율, +${innovationGain} 혁신, +${logicGain} 논리)`;
+        updateState({ efficiency: gameState.efficiency + efficiencyGain, innovation: gameState.innovation + innovationGain, logic: gameState.logic + logicGain, currentScenarioId: 'researcher_dispute_resolution_result' }, message);
+    },
+    ignore_event: () => {
+        if (!spendActionPoint()) return;
+        const efficiencyLoss = getRandomValue(10, 3);
+        const innovationLoss = getRandomValue(5, 2);
+        const message = "의견 차이를 무시했습니다. 연구원들의 불만이 커지고 연구소의 분위기가 침체됩니다. (-${efficiencyLoss} 효율, -${innovationLoss} 혁신)";
+        const updatedResearchers = gameState.researchers.map(r => {
+            r.trust = Math.max(0, r.trust - 5);
+            return r;
+        });
+        updateState({ efficiency: gameState.efficiency - efficiencyLoss, innovation: gameState.innovation - innovationLoss, researchers: updatedResearchers, currentScenarioId: 'researcher_dispute_resolution_result' }, message);
+    },
+    defend_hacking: () => {
+        if (!spendActionPoint()) return;
+        const cost = 1; // Action point cost
+        let message = "";
+        let changes = {};
+        if (gameState.actionPoints >= cost) {
+            const efficiencyGain = getRandomValue(10, 3);
+            const logicGain = getRandomValue(5, 2);
+            message = "보안 시스템을 강화하고 해킹을 방어했습니다. 연구소의 효율과 논리가 상승합니다. (+${efficiencyGain} 효율, +${logicGain} 논리)";
+            changes.efficiency = gameState.efficiency + efficiencyGain;
+            changes.logic = gameState.logic + logicGain;
+            changes.actionPoints = gameState.actionPoints - cost;
+        } else {
+            message = "해킹을 방어할 행동력이 부족합니다.";
+        }
+        updateState({ ...changes, currentScenarioId: 'hacking_defense_result' }, message);
+    },
+    ignore_hacking: () => {
+        if (!spendActionPoint()) return;
+        const efficiencyLoss = getRandomValue(10, 3);
+        const innovationLoss = getRandomValue(5, 2);
+        updateState({ efficiency: gameState.efficiency - efficiencyLoss, innovation: gameState.innovation - innovationLoss, currentScenarioId: 'hacking_defense_result' }, "해킹을 무시했습니다. 연구소의 효율과 혁신이 감소합니다. (-${efficiencyLoss} 효율, -${innovationLoss} 혁신)");
+    },
+    reestablish_theory: () => {
+        if (!spendActionPoint()) return;
+        const cost = 1; // Action point cost
+        let message = "";
+        let changes = {};
+        if (gameState.actionPoints >= cost) {
+            const logicGain = getRandomValue(10, 3);
+            const knowledgeGain = getRandomValue(5, 2);
+            message = "이론의 결함을 분석하고 재정립했습니다. 연구소의 논리와 지식이 상승합니다. (+${logicGain} 논리, +${knowledgeGain} 지식)";
+            changes.logic = gameState.logic + logicGain;
+            changes.knowledge = gameState.knowledge + knowledgeGain;
+            changes.actionPoints = gameState.actionPoints - cost;
+        } else {
+            message = "이론을 재정립할 행동력이 부족합니다.";
+        }
+        updateState({ ...changes, currentScenarioId: 'theory_reestablishment_result' }, message);
+    },
+    ignore_theory_breakdown: () => {
+        if (!spendActionPoint()) return;
+        const logicLoss = getRandomValue(10, 3);
+        const knowledgeLoss = getRandomValue(5, 2);
+        updateState({ logic: gameState.logic - logicLoss, knowledge: gameState.knowledge - knowledgeLoss, currentScenarioId: 'theory_reestablishment_result' }, "이론의 결함을 무시했습니다. 연구소의 논리와 지식이 감소합니다. (-${logicLoss} 논리, -${knowledgeLoss} 지식)");
+    },
+    seek_new_perspective: () => {
+        if (!spendActionPoint()) return;
+        const rand = currentRandFn();
+        let message = "";
+        let changes = {};
+        if (rand < 0.6) { // Success
+            const innovationGain = getRandomValue(10, 3);
+            const knowledgeGain = getRandomValue(5, 2);
+            message = "새로운 관점을 탐색하여 혁신과 지식을 회복했습니다. (+${innovationGain} 혁신, +${knowledgeGain} 지식)";
+            changes.innovation = gameState.innovation + innovationGain;
+            changes.knowledge = gameState.knowledge + knowledgeGain;
+        } else { // Failure
+            const efficiencyLoss = getRandomValue(10, 3);
+            const concentrationLoss = getRandomValue(5, 2);
+            message = "새로운 관점을 찾으려 했지만, 오히려 효율과 집중이 감소했습니다. (-${efficiencyLoss} 효율, -${concentrationLoss} 집중)";
+            changes.efficiency = gameState.efficiency - efficiencyLoss;
+            changes.concentration = gameState.concentration - concentrationLoss;
+        }
+        updateState({ ...changes, currentScenarioId: 'intro' }, message);
+    },
+    focus_on_existing_research: () => {
+        if (!spendActionPoint()) return;
+        const innovationLoss = getRandomValue(10, 3);
+        const logicLoss = getRandomValue(5, 2);
+        updateState({ innovation: gameState.innovation - innovationLoss, logic: gameState.logic - logicLoss, currentScenarioId: 'intro' }, "기존 연구에 집중했지만, 혁신과 논리가 감소했습니다. (-${innovationLoss} 혁신, -${logicLoss} 논리)");
+    },
+    welcome_new_unique_researcher: () => {
+        if (!spendActionPoint()) return;
+        let message = "";
+        let changes = {};
+        if (gameState.researchers.length < gameState.maxResearchers && gameState.pendingNewResearcher) {
+            const efficiencyGain = getRandomValue(10, 3);
+            const innovationGain = getRandomValue(5, 2);
+            const logicGain = getRandomValue(5, 2);
+            gameState.researchers.push(gameState.pendingNewResearcher);
+            message = `새로운 연구원 ${gameState.pendingNewResearcher.name}(${gameState.pendingNewResearcher.personality}, ${gameState.pendingNewResearcher.skill})을(를) 유능한 인재로 영입했습니다! 연구소의 효율과 혁신, 논리가 상승합니다. (+${efficiencyGain} 효율, +${innovationGain} 혁신, +${logicGain} 논리)`;
+            changes.efficiency = gameState.efficiency + efficiencyGain;
+            changes.innovation = gameState.innovation + innovationGain;
+            changes.logic = gameState.logic + logicGain;
+            changes.pendingNewResearcher = null;
+        } else {
+            message = "새로운 연구원을 영입할 수 없습니다.";
+        }
+        updateState({ ...changes, currentScenarioId: 'intro' }, message);
+    },
+    observe_researcher: () => {
+        if (!spendActionPoint()) return;
+        let message = "";
+        let changes = {};
+        const rand = currentRandFn();
+        if (rand < 0.7) { // Success
+            const knowledgeGain = getRandomValue(5, 2);
+            message = "새로운 연구원을 관찰하며 흥미로운 점을 발견했습니다. 당신의 지식이 상승합니다. (+${knowledgeGain} 지식)";
+            changes.knowledge = gameState.knowledge + knowledgeGain;
+        } else { // Failure
+            const efficiencyLoss = getRandomValue(5, 2);
+            message = "연구원을 관찰하는 동안, 당신의 우유부단함이 연구소에 좋지 않은 인상을 주었습니다. (-${efficiencyLoss} 효율)";
+            changes.efficiency = gameState.efficiency - efficiencyLoss;
+        }
+        changes.pendingNewResearcher = null;
+        updateState({ ...changes, currentScenarioId: 'intro' }, message);
+    },
+    reject_researcher: () => {
+        if (!spendActionPoint()) return;
+        const innovationLoss = getRandomValue(10, 3);
+        const efficiencyLoss = getRandomValue(5, 2);
+        const logicLoss = getRandomValue(5, 2);
+        message = "새로운 연구원의 영입을 거절했습니다. 연구소의 혁신과 효율, 논리가 감소합니다. (-${innovationLoss} 혁신, -${efficiencyLoss} 효율, -${logicLoss} 논리)";
+        updateState({ innovation: gameState.innovation - innovationLoss, efficiency: gameState.efficiency - efficiencyLoss, logic: gameState.logic - logicLoss, pendingNewResearcher: null, currentScenarioId: 'intro' }, message);
+    },
+    accept_funding: () => {
+        if (!spendActionPoint()) return;
+        let message = "";
+        let changes = {};
+        if (gameState.resources.computing_power >= 50) {
+            const innovationGain = getRandomValue(5, 2);
+            message = "외부 기관의 자금 지원을 수락하여 기술 혁신을 얻었습니다! (+${innovationGain} 혁신)";
+            changes.resources = { ...gameState.resources, computing_power: gameState.resources.computing_power - 50, technological_innovation: (gameState.resources.technological_innovation || 0) + 5 };
+            changes.innovation = gameState.innovation + innovationGain;
+        } else {
+            message = "자금 지원에 필요한 연산력이 부족합니다.";
+        }
+        updateState({ ...changes, currentScenarioId: 'intro' }, message);
+    },
+    decline_funding: () => {
+        if (!spendActionPoint()) return;
+        const innovationLoss = getRandomValue(5, 2);
+        updateState({ innovation: gameState.innovation - innovationLoss, currentScenarioId: 'intro' }, "자금 지원 제안을 거절했습니다. 외부 기관은 아쉬워하며 떠났습니다. (-${innovationLoss} 혁신)");
+    },
+    show_resource_generation_options: () => updateState({ currentScenarioId: 'action_resource_generation' }),
+    show_facility_management_options: () => updateState({ currentScenarioId: 'action_facility_management' }),
+    show_contemplation_options: () => updateState({ currentScenarioId: 'contemplation_menu' }),
+    generate_computing_power: () => {
+        if (!spendActionPoint()) return;
+        const successChance = Math.min(0.95, 0.6 + (gameState.labLevel * 0.1) + (gameState.dailyBonus.researchSuccess || 0));
         let message = "";
         let changes = {};
         if (currentRandFn() < successChance) {
-            const computeGain = getRandomValue(5, 2);
-            message = `연산력 확보에 성공했습니다! (+${computeGain} 연산력)`;
-            changes.resources = { ...gameState.resources, compute: gameState.resources.compute + computeGain };
+            const computingPowerGain = getRandomValue(5, 2);
+            message = `연산력을 성공적으로 생성했습니다! (+${computingPowerGain} 연산력)`;
+            changes.resources = { ...gameState.resources, computing_power: gameState.resources.computing_power + computingPowerGain };
         } else {
-            message = "연산력 확보에 실패했습니다.";
+            message = "연산력 생성에 실패했습니다.";
         }
         updateState(changes, message);
     },
-    perform_synthesize_materials: () => {
+    gather_materials: () => {
         if (!spendActionPoint()) return;
-        const successChance = Math.min(0.95, 0.6 + (gameState.techLevel * 0.1) + (gameState.dailyBonus.generationSuccess || 0));
+        const successChance = Math.min(0.95, 0.6 + (gameState.labLevel * 0.1) + (gameState.dailyBonus.researchSuccess || 0));
         let message = "";
         let changes = {};
         if (currentRandFn() < successChance) {
             const materialsGain = getRandomValue(5, 2);
-            message = `재료 합성에 성공했습니다! (+${materialsGain} 재료)`;
+            message = `재료를 성공적으로 수집했습니다! (+${materialsGain} 재료)`;
             changes.resources = { ...gameState.resources, materials: gameState.resources.materials + materialsGain };
         } else {
-            message = "재료 합성에 실패했습니다.";
+            message = "재료 수집에 실패했습니다.";
         }
         updateState(changes, message);
     },
-    perform_condense_energy: () => {
+    secure_energy: () => {
         if (!spendActionPoint()) return;
-        const successChance = Math.min(0.95, 0.6 + (gameState.techLevel * 0.1) + (gameState.dailyBonus.generationSuccess || 0));
+        const successChance = Math.min(0.95, 0.6 + (gameState.labLevel * 0.1) + (gameState.dailyBonus.researchSuccess || 0));
         let message = "";
         let changes = {};
         if (currentRandFn() < successChance) {
             const energyGain = getRandomValue(5, 2);
-            message = `에너지 집약에 성공했습니다! (+${energyGain} 에너지)`;
+            message = `에너지를 성공적으로 확보했습니다! (+${energyGain} 에너지)`;
             changes.resources = { ...gameState.resources, energy: gameState.resources.energy + energyGain };
         } else {
-            message = "에너지 집약에 실패했습니다.";
+            message = "에너지 확보에 실패했습니다.";
         }
         updateState(changes, message);
     },
-    build_data_archive: () => {
+    build_dataArchive: () => {
         if (!spendActionPoint()) return;
-        const cost = { compute: 50, materials: 20 };
+        const cost = { computing_power: 50, materials: 20 };
         let message = "";
         let changes = {};
-        if (gameState.resources.compute >= cost.compute && gameState.resources.materials >= cost.materials) {
-            gameState.labFacilities.dataArchive.built = true;
+        if (gameState.resources.computing_power >= cost.computing_power && gameState.resources.materials >= cost.materials) {
+            gameState.researchFacilities.dataArchive.built = true;
             const knowledgeGain = getRandomValue(10, 3);
             message = `데이터 아카이브를 구축했습니다! (+${knowledgeGain} 지식)`;
             changes.knowledge = gameState.knowledge + knowledgeGain;
-            changes.resources = { ...gameState.resources, compute: gameState.resources.compute - cost.compute, materials: gameState.resources.materials - cost.materials };
+            changes.resources = { ...gameState.resources, computing_power: gameState.resources.computing_power - cost.computing_power, materials: gameState.resources.materials - cost.materials };
         } else {
-            message = "자원이 부족하여 건설할 수 없습니다.";
+            message = "자원이 부족하여 구축할 수 없습니다.";
         }
         updateState(changes, message);
     },
-    build_fabrication_bay: () => {
+    build_fabricationLab: () => {
         if (!spendActionPoint()) return;
         const cost = { materials: 30, energy: 30 };
         let message = "";
         let changes = {};
         if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
-            gameState.labFacilities.fabricationBay.built = true;
-            const efficiencyGain = getRandomValue(10, 3);
-            message = `제작실을 구축했습니다! (+${efficiencyGain} 효율)`;
-            changes.efficiency = gameState.efficiency + efficiencyGain;
+            gameState.researchFacilities.fabricationLab.built = true;
+            const innovationGain = getRandomValue(10, 3);
+            message = `제작실을 구축했습니다! (+${innovationGain} 혁신)`;
+            changes.innovation = gameState.innovation + innovationGain;
             changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
         } else {
-            message = "자원이 부족하여 건설할 수 없습니다.";
+            message = "자원이 부족하여 구축할 수 없습니다.";
         }
         updateState(changes, message);
     },
-    build_main_control_room: () => {
+    build_centralControl: () => {
         if (!spendActionPoint()) return;
-        const cost = { compute: 100, materials: 50, energy: 50 };
+        const cost = { computing_power: 100, materials: 50, energy: 50 };
         let message = "";
         let changes = {};
-        if (gameState.resources.compute >= cost.compute && gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
-            gameState.labFacilities.mainControlRoom.built = true;
-            const logicGain = getRandomValue(15, 5);
-            const focusGain = getRandomValue(10, 3);
-            message = `중앙 통제실을 구축했습니다! (+${logicGain} 논리, +${focusGain} 집중)`;
+        if (gameState.resources.computing_power >= cost.computing_power && gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
+            gameState.researchFacilities.centralControl.built = true;
+            const efficiencyGain = getRandomValue(20, 5);
+            const logicGain = getRandomValue(20, 5);
+            message = `중앙 통제실을 구축했습니다! (+${efficiencyGain} 효율, +${logicGain} 논리)`;
+            changes.efficiency = gameState.efficiency + efficiencyGain;
             changes.logic = gameState.logic + logicGain;
-            changes.focus = gameState.focus + focusGain;
-            changes.resources = { ...gameState.resources, compute: gameState.resources.compute - cost.compute, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
+            changes.resources = { ...gameState.resources, computing_power: gameState.resources.computing_power - cost.computing_power, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
         } else {
-            message = "자원이 부족하여 건설할 수 없습니다.";
+            message = "자원이 부족하여 구축할 수 없습니다.";
         }
         updateState(changes, message);
     },
-    build_theory_library: () => {
+    build_theoryLibrary: () => {
         if (!spendActionPoint()) return;
         const cost = { materials: 80, energy: 40 };
         let message = "";
         let changes = {};
         if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
-            gameState.labFacilities.theoryLibrary.built = true;
+            gameState.researchFacilities.theoryLibrary.built = true;
             const knowledgeGain = getRandomValue(15, 5);
-            const innovationGain = getRandomValue(10, 3);
-            message = `이론 라이브러리를 구축했습니다! (+${knowledgeGain} 지식, +${innovationGain} 혁신)`;
+            const concentrationGain = getRandomValue(10, 3);
+            message = `이론 라이브러리를 구축했습니다! (+${knowledgeGain} 지식, +${concentrationGain} 집중)`;
             changes.knowledge = gameState.knowledge + knowledgeGain;
-            changes.innovation = gameState.innovation + innovationGain;
+            changes.concentration = gameState.concentration + concentrationGain;
             changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
         } else {
-            message = "자원이 부족하여 건설할 수 없습니다.";
+            message = "자원이 부족하여 구축할 수 없습니다.";
         }
         updateState(changes, message);
     },
-    build_advanced_lab: () => {
+    build_advancedLab: () => {
         if (!spendActionPoint()) return;
         const cost = { materials: 50, energy: 100 };
         let message = "";
         let changes = {};
         if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
-            gameState.labFacilities.advancedLab.built = true;
-            message = "고등 연구실을 구축했습니다! 이제 양자 비트를 활용할 수 있습니다.";
+            gameState.researchFacilities.advancedLab.built = true;
+            message = "고등 연구실을 구축했습니다!";
             changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
         } else {
-            message = "자원이 부족하여 건설할 수 없습니다.";
+            message = "자원이 부족하여 구축할 수 없습니다.";
         }
         updateState(changes, message);
     },
@@ -822,35 +1203,36 @@ const gameActions = {
         let message = "";
         let changes = {};
         if (gameState.resources.materials >= cost.materials && gameState.resources.energy >= cost.energy) {
-            gameState.labFacilities[facilityKey].durability = 100;
-            message = `${gameState.labFacilities[facilityKey].name} 시설의 유지보수를 완료했습니다. 내구도가 100으로 회복되었습니다.`;
+            gameState.researchFacilities[facilityKey].durability = 100;
+            message = `${gameState.researchFacilities[facilityKey].name} 시설의 유지보수를 완료했습니다. 내구도가 100으로 회복되었습니다.`;
             changes.resources = { ...gameState.resources, materials: gameState.resources.materials - cost.materials, energy: gameState.resources.energy - cost.energy };
         } else {
             message = "유지보수에 필요한 자원이 부족합니다.";
         }
         updateState(changes, message);
     },
-    return_to_intro: () => updateState({ currentScenarioId: 'intro' }),
-    show_contemplation_options: () => updateState({ currentScenarioId: 'contemplation_menu' }),
-    run_random_algorithm: () => {
+    execute_algorithm: () => {
         if (!spendActionPoint()) return;
         let message = "";
         let changes = {};
         const rand = currentRandFn();
-        if (rand < 0.1) {
-            const computeGain = getRandomValue(30, 10);
-            message = `알고리즘 최적화 성공! 엄청난 연산력을 확보했습니다! (+${computeGain} 연산력)`;
-            changes.resources = { ...gameState.resources, compute: gameState.resources.compute + computeGain };
-        } else if (rand < 0.4) {
-            const knowledgeGain = getRandomValue(10, 5);
-            message = `알고리즘 실행 중 새로운 패턴을 발견했습니다. (+${knowledgeGain} 지식)`;
-            changes.knowledge = gameState.knowledge + knowledgeGain;
-        } else if (rand < 0.7) {
-            const focusLoss = getRandomValue(5, 2);
-            message = `알고리즘에 오류가 발생했습니다. 집중력이 약간 감소합니다. (-${focusLoss} 집중)`;
-            changes.focus = gameState.focus - focusLoss;
-        } else {
-            message = `알고리즘은 특별한 결과 없이 종료되었습니다.`;
+
+        if (rand < 0.1) { // Big Win
+            const computingPowerGain = getRandomValue(30, 10);
+            const materialsGain = getRandomValue(20, 5);
+            const energyGain = getRandomValue(15, 5);
+            message = `알고리즘 실행 대성공! 엄청난 자원을 얻었습니다! (+${computingPowerGain} 연산력, +${materialsGain} 재료, +${energyGain} 에너지)`;
+            changes.resources = { ...gameState.resources, computing_power: gameState.resources.computing_power + computingPowerGain, materials: gameState.resources.materials + materialsGain, energy: gameState.resources.energy + energyGain };
+        } else if (rand < 0.4) { // Small Win
+            const innovationGain = getRandomValue(10, 5);
+            message = `알고리즘 실행 성공! 혁신이 샘솟습니다. (+${innovationGain} 혁신)`;
+            changes.innovation = gameState.innovation + innovationGain;
+        } else if (rand < 0.7) { // Small Loss
+            const innovationLoss = getRandomValue(5, 2);
+            message = `아쉽게도 꽝! 혁신이 조금 식습니다. (-${innovationLoss} 혁신)`;
+            changes.innovation = gameState.innovation - innovationLoss;
+        } else { // No Change
+            message = "알고리즘 실행 결과는 아무것도 아니었습니다.";
         }
         updateState({ ...changes, currentScenarioId: 'contemplation_menu' }, message);
     },
@@ -859,170 +1241,230 @@ const gameActions = {
         let message = "";
         let changes = {};
         const rand = currentRandFn();
-        if (rand < 0.2) {
-            const quantumBitGain = getRandomValue(3, 1);
-            message = `레거시 코드에서 양자 얽힘의 비밀을 발견했습니다! (+${quantumBitGain} 양자 비트)`;
-            changes.resources = { ...gameState.resources, quantum_bits: (gameState.resources.quantum_bits || 0) + quantumBitGain };
-        } else if (rand < 0.6) {
-            const materialsGain = getRandomValue(10, 5);
-            message = `오래된 코드에서 재활용 가능한 재료를 추출했습니다. (+${materialsGain} 재료)`;
-            changes.resources = { ...gameState.resources, materials: gameState.resources.materials + materialsGain };
-        } else {
-            message = `레거시 코드는 너무 복잡해서 아무것도 발견하지 못했습니다.`;
+
+        if (rand < 0.2) { // Big Catch (Quantum Bits)
+            const quantumBitsGain = getRandomValue(3, 1);
+            message = `레거시 코드 디버깅 대성공! 양자 비트를 얻었습니다! (+${quantumBitsGain} 양자 비트)`;
+            changes.resources = { ...gameState.resources, quantum_bits: (gameState.resources.quantum_bits || 0) + quantumBitsGain };
+        } else if (rand < 0.6) { // Normal Catch (Knowledge)
+            const knowledgeGain = getRandomValue(10, 5);
+            message = `지식을 얻었습니다! (+${knowledgeGain} 지식)`;
+            changes.resources = { ...gameState.resources, knowledge: gameState.resources.knowledge + knowledgeGain };
+        } else { // No Change
+            message = "아쉽게도 아무것도 얻지 못했습니다.";
         }
         updateState({ ...changes, currentScenarioId: 'contemplation_menu' }, message);
     },
+    return_to_intro: () => updateState({ currentScenarioId: 'intro' }),
     play_minigame: () => {
-        if (gameState.dailyActions.minigamePlayed) { updateGameDisplay("오늘의 미니게임은 이미 플레이했습니다."); return; }
+        if (gameState.dailyActions.minigamePlayed) { updateGameDisplay("오늘의 발견은 이미 플레이했습니다."); return; }
         if (!spendActionPoint()) return;
+
         const minigameIndex = (gameState.day - 1) % minigames.length;
         const minigame = minigames[minigameIndex];
+
         gameState.currentScenarioId = `minigame_${minigame.name}`;
+
         updateState({ dailyActions: { ...gameState.dailyActions, minigamePlayed: true } });
+
         updateGameDisplay(minigame.description);
         minigame.start(document.getElementById('gameArea'), document.getElementById('gameChoices'));
     },
-    // ... other actions from ENFJ translated to INTP theme
+    show_resource_generation_options: () => updateState({ currentScenarioId: 'action_resource_generation' }),
+    show_facility_management_options: () => updateState({ currentScenarioId: 'action_facility_management' }),
+    show_contemplation_options: () => updateState({ currentScenarioId: 'contemplation_menu' }),
 };
 
-// --- Daily/Initialization Logic ---
 function applyStatEffects() {
     let message = "";
+    // High Logic: Resource generation success chance increase
     if (gameState.logic >= 70) {
-        gameState.dailyBonus.generationSuccess += 0.1;
-        message += "높은 논리 지수 덕분에 자원 생성 성공률이 증가합니다. ";
+        gameState.dailyBonus.researchSuccess += 0.1;
+        message += "높은 논리력 덕분에 새로운 자원 생성 성공률이 증가합니다. ";
     }
+    // Low Logic: Knowledge decrease
     if (gameState.logic < 30) {
-        gameState.researchers.forEach(r => r.collaboration = Math.max(0, r.collaboration - 5));
-        message += "낮은 논리 지수로 인해 연구원들의 협력도가 하락합니다. ";
+        gameState.knowledge = Math.max(0, gameState.knowledge - getRandomValue(5, 2));
+        message += "논리 부족으로 지식이 감소합니다. ";
     }
+
+    // High Knowledge: Action points increase
     if (gameState.knowledge >= 70) {
         gameState.maxActionPoints += 1;
         gameState.actionPoints = gameState.maxActionPoints;
-        message += "풍부한 지식 덕분에 연구에 활기가 넘쳐 행동력이 증가합니다. ";
+        message += "넘치는 지식으로 행동력이 증가합니다. ";
     }
+    // Low Knowledge: Action points decrease
     if (gameState.knowledge < 30) {
         gameState.maxActionPoints = Math.max(5, gameState.maxActionPoints - 1);
         gameState.actionPoints = Math.min(gameState.actionPoints, gameState.maxActionPoints);
-        message += "지식 수준이 정체되어 연구에 침체기가 찾아와 행동력이 감소합니다. ";
+        message += "지식 부족으로 행동력이 감소합니다. ";
     }
+
+    // High Efficiency: Innovation and Concentration boost
     if (gameState.efficiency >= 70) {
-        Object.keys(gameState.labFacilities).forEach(key => {
-            if (gameState.labFacilities[key].built) gameState.labFacilities[key].durability = Math.min(100, gameState.labFacilities[key].durability + 1);
-        });
-        message += "높은 효율성 덕분에 시설물 유지보수가 더 잘 이루어집니다. ";
+        const innovationGain = getRandomValue(5, 2);
+        const concentrationGain = getRandomValue(5, 2);
+        gameState.innovation = Math.min(100, gameState.innovation + innovationGain);
+        gameState.concentration = Math.min(100, gameState.concentration + concentrationGain);
+        message += `당신의 높은 효율성 덕분에 연구소의 혁신과 집중이 향상됩니다! (+${innovationGain} 혁신, +${concentrationGain} 집중) `;
     }
+    // Low Efficiency: Innovation and Concentration decrease
     if (gameState.efficiency < 30) {
-        Object.keys(gameState.labFacilities).forEach(key => {
-            if (gameState.labFacilities[key].built) gameState.labFacilities[key].durability = Math.max(0, gameState.labFacilities[key].durability - 2);
-        });
-        message += "효율성이 약화되어 시설물들이 빠르게 노후화됩니다. ";
+        const innovationLoss = getRandomValue(5, 2);
+        const concentrationLoss = getRandomValue(5, 2);
+        gameState.innovation = Math.max(0, gameState.innovation - innovationLoss);
+        gameState.concentration = Math.max(0, gameState.concentration - concentrationLoss);
+        message += "효율성 부족으로 연구소의 혁신과 집중이 흐려집니다. (-${innovationLoss} 혁신, -${concentrationLoss} 집중) ";
     }
+
+    // High Innovation: Logic boost or rare resource discovery
     if (gameState.innovation >= 70) {
-        const knowledgeGain = getRandomValue(5, 2);
-        gameState.knowledge = Math.min(100, gameState.knowledge + knowledgeGain);
-        message += `당신의 높은 혁신성 덕분에 새로운 지식을 얻습니다! (+${knowledgeGain} 지식) `;
+        const logicGain = getRandomValue(5, 2);
+        gameState.logic = Math.min(100, gameState.logic + logicGain);
+        message += "당신의 혁신적인 아이디어가 새로운 논리를 불러일으킵니다. (+${logicGain} 논리) ";
+        if (currentRandFn() < 0.2) { // 20% chance for quantum bits discovery
+            const amount = getRandomValue(1, 1);
+            gameState.resources.quantum_bits += amount;
+            message += `양자 비트를 발견했습니다! (+${amount} 양자 비트) `;
+        }
     }
+    // Low Innovation: Logic decrease or action point loss
     if (gameState.innovation < 30) {
-        const knowledgeLoss = getRandomValue(5, 2);
-        gameState.knowledge = Math.max(0, gameState.knowledge - knowledgeLoss);
-        message += `혁신성이 약해져 연구가 정체됩니다. (-${knowledgeLoss} 지식) `;
+        const logicLoss = getRandomValue(5, 2);
+        gameState.logic = Math.max(0, gameState.logic - logicLoss);
+        message += "혁신 부족으로 논리가 감소합니다. (-${logicLoss} 논리) ";
+        if (currentRandFn() < 0.1) { // 10% chance for action point loss
+            const actionLoss = getRandomValue(1, 0);
+            gameState.actionPoints = Math.max(0, gameState.actionPoints - actionLoss);
+            message += "비효율적인 연구로 행동력을 낭비했습니다. (-${actionLoss} 행동력) ";
+        }
     }
-    if (gameState.focus >= 70) {
-        const efficiencyGain = getRandomValue(5, 2);
-        gameState.efficiency = Math.min(100, gameState.efficiency + efficiencyGain);
-        message += `당신의 높은 집중력 덕분에 연구 효율이 오릅니다. (+${efficiencyGain} 효율) `;
+
+    // High Concentration: Researcher trust increase
+    if (gameState.concentration >= 70) {
+        gameState.researchers.forEach(r => r.trust = Math.min(100, r.trust + getRandomValue(2, 1)));
+        message += "높은 집중력 덕분에 연구원들의 신뢰가 깊어집니다. ";
     }
-    if (gameState.focus < 30) {
-        const efficiencyLoss = getRandomValue(5, 2);
-        gameState.efficiency = Math.max(0, gameState.efficiency - efficiencyLoss);
-        message += `집중력이 약해져 연구 효율이 떨어집니다. (-${efficiencyLoss} 효율) `;
+    // Low Concentration: Researcher trust decrease
+    if (gameState.concentration < 30) {
+        gameState.researchers.forEach(r => r.trust = Math.max(0, r.trust - getRandomValue(5, 2)));
+        message += "낮은 집중력으로 인해 연구원들의 신뢰가 하락합니다. ";
     }
+
     return message;
 }
 
+function generateRandomResearcher() {
+    const names = ["앨리스", "밥", "찰리", "다이애나", "이브"];
+    const personalities = ["논리적", "분석적", "혁신적", "탐구적"];
+    const skills = ["물리학", "화학", "생물학", "정보학"];
+    const randomId = Math.random().toString(36).substring(2, 9);
+
+    return {
+        id: randomId,
+        name: names[Math.floor(currentRandFn() * names.length)],
+        personality: personalities[Math.floor(currentRandFn() * personalities.length)],
+        skill: skills[Math.floor(currentRandFn() * skills.length)],
+        trust: 50
+    };
+}
+
+// --- Daily/Initialization Logic ---
 const weightedDailyEvents = [
-    { id: "daily_event_overload", weight: 10, condition: () => true, onTrigger: () => {
-        const computeLoss = getRandomValue(10, 5);
-        gameScenarios.daily_event_overload.text = `지난 밤 서버 과부하로 인해 연산력 일부가 손실되었습니다. (-${computeLoss} 연산력)`;
-        updateState({ resources: { ...gameState.resources, compute: Math.max(0, gameState.resources.compute - computeLoss) } });
+    { id: "daily_event_server_overload", weight: 10, condition: () => true, onTrigger: () => {
+        const computingPowerLoss = getRandomValue(10, 5);
+        gameScenarios.daily_event_server_overload.text = `서버 과부하로 연산력 일부가 손실되었습니다. (-${computingPowerLoss} 연산력)`;
+        updateState({ resources: { ...gameState.resources, computing_power: Math.max(0, gameState.resources.computing_power - computingPowerLoss) } });
     } },
-    { id: "daily_event_corruption", weight: 10, condition: () => true, onTrigger: () => {
+    { id: "daily_event_research_breakthrough", weight: 10, condition: () => true, onTrigger: () => {
+        const innovationGain = getRandomValue(10, 5);
+        gameScenarios.daily_event_research_breakthrough.text = `획기적인 연구 돌파가 일어났습니다! 혁신이 증가합니다. (+${innovationGain} 혁신)`;
+        updateState({ innovation: gameState.innovation + innovationGain });
+    } },
+    { id: "daily_event_system_hacking", weight: 15, condition: () => true },
+    { id: "daily_event_resource_depletion", weight: 7, condition: () => true, onTrigger: () => {
         const materialsLoss = getRandomValue(10, 5);
-        gameScenarios.daily_event_corruption.text = `보관중이던 재료 일부가 오염되었습니다. (-${materialsLoss} 재료)`;
+        gameScenarios.daily_event_resource_depletion.text = `자원 고갈로 재료 일부가 사라졌습니다. (-${materialsLoss} 재료)`;
         updateState({ resources: { ...gameState.resources, materials: Math.max(0, gameState.resources.materials - materialsLoss) } });
     } },
-    { id: "daily_event_breakthrough", weight: 7, condition: () => true, onTrigger: () => {
-        const knowledgeGain = getRandomValue(15, 5);
-        gameScenarios.daily_event_breakthrough.text = `간밤에 연구 돌파가 있었습니다! (+${knowledgeGain} 지식)`;
-        updateState({ knowledge: gameState.knowledge + knowledgeGain });
-    } },
-    { id: "daily_event_paradox", weight: 15, condition: () => gameState.researchers.length >= 2 },
-    { id: "daily_event_new_researcher", weight: 10, condition: () => gameState.labFacilities.mainControlRoom.built && gameState.researchers.length < gameState.maxResearchers, onTrigger: () => {
-        // ... (implementation for new researcher)
+    { id: "daily_event_researcher_dispute", weight: 15, condition: () => gameState.researchers.length >= 2 },
+    { id: "daily_event_new_researcher", weight: 10, condition: () => gameState.researchFacilities.centralControl.built && gameState.researchers.length < gameState.maxResearchers, onTrigger: () => {
+        const newResearcher = generateRandomResearcher();
+        gameState.pendingNewResearcher = newResearcher;
+        gameScenarios["daily_event_new_researcher"].text = `새로운 연구원 ${newResearcher.name}(${newResearcher.personality}, ${newResearcher.skill})이(가) 연구소에 합류하고 싶어 합니다. (현재 연구원 수: ${gameState.researchers.length} / ${gameState.maxResearchers})`;
     }},
-    { id: "daily_event_tech_exchange", weight: 15, condition: () => gameState.labFacilities.mainControlRoom.built },
-    { id: "daily_event_legacy_code", weight: 15, condition: () => true },
-    { id: "daily_event_visiting_scholar", weight: 10, condition: () => true },
-    { id: "daily_event_system_hack", weight: 15, condition: () => gameState.resources.compute > 30 },
-    { id: "daily_event_research_paradox", weight: 10, condition: () => gameState.researchers.length >= 3 && gameState.efficiency < 50 },
-    { id: "daily_event_data_corruption", weight: 5, condition: () => gameState.knowledge < 40 || gameState.resources.compute < 20 },
+    { id: "daily_event_external_funding", weight: 10, condition: () => gameState.researchFacilities.centralControl.built },
+    { id: "daily_event_theory_breakdown", weight: 15, condition: () => true },
+    { id: "daily_event_innovation_crisis", weight: 12, condition: () => gameState.innovation < 50 },
 ];
 
 function processDailyEvents() {
     if (gameState.dailyEventTriggered) return;
     currentRandFn = mulberry32(getDailySeed() + gameState.day);
 
+    // Reset daily actions and action points
     updateState({
-        actionPoints: 10,
-        maxActionPoints: 10,
-        dailyActions: { explored: false, symposiumHeld: false, talkedTo: [], minigamePlayed: false },
+        actionPoints: 10, // Reset to base maxActionPoints
+        maxActionPoints: 10, // Reset maxActionPoints to base
+        dailyActions: { explored: false, discussed: false, symposiaHeld: false, minigamePlayed: false },
         dailyEventTriggered: true,
-        dailyBonus: { generationSuccess: 0 }
+        dailyBonus: { researchSuccess: 0 } // Reset daily bonus
     });
 
+    // Apply stat effects
     const statEffectMessage = applyStatEffects();
+
     let skillBonusMessage = "";
     let durabilityMessage = "";
 
+    // Daily skill bonus & durability decay
     gameState.researchers.forEach(r => {
-        if (r.skill === '물리학') { gameState.resources.energy++; skillBonusMessage += `${r.name}의 연구 덕분에 에너지를 추가로 얻었습니다. `; }
-        else if (r.skill === '화학') { gameState.resources.materials++; skillBonusMessage += `${r.name}의 실험 덕분에 재료를 추가로 얻었습니다. `; }
-        else if (r.skill === '정보학') { gameState.resources.compute++; skillBonusMessage += `${r.name}의 연산 덕분에 연산력을 추가로 얻었습니다. `; }
+        if (r.skill === '물리학') { gameState.resources.computing_power++; skillBonusMessage += `${r.name}의 물리학 지식 덕분에 연산력을 추가로 얻었습니다. `;
+        } else if (r.skill === '화학') { gameState.resources.materials++; skillBonusMessage += `${r.name}의 화학 지식 덕분에 재료를 추가로 얻었습니다. `;
+        } else if (r.skill === '생물학') { gameState.resources.energy++; skillBonusMessage += `${r.name}의 생물학 지식 덕분에 에너지를 추가로 얻었습니다. `;
+        } else if (r.skill === '정보학') { gameState.resources.computing_power++; skillBonusMessage += `${r.name}의 정보학 지식 덕분에 연산력을 추가로 얻었습니다. `;
+        }
     });
 
-    Object.keys(gameState.labFacilities).forEach(key => {
-        const facility = gameState.labFacilities[key];
+    Object.keys(gameState.researchFacilities).forEach(key => {
+        const facility = gameState.researchFacilities[key];
         if(facility.built) {
             facility.durability -= 1;
             if(facility.durability <= 0) {
                 facility.built = false;
-                durabilityMessage += `${facility.name} 시설이 파손되었습니다! 수리가 필요합니다. `;
+                durabilityMessage += `${key} 시설이 파손되었습니다! 유지보수가 필요합니다. `;
             }
         }
     });
 
-    gameState.resources.compute -= gameState.researchers.length * 2;
-    let dailyMessage = "새로운 연구일이 시작되었습니다. ";
+    gameState.resources.computing_power -= gameState.researchers.length * 2; // Computing power consumption
+    let dailyMessage = "새로운 날이 시작되었습니다. ";
     dailyMessage += statEffectMessage + skillBonusMessage + durabilityMessage;
-    if (gameState.resources.compute < 0) {
-        gameState.efficiency -= 10;
-        dailyMessage += "연산력이 부족하여 연구 효율이 떨어집니다! (-10 효율)";
+    if (gameState.resources.computing_power < 0) {
+        gameState.knowledge -= 10;
+        dailyMessage += "연산력이 부족하여 연구원들이 힘들어합니다! (-10 지식)";
+    } else {
+        dailyMessage += "";
     }
 
+    // Check for game over conditions
     if (gameState.logic <= 0) { gameState.currentScenarioId = "game_over_logic"; }
     else if (gameState.knowledge <= 0) { gameState.currentScenarioId = "game_over_knowledge"; }
     else if (gameState.efficiency <= 0) { gameState.currentScenarioId = "game_over_efficiency"; }
     else if (gameState.innovation <= 0) { gameState.currentScenarioId = "game_over_innovation"; }
-    else if (gameState.focus <= 0) { gameState.currentScenarioId = "game_over_focus"; }
-    else if (gameState.resources.compute < -(gameState.researchers.length * 5)) { gameState.currentScenarioId = "game_over_resources"; }
+    else if (gameState.concentration <= 0) { gameState.currentScenarioId = "game_over_concentration"; }
+    else if (gameState.resources.computing_power < -(gameState.researchers.length * 5)) { gameState.currentScenarioId = "game_over_resources"; }
 
+    // --- New Weighted Random Event Logic ---
     let eventId = "intro";
     const possibleEvents = weightedDailyEvents.filter(event => !event.condition || event.condition());
     const totalWeight = possibleEvents.reduce((sum, event) => sum + event.weight, 0);
     const rand = currentRandFn() * totalWeight;
+
     let cumulativeWeight = 0;
     let chosenEvent = null;
+
     for (const event of possibleEvents) {
         cumulativeWeight += event.weight;
         if (rand < cumulativeWeight) {
@@ -1037,7 +1479,7 @@ function processDailyEvents() {
             chosenEvent.onTrigger();
         }
     }
-    
+
     gameState.currentScenarioId = eventId;
     updateGameDisplay(dailyMessage + (gameScenarios[eventId]?.text || ''));
     renderChoices(gameScenarios[eventId].choices);
@@ -1049,8 +1491,8 @@ function initDailyGame() {
 }
 
 function resetGame() {
-    if (confirm("정말로 게임을 초기화하시겠습니까? 모든 진행 상황이 사라집니다.")) {
-        localStorage.removeItem('intpLabGame');
+    if (confirm("정말로 지식의 연구소를 포기하시겠습니까? 모든 연구 성과가 사라집니다.")) {
+        localStorage.removeItem('intpKnowledgeLabGame');
         resetGameState();
         saveGameState();
         location.reload();
@@ -1061,19 +1503,7 @@ window.onload = function() {
     try {
         initDailyGame();
         document.getElementById('resetGameBtn').addEventListener('click', resetGame);
-        document.getElementById('nextDayBtn').addEventListener('click', () => {
-            if (gameState.manualDayAdvances >= 5) {
-                updateGameDisplay("오늘은 더 이상 수동으로 날짜를 넘길 수 없습니다. 내일 다시 시도해주세요.");
-                return;
-            }
-            updateState({
-                manualDayAdvances: gameState.manualDayAdvances + 1,
-                day: gameState.day + 1,
-                lastPlayedDate: new Date().toISOString().slice(0, 10),
-                dailyEventTriggered: false
-            });
-            processDailyEvents();
-        });
+        document.getElementById('nextDayBtn').addEventListener('click', gameActions.manualNextDay);
     } catch (e) {
         console.error("오늘의 게임 생성 중 오류 발생:", e);
         document.getElementById('gameDescription').innerText = "콘텐츠를 불러오는 데 실패했습니다. 페이지를 새로고침해 주세요.";
