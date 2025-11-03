@@ -20,15 +20,6 @@
     },
     {
       "type": "user-article",
-      "path": "songs/3n9ZwA_gQZE",
-      "files": [
-        "index.html",
-        "content.json"
-      ],
-      "created_at": "2025-09-29T01:27:13+09:00"
-    },
-    {
-      "type": "user-article",
       "path": "songs/ic_EvL7cFGw",
       "files": [
         "index.html",
@@ -44,6 +35,15 @@
         "content.json"
       ],
       "created_at": "2025-11-03T17:06:55+09:00"
+    },
+    {
+      "type": "user-article",
+      "path": "songs/3n9ZwA_gQZE",
+      "files": [
+        "index.html",
+        "content.json"
+      ],
+      "created_at": "2025-11-03T17:19:53+09:00"
     }
   ]
 }
