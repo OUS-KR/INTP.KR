@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INTP — intp.kr</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style type="text/tailwindcss">
+    @theme {
+      --color-forest-50:#eef4ef;
+      --color-forest-100:#d2e6d4;
+      --color-forest-200:#a4ccaa;
+      --color-forest-300:#72ae7a;
+      --color-forest-400:#468e52;
+      --color-forest-500:#2a6e36;
+      --color-forest-600:#1a5224;
+      --color-forest-700:#0f3a18;
+      --color-forest-800:#08260f;
+      --color-forest-900:#041508;
+      --color-forest-950:#020b04;
+      --color-slate-100:#e8eaed;
+      --color-slate-200:#c8cdd4;
+      --color-slate-300:#a0a8b4;
+      --color-slate-400:#727e90;
+      --color-slate-500:#4e5a6c;
+      --color-slate-600:#343f50;
+      --color-slate-700:#222c3c;
+      --color-slate-800:#141d2c;
+      --color-slate-900:#0c1220;
+      --color-slate-950:#060a14;
+      --color-amber-200:#fdf0c0;
+      --color-amber-300:#f8da80;
+      --color-amber-400:#f0be40;
+      --color-amber-500:#d09a18;
+      --color-frost-100:#f0f4f8;
+      --color-frost-200:#d8e4ec;
+      --color-frost-300:#b0c8d8;
+      --color-frost-400:#7aa4bc;
+      --font-display:"JetBrains Mono","Courier New",monospace;
+      --font-serif:"Crimson Pro",Georgia,serif;
+      --font-body:"DM Sans",system-ui,sans-serif;
+    }
+
+    @layer base {
+      *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+      html {
+        background:#060a14;
+        color:#c8cdd4;
+        font-family:var(--font-body);
+        scroll-behavior:smooth;
+        overflow-x:hidden;
+      }
+      body { min-height:100vh; position:relative; }
+      ::selection { background:rgba(42,110,54,.4); color:#d2e6d4; }
+      ::-webkit-scrollbar { width:4px; }
+      ::-webkit-scrollbar-track { background:#0c1220; }
+      ::-webkit-scrollbar-thumb { background:#2a6e36; border-radius:2px; }
+    }
+
+    /* ── Canvas & Overlays ── */
+    #theorem-canvas {
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+    }
+    .terminal-grid {
+      position:fixed; inset:0; z-index:1; pointer-events:none;
+      background-image:
+        linear-gradient(rgba(42,110,54,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42,110,54,.03) 1px, transparent 1px);
+      background-size:48px 48px;
+    }
+    .crt-scanline {
+      position:fixed; inset:0; z-index:2; pointer-events:none;
+      background:repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(42,110,54,.015) 2px,
+        rgba(42,110,54,.015) 3px
+      );
+    }
+    .vignette {
+      position:fixed; inset:0; z-index:3; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 50%, transparent 38%, rgba(6,10,20,.94) 100%);
+    }
+
+    /* ── Site Wrapper ── */
+    .site-wrapper {
+      position:relative; z-index:10;
+      display:grid; grid-template-rows:auto 1fr auto; min-height:100vh;
+    }
+
+    /* ── Header ── */
+    .glass-header {
+      position:sticky; top:0; z-index:50;
+      backdrop-filter:blur(22px) saturate(1.3);
+      background:rgba(6,10,20,.82);
+      border-bottom:1px solid rgba(42,110,54,.16);
+    }
+    .logo-intp {
+      font-family:var(--font-display);
+      font-size:1.35rem; font-weight:700; letter-spacing:.16em;
+      color:#72ae7a; text-decoration:none;
+      text-shadow:0 0 18px rgba(42,110,54,.6);
+      transition:color .2s;
+    }
+    .logo-intp:hover { color:#d2e6d4; }
+    .nav-link {
+      font-family:var(--font-display); font-size:.7rem;
+      letter-spacing:.12em; color:#343f50;
+      text-decoration:none; transition:color .2s;
+    }
+    .nav-link:hover { color:#72ae7a; }
+    .domain-badge {
+      font-family:var(--font-display); font-size:.66rem;
+      letter-spacing:.1em; color:rgba(114,174,122,.72);
+      border:1px solid rgba(42,110,54,.28);
+      padding:.24rem .8rem; border-radius:2px;
+      background:rgba(42,110,54,.08);
+    }
+
+    /* ── Hero ── */
+    .hero-section {
+      position:relative; min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      padding:8rem 1.5rem 6rem; overflow:hidden;
+    }
+    .hero-bg-text {
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-display);
+      font-size:clamp(9rem,22vw,20rem);
+      font-weight:700; letter-spacing:.02em;
+      color:transparent;
+      -webkit-text-stroke:1px rgba(42,110,54,.07);
+      user-select:none; pointer-events:none;
+      animation:breathe-slow 12s ease-in-out infinite;
+    }
+    @keyframes breathe-slow {
+      0%,100% { opacity:.3; transform:scale(1); }
+      50%      { opacity:.55; transform:scale(1.008); }
+    }
+
+    /* Molecule ring */
+    .mol-ring {
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      width:min(540px,78vw); height:min(540px,78vw);
+      border:1px solid rgba(42,110,54,.08); border-radius:50%;
+      pointer-events:none;
+      animation:spin-slow 45s linear infinite;
+    }
+    .mol-ring::before {
+      content:''; position:absolute; inset:28px;
+      border:1px dashed rgba(114,174,122,.06); border-radius:50%;
+      animation:spin-rev 28s linear infinite;
+    }
+    .mol-ring::after {
+      content:''; position:absolute; inset:70px;
+      border:1px solid rgba(240,190,64,.04); border-radius:50%;
+    }
+    @keyframes spin-slow { to { transform:translate(-50%,-50%) rotate(360deg); } }
+    @keyframes spin-rev  { to { transform:rotate(-360deg); } }
+
+    .hero-content { position:relative; z-index:2; text-align:center; max-width:700px; }
+
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:.5rem;
+      font-family:var(--font-display); font-size:.64rem;
+      letter-spacing:.18em; text-transform:uppercase;
+      color:#468e52; border:1px solid rgba(42,110,54,.3);
+      padding:.34rem 1.1rem; border-radius:2px;
+      background:rgba(42,110,54,.08);
+      margin-bottom:2rem;
+    }
+    .hero-badge::before { content:'∴'; font-size:.9em; opacity:.8; }
+    .hero-badge::after  { content:'∴'; font-size:.9em; opacity:.8; }
+
+    .hero-logo {
+      font-family:var(--font-display);
+      font-size:clamp(5rem,14vw,10rem);
+      font-weight:700; letter-spacing:.08em;
+      background:linear-gradient(135deg,
+        #d2e6d4 0%, #a4ccaa 25%, #72ae7a 55%, #f8da80 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+      filter:drop-shadow(0 0 28px rgba(42,110,54,.5));
+      line-height:1; margin-bottom:.9rem;
+    }
+    .hero-tagline {
+      font-family:var(--font-display); font-size:clamp(.8rem,1.7vw,.95rem);
+      color:#343f50; letter-spacing:.1em; margin-bottom:.5rem;
+    }
+    .hero-quote {
+      font-family:var(--font-serif);
+      font-size:clamp(1rem,2vw,1.22rem);
+      font-style:italic; font-weight:300;
+      color:rgba(200,205,212,.72);
+      margin-bottom:2.5rem; line-height:1.75;
+      border-left:2px solid rgba(42,110,54,.35);
+      padding-left:1.2rem; text-align:left;
+    }
+    .trait-pills {
+      display:flex; flex-wrap:wrap; gap:.45rem;
+      justify-content:center; margin-bottom:2.5rem;
+    }
+    .trait-pill {
+      font-family:var(--font-display); font-size:.6rem;
+      letter-spacing:.1em; padding:.27rem .8rem; border-radius:2px;
+      border:1px solid rgba(42,110,54,.24);
+      color:#343f50; background:rgba(42,110,54,.06);
+      text-transform:uppercase; transition:all .2s;
+    }
+    .trait-pill:hover {
+      border-color:rgba(114,174,122,.55);
+      color:#72ae7a; background:rgba(42,110,54,.14);
+    }
+    .cta-btn {
+      display:inline-flex; align-items:center; gap:.6rem;
+      font-family:var(--font-display); font-size:.74rem;
+      letter-spacing:.14em; text-decoration:none; padding:.88rem 2.3rem;
+      border:1px solid rgba(42,110,54,.46); border-radius:2px;
+      color:#72ae7a; background:rgba(42,110,54,.1);
+      text-transform:uppercase; transition:all .28s;
+    }
+    .cta-btn:hover {
+      background:rgba(42,110,54,.24); border-color:#72ae7a; color:#d2e6d4;
+      box-shadow:0 0 28px rgba(42,110,54,.35);
+    }
+    .scroll-indicator {
+      position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+      font-family:var(--font-display); font-size:.58rem;
+      letter-spacing:.15em; text-transform:uppercase;
+      color:rgba(52,63,80,.5);
+      display:flex; flex-direction:column; align-items:center; gap:.4rem;
+    }
+    .scroll-indicator::after {
+      content:''; width:1px; height:40px;
+      background:linear-gradient(to bottom, rgba(42,110,54,.44), transparent);
+      animation:scroll-grow 2.2s ease-in-out infinite;
+    }
+    @keyframes scroll-grow {
+      0%,100% { height:18px; opacity:.3; }
+      50%      { height:50px; opacity:.85; }
+    }
+
+    /* ── Stats Row ── */
+    .stats-row {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      border-top:1px solid rgba(42,110,54,.13);
+      border-bottom:1px solid rgba(42,110,54,.13);
+      background:rgba(6,10,20,.7); backdrop-filter:blur(14px);
+    }
+    .stat-cell {
+      padding:2.2rem 1rem; text-align:center;
+      border-right:1px solid rgba(42,110,54,.1);
+    }
+    .stat-cell:last-child { border-right:none; }
+    .stat-value {
+      font-family:var(--font-display);
+      font-size:clamp(1.8rem,4vw,2.8rem);
+      font-weight:700; color:#468e52;
+      display:block; margin-bottom:.3rem;
+    }
+    .stat-label {
+      font-family:var(--font-display); font-size:.6rem;
+      letter-spacing:.14em; color:#222c3c; text-transform:uppercase;
+    }
+
+    /* ── Letters Grid ── */
+    .letters-section { padding:6rem 1.5rem; max-width:1200px; margin:0 auto; }
+    .letters-title {
+      font-family:var(--font-display);
+      font-size:clamp(1.4rem,3vw,2rem);
+      font-weight:700; letter-spacing:.14em; color:#468e52;
+      text-align:center; margin-bottom:.5rem;
+    }
+    .letters-subtitle {
+      font-family:var(--font-display); font-size:.82rem;
+      color:#222c3c; text-align:center; margin-bottom:3.5rem;
+    }
+    .letters-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+      gap:1px; border:1px solid rgba(42,110,54,.13); overflow:hidden;
+    }
+    .letter-block {
+      padding:2.5rem 1.8rem; background:rgba(6,10,20,.58);
+      border-right:1px solid rgba(42,110,54,.08);
+      transition:background .3s; position:relative; overflow:hidden;
+    }
+    .letter-block:last-child { border-right:none; }
+    .letter-block::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(
+        to right, transparent,
+        var(--lb-accent, rgba(42,110,54,.5)),
+        transparent
+      );
+      transform:scaleX(0); transition:transform .35s; transform-origin:center;
+    }
+    .letter-block:hover::before { transform:scaleX(1); }
+    .letter-block:hover { background:rgba(42,110,54,.06); }
+    .letter-char {
+      font-family:var(--font-display); font-size:3.5rem; font-weight:700;
+      color:var(--lb-accent, #72ae7a); display:block;
+      margin-bottom:.4rem; line-height:1;
+      text-shadow:0 0 18px var(--lb-shadow, rgba(42,110,54,.5));
+    }
+    .letter-name {
+      font-family:var(--font-display); font-size:.6rem;
+      letter-spacing:.14em; color:#343f50;
+      text-transform:uppercase; margin-bottom:.8rem; display:block;
+    }
+    .letter-desc {
+      font-family:var(--font-body); font-size:.83rem;
+      color:#222c3c; line-height:1.67;
+    }
+
+    /* ── Theorem Cards ── */
+    .theorem-section { padding:6rem 1.5rem; max-width:1200px; margin:0 auto; }
+    .section-label {
+      font-family:var(--font-display); font-size:.6rem;
+      letter-spacing:.2em; color:#2a6e36; text-transform:uppercase;
+      margin-bottom:.4rem;
+      display:flex; align-items:center; gap:.8rem;
+    }
+    .section-label::before { content:'∴'; font-size:.9em; }
+    .section-title {
+      font-family:var(--font-serif);
+      font-size:clamp(1.6rem,3.5vw,2.4rem);
+      font-weight:400; font-style:italic;
+      color:#a4ccaa; margin-bottom:.6rem; line-height:1.2;
+    }
+    .section-desc {
+      font-family:var(--font-body); font-size:.9rem;
+      color:#222c3c; max-width:580px; margin-bottom:3rem; line-height:1.76;
+    }
+    .theorem-cards {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:1px; border:1px solid rgba(42,110,54,.12); overflow:hidden;
+    }
+    .theorem-card {
+      padding:2.5rem 2rem; background:rgba(6,10,20,.62);
+      position:relative; overflow:hidden; transition:background .3s;
+    }
+    .theorem-card:hover { background:rgba(42,110,54,.06); }
+    .theorem-card::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+      background:linear-gradient(
+        to right, transparent,
+        var(--tc-color, rgba(42,110,54,.45)),
+        transparent
+      );
+      transform:scaleX(0); transition:transform .45s;
+    }
+    .theorem-card:hover::after { transform:scaleX(1); }
+    .theorem-card-num {
+      font-family:var(--font-display); font-size:.6rem;
+      letter-spacing:.14em; color:var(--tc-color, #2a6e36);
+      text-transform:uppercase; margin-bottom:1rem; display:block;
+    }
+    .theorem-card-title {
+      font-family:var(--font-display); font-size:.85rem; font-weight:700;
+      letter-spacing:.1em; color:var(--tc-color, #72ae7a);
+      text-transform:uppercase; margin-bottom:.8rem;
+    }
+    .theorem-card-text {
+      font-family:var(--font-body); font-size:.85rem;
+      color:#222c3c; line-height:1.74;
+    }
+    .theorem-card-formula {
+      font-family:var(--font-display); font-size:.72rem;
+      color:rgba(114,174,122,.5); margin-top:1.2rem;
+      border-top:1px solid rgba(42,110,54,.1); padding-top:.8rem;
+      letter-spacing:.06em;
+    }
+
+    /* ── Axiom Box ── */
+    .axiom-box {
+      max-width:780px; margin:0 auto 6rem;
+      border:1px solid rgba(42,110,54,.18);
+      background:rgba(6,10,20,.76);
+      backdrop-filter:blur(18px);
+      padding:2.5rem;
+    }
+    .axiom-title {
+      font-family:var(--font-display); font-size:.64rem;
+      letter-spacing:.18em; color:#468e52; text-transform:uppercase;
+      margin-bottom:1.6rem;
+      display:flex; align-items:center; gap:.8rem;
+    }
+    .axiom-title::before { content:'//'; color:rgba(42,110,54,.4); }
+    .axiom-row {
+      display:grid; grid-template-columns:110px 1fr;
+      gap:1rem; align-items:start;
+      padding:.9rem 0; border-bottom:1px solid rgba(42,110,54,.08);
+    }
+    .axiom-row:last-child { border-bottom:none; }
+    .axiom-key {
+      font-family:var(--font-display); font-size:.6rem;
+      letter-spacing:.1em; color:#2a6e36;
+      text-transform:uppercase; padding-top:.1rem;
+    }
+    .axiom-val {
+      font-family:var(--font-body); font-size:.86rem;
+      color:#4e5a6c; line-height:1.67;
+    }
+    .axiom-val strong { color:#72ae7a; font-weight:500; }
+
+    /* ── Origin ── */
+    .origin-section {
+      padding:5rem 1.5rem; max-width:780px; margin:0 auto; text-align:center;
+    }
+    .origin-glyph {
+      font-family:var(--font-display); font-size:3.2rem; font-weight:700;
+      color:rgba(42,110,54,.28); margin-bottom:1rem; display:block;
+      letter-spacing:.08em;
+    }
+    .origin-title {
+      font-family:var(--font-serif);
+      font-size:clamp(1.4rem,3vw,2rem);
+      font-weight:400; font-style:italic; color:#a4ccaa; margin-bottom:1.2rem;
+    }
+    .origin-text {
+      font-family:var(--font-body); font-size:.9rem;
+      color:#222c3c; line-height:1.9; margin-bottom:1rem;
+    }
+
+    /* ── Contact ── */
+    .contact-section {
+      padding:7rem 1.5rem; text-align:center;
+      border-top:1px solid rgba(42,110,54,.1);
+    }
+    .contact-label {
+      font-family:var(--font-display); font-size:.6rem;
+      letter-spacing:.2em; color:#2a6e36;
+      text-transform:uppercase; margin-bottom:1rem;
+    }
+    .contact-title {
+      font-family:var(--font-serif);
+      font-size:clamp(1.6rem,4vw,2.8rem);
+      font-weight:400; font-style:italic; color:#a4ccaa; margin-bottom:.7rem;
+    }
+    .contact-sub {
+      font-family:var(--font-body); font-size:.9rem;
+      color:#222c3c; margin-bottom:2.5rem;
+    }
+    .contact-email {
+      display:inline-flex; align-items:center; gap:.7rem;
+      font-family:var(--font-display); font-size:clamp(.8rem,1.8vw,.98rem);
+      letter-spacing:.08em; color:#72ae7a;
+      text-decoration:none;
+      border:1px solid rgba(42,110,54,.3);
+      padding:1rem 2.6rem; border-radius:2px;
+      background:rgba(42,110,54,.08);
+      transition:all .28s;
+    }
+    .contact-email:hover {
+      background:rgba(42,110,54,.22); border-color:#72ae7a; color:#d2e6d4;
+      box-shadow:0 0 30px rgba(42,110,54,.32);
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      border-top:1px solid rgba(42,110,54,.1);
+      padding:2rem 2.5rem;
+      display:flex; justify-content:space-between; align-items:center;
+      flex-wrap:wrap; gap:1rem;
+      background:rgba(6,10,20,.95);
+    }
+    .footer-copy {
+      font-family:var(--font-display); font-size:.58rem;
+      letter-spacing:.12em; color:#141d2c; text-transform:uppercase;
+    }
+
+    /* ── Animations ── */
+    .fade-up {
+      opacity:0; transform:translateY(28px);
+      transition:opacity .78s ease, transform .78s ease;
+    }
+    .fade-up.visible { opacity:1; transform:translateY(0); }
+
+    @keyframes fade-in {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .hero-content > * { animation:fade-in .88s ease both; }
+    .hero-content > *:nth-child(1) { animation-delay:.1s; }
+    .hero-content > *:nth-child(2) { animation-delay:.25s; }
+    .hero-content > *:nth-child(3) { animation-delay:.4s; }
+    .hero-content > *:nth-child(4) { animation-delay:.55s; }
+    .hero-content > *:nth-child(5) { animation-delay:.7s; }
+    .hero-content > *:nth-child(6) { animation-delay:.85s; }
+  </style>
+</head>
+<body>
+
+<canvas id="theorem-canvas"></canvas>
+<div class="terminal-grid" aria-hidden="true"></div>
+<div class="crt-scanline"  aria-hidden="true"></div>
+<div class="vignette"      aria-hidden="true"></div>
+
+<div class="site-wrapper">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="glass-header flex items-center justify-between px-8 py-5">
+    <a href="/" class="logo-intp">INTP</a>
+    <nav class="hidden sm:flex gap-10">
+      <a href="#letters"  class="nav-link">LETTERS</a>
+      <a href="#theorem"  class="nav-link">THEOREM</a>
+      <a href="#contact"  class="nav-link">CONTACT</a>
+    </nav>
+    <div class="domain-badge hidden sm:block">intp.kr</div>
+  </header>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+
+    <!-- HERO -->
+    <section class="hero-section">
+      <div class="hero-bg-text" aria-hidden="true">INTP</div>
+      <div class="mol-ring"     aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <div class="hero-badge">THE LOGICIAN</div>
+        <div class="hero-logo">INTP</div>
+        <p class="hero-tagline">Introverted · Intuitive · Thinking · Prospecting</p>
+        <blockquote class="hero-quote">
+          "아직 풀리지 않은 문제가 있다는 것,<br>
+          그것만으로 충분히 아름다운 세계다."
+        </blockquote>
+        <div class="trait-pills">
+          <span class="trait-pill">LOGICAL</span>
+          <span class="trait-pill">ABSTRACT</span>
+          <span class="trait-pill">CURIOUS</span>
+          <span class="trait-pill">PRECISE</span>
+          <span class="trait-pill">INDEPENDENT</span>
+          <span class="trait-pill">THEORETICAL</span>
+        </div>
+        <a href="#theorem" class="cta-btn">
+          <span>∴ ENTER THE LAB</span>
+        </a>
+      </div>
+
+      <div class="scroll-indicator" aria-hidden="true">SCROLL</div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats-row fade-up">
+      <div class="stat-cell">
+        <span class="stat-value">3%</span>
+        <span class="stat-label">Of Population</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-value">Ti</span>
+        <span class="stat-label">Dominant Function</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-value">∞</span>
+        <span class="stat-label">Unsolved Problems</span>
+      </div>
+    </div>
+
+    <!-- LETTERS -->
+    <section id="letters" class="letters-section fade-up">
+      <p class="letters-title">I · N · T · P</p>
+      <p class="letters-subtitle">// four axioms of the logician's framework</p>
+      <div class="letters-grid">
+        <div class="letter-block"
+             style="--lb-accent:#72ae7a; --lb-shadow:rgba(42,110,54,.48);">
+          <span class="letter-char">I</span>
+          <span class="letter-name">Introverted</span>
+          <p class="letter-desc">내면의 사고 공간에서 에너지를 얻는다. 고독은 결핍이 아니라 가장 정밀한 사고가 일어나는 환경이다.</p>
+        </div>
+        <div class="letter-block"
+             style="--lb-accent:#a4ccaa; --lb-shadow:rgba(114,174,122,.42);">
+          <span class="letter-char">N</span>
+          <span class="letter-name">Intuitive</span>
+          <p class="letter-desc">구체적 사실보다 추상적 패턴을 탐구한다. 눈에 보이지 않는 연결 고리와 기저 원리를 찾아내는 것이 본능이다.</p>
+        </div>
+        <div class="letter-block"
+             style="--lb-accent:#f8da80; --lb-shadow:rgba(240,190,64,.4);">
+          <span class="letter-char">T</span>
+          <span class="letter-name">Thinking</span>
+          <p class="letter-desc">모든 것을 논리의 체로 거른다. Ti는 내부적 일관성을 최우선으로 하며, 권위보다 논증이 언제나 더 강하다.</p>
+        </div>
+        <div class="letter-block"
+             style="--lb-accent:#b0c8d8; --lb-shadow:rgba(122,164,188,.38);">
+          <span class="letter-char">P</span>
+          <span class="letter-name">Prospecting</span>
+          <p class="letter-desc">결론보다 탐구 과정이 더 흥미롭다. 열린 가능성을 유지하며, 새로운 정보가 언제든 기존 모델을 갱신할 수 있다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- THEOREM CARDS -->
+    <section id="theorem" class="theorem-section fade-up">
+      <p class="section-label">Core Theorems</p>
+      <h2 class="section-title">논리학자의 세 가지 공리</h2>
+      <p class="section-desc">INTP는 Ti의 날카로운 내향 사고와 Ne의 발산적 직관으로 순수한 이론 체계를 구축하는 타고난 사상가다. 그들의 세계는 아이디어로 이루어진다.</p>
+      <div class="theorem-cards">
+        <div class="theorem-card" style="--tc-color:#72ae7a;">
+          <span class="theorem-card-num">THEOREM_01</span>
+          <h3 class="theorem-card-title">LOGIC</h3>
+          <p class="theorem-card-text">Ti 지배 기능이 모든 주장을 내부적 일관성으로 검증한다. 모순을 발견하는 순간 전체 시스템을 재구성하는 것을 두려워하지 않는다.</p>
+          <p class="theorem-card-formula">∀x: P(x) → Q(x) ∴ consistent</p>
+        </div>
+        <div class="theorem-card" style="--tc-color:#a4ccaa;">
+          <span class="theorem-card-num">THEOREM_02</span>
+          <h3 class="theorem-card-title">ABSTRACTION</h3>
+          <p class="theorem-card-text">표면 현상 너머의 구조를 추출한다. 서로 다른 영역에서 동일한 패턴을 발견하고, 하나의 통일된 이론으로 묶어내는 것에 희열을 느낀다.</p>
+          <p class="theorem-card-formula">f(x) = f(y) ↔ x ~ y [equivalence]</p>
+        </div>
+        <div class="theorem-card" style="--tc-color:#f8da80;">
+          <span class="theorem-card-num">THEOREM_03</span>
+          <h3 class="theorem-card-title">CURIOSITY</h3>
+          <p class="theorem-card-text">답보다 질문이 더 가치 있다. 아직 해결되지 않은 문제의 존재 자체가 세계를 탐구할 이유이며, 지적 호기심은 꺼지지 않는 연료다.</p>
+          <p class="theorem-card-formula">lim(knowledge → ∞) = ?</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AXIOM BOX -->
+    <div class="axiom-box fade-up px-6">
+      <p class="axiom-title">LOGICIAN_PROFILE.log</p>
+      <div class="axiom-row">
+        <span class="axiom-key">A01</span>
+        <span class="axiom-val">
+          <strong>Ti 지배</strong> — 내향 사고가 일차 기능. 외부 기준이 아닌 내부적 논리 프레임워크로 세계를 분류하고 분석하는 정밀 사고 엔진.
+        </span>
+      </div>
+      <div class="axiom-row">
+        <span class="axiom-key">A02</span>
+        <span class="axiom-val">
+          <strong>인구 비율</strong> — 전체 인구의 약 3%. 남성 비율이 약간 높으며 (남 5%, 여 2%), 수학·철학·컴퓨터과학·이론물리학 분야에 집중된다.
+        </span>
+      </div>
+      <div class="axiom-row">
+        <span class="axiom-key">A03</span>
+        <span class="axiom-val">
+          <strong>그림자</strong> — Fe 열등 기능으로 인해 감정 표현과 사회적 조화 유지가 취약하다. 아이디어에 몰입한 나머지 주변 사람들의 감정 신호를 놓치는 경향이 있다.
+        </span>
+      </div>
+      <div class="axiom-row">
+        <span class="axiom-key">A04</span>
+        <span class="axiom-val">
+          <strong>핵심 욕구</strong> — 지적 자율성과 이해의 깊이. 이유 없는 규칙, 지적 정직성이 결여된 환경, 강요된 사회적 형식에서 에너지가 급격히 소진된다.
+        </span>
+      </div>
+    </div>
+
+    <!-- ORIGIN -->
+    <section class="origin-section fade-up">
+      <span class="origin-glyph">理</span>
+      <h2 class="origin-title">The Logician's Theorem</h2>
+      <p class="origin-text">
+        INTP는 인류의 지적 유산을 가장 순수한 형태로 탐구하는 사상가들이다. 전 세계 인구의 약 3%를 차지하는 이들은 Ti의 엄밀한 내향 사고와 Ne의 발산적 직관을 결합하여, 눈에 보이지 않는 원리와 패턴을 끊임없이 탐색한다. 아리스토텔레스, 데카르트, 아인슈타인이 그들의 계보에 속한다.
+      </p>
+      <p class="origin-text">
+        이들에게 세계는 아직 완성되지 않은 공리 체계다. 모든 전제를 의심하고, 모든 결론을 검증하며, 더 정밀한 모델로 끊임없이 갱신한다. INTP의 침묵은 공백이 아니다 — 그것은 미완성 증명의 밀도다.
+      </p>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact-section fade-up">
+      <p class="contact-label">// Establish Logical Channel</p>
+      <h2 class="contact-title">Query the Logician</h2>
+      <p class="contact-sub">반박 가능한 주장이나 흥미로운 문제가 있다면 환영한다.</p>
+      <a href="mailto:hello@intp.kr" class="contact-email">
+        <span style="opacity:.5;">∴</span>
+        hello@intp.kr
+      </a>
+    </section>
+
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <span class="footer-copy">© 2026 intp.kr — All rights reserved.</span>
+    <span class="footer-copy" style="opacity:0.36;">logic · abstraction · curiosity · precision</span>
+  </footer>
+
+</div><!-- /.site-wrapper -->
+
+<script>
+(function () {
+  /* ─── Canvas Setup ─── */
+  const canvas = document.getElementById('theorem-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', () => { resize(); rebuildAll(); });
+  resize();
+
+  /* ─── Palette ─── */
+  const GREEN  = 'rgba(42,110,54,';
+  const LIME   = 'rgba(114,174,122,';
+  const AMBER  = 'rgba(240,190,64,';
+  const FROST  = 'rgba(176,200,216,';
+  const WHITE  = 'rgba(200,205,212,';
+
+  /* ─── Utility ─── */
+  const rand  = (a, b) => Math.random() * (b - a) + a;
+  const randI = (a, b) => Math.floor(rand(a, b));
+  const pick  = arr  => arr[randI(0, arr.length)];
+
+  /* ══════════════════════════════════════════
+     CLASS 1 : MoleculeNode — 분자 구조 노드
+     수량: 42
+  ══════════════════════════════════════════ */
+  class MoleculeNode {
+    constructor() { this.init(); }
+    init() {
+      this.x      = rand(0, canvas.width);
+      this.y      = rand(0, canvas.height);
+      this.vx     = rand(-0.22, 0.22);
+      this.vy     = rand(-0.22, 0.22);
+      this.r      = rand(1.5, 4.5);
+      this.alpha  = rand(0.1, 0.38);
+      this.pulse  = rand(0, Math.PI * 2);
+      this.pSpeed = rand(0.01, 0.025);
+      this.color  = pick([GREEN, LIME, AMBER]);
+    }
+    update() {
+      this.x     += this.vx;
+      this.y     += this.vy;
+      this.pulse += this.pSpeed;
+      if (this.x < -20) this.x = canvas.width  + 20;
+      if (this.x > canvas.width  + 20) this.x = -20;
+      if (this.y < -20) this.y = canvas.height + 20;
+      if (this.y > canvas.height + 20) this.y = -20;
+    }
+    draw() {
+      const a = this.alpha * (0.6 + 0.4 * Math.sin(this.pulse));
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.color + a + ')';
+      ctx.fill();
+      /* outer ring */
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r * 2.5, 0, Math.PI * 2);
+      ctx.strokeStyle = this.color + (a * 0.3) + ')';
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     CLASS 2 : BondLine — 분자 결합선
+     (MoleculeNode 간 근접 연결)
+     수량: 노드에서 자동 계산 (최대 연결 80개)
+  ══════════════════════════════════════════ */
+  /* 결합선은 loop()에서 nodes 배열을 순회하며 직접 그림 */
+
+  /* ══════════════════════════════════════════
+     CLASS 3 : FormulaChar — 부유하는 수식 문자
+     수량: 38
+  ══════════════════════════════════════════ */
+  const FORMULA_CHARS = [
+    '∀','∃','∈','∉','⊆','⊇','∩','∪','∧','∨','¬',
+    '→','↔','∴','∵','⊕','≡','≠','≤','≥','∞',
+    'α','β','γ','δ','λ','σ','π','ω',
+    'dx','df','∂','∇','∑','∏','∫'
+  ];
+  class FormulaChar {
+    constructor() { this.init(); }
+    init() {
+      this.x     = rand(0, canvas.width);
+      this.y     = rand(0, canvas.height);
+      this.vx    = rand(-0.15, 0.15);
+      this.vy    = rand(-0.3, -0.06);
+      this.char  = pick(FORMULA_CHARS);
+      this.size  = rand(11, 22);
+      this.alpha = rand(0.04, 0.18);
+      this.decay = rand(0.0003, 0.0012);
+      this.color = pick([GREEN, LIME, AMBER, FROST]);
+    }
+    update() {
+      this.x     += this.vx;
+      this.y     += this.vy;
+      this.alpha -= this.decay;
+      if (this.alpha <= 0 || this.y < -30) this.init();
+    }
+    draw() {
+      ctx.font      = `${this.size}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = this.color + this.alpha + ')';
+      ctx.fillText(this.char, this.x, this.y);
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     CLASS 4 : GridPulse — 격자 맥동 사각형
+     수량: 16
+  ══════════════════════════════════════════ */
+  class GridPulse {
+    constructor() { this.init(); }
+    init() {
+      const cols = Math.floor(canvas.width  / 96) + 2;
+      const rows = Math.floor(canvas.height / 96) + 2;
+      this.x     = randI(0, cols) * 96;
+      this.y     = randI(0, rows) * 96;
+      this.size  = rand(4, 16);
+      this.maxSz = this.size + rand(20, 60);
+      this.alpha = rand(0.05, 0.18);
+      this.grow  = rand(0.2, 0.55);
+      this.color = pick([GREEN, LIME]);
+      this.life  = 0;
+      this.maxLife = randI(100, 260);
+    }
+    update() {
+      this.size += this.grow;
+      this.life++;
+      if (this.size > this.maxSz || this.life > this.maxLife) this.init();
+    }
+    draw() {
+      const p = this.life / this.maxLife;
+      const a = this.alpha * Math.sin(p * Math.PI);
+      const h = this.size;
+      ctx.strokeStyle = this.color + a + ')';
+      ctx.lineWidth   = 0.8;
+      ctx.strokeRect(this.x - h / 2, this.y - h / 2, h, h);
+    }
+  }
+
+  /* ─── Pool Init ─── */
+  let nodes, formulas, pulses;
+  const LINK_DIST = 140;
+
+  function rebuildAll() {
+    nodes    = Array.from({ length: 42 }, () => new MoleculeNode());
+    formulas = Array.from({ length: 38 }, () => new FormulaChar());
+    pulses   = Array.from({ length: 16 }, () => new GridPulse());
+  }
+  rebuildAll();
+
+  /* ─── Animation Loop ─── */
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    /* bond lines between nearby nodes */
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx   = nodes[i].x - nodes[j].x;
+        const dy   = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < LINK_DIST) {
+          const a = (1 - dist / LINK_DIST) * 0.12;
+          ctx.strokeStyle = GREEN + a + ')';
+          ctx.lineWidth   = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    pulses.forEach  (p => { p.update(); p.draw(); });
+    nodes.forEach   (p => { p.update(); p.draw(); });
+    formulas.forEach(p => { p.update(); p.draw(); });
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  /* ─── Scroll Fade-up ─── */
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    }),
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+})();
+</script>
+
+</body>
+</html>
