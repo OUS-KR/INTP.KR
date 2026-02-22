@@ -1,1 +1,1 @@
-# INTP.KR
+# [INTP.KR](https://intp.kr)
