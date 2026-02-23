@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INTP — intp.kr</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style type="text/tailwindcss">
+    @theme {
+      --color-logic-300:  #93c5fd;
+      --color-logic-400:  #60a5fa;
+      --color-logic-500:  #3b82f6;
+      --color-theory-300: #c4b5fd;
+      --color-theory-400: #a78bfa;
+      --color-theory-500: #8b5cf6;
+      --color-lime-300:   #bef264;
+      --color-lime-400:   #a3e635;
+      --color-amber-300:  #fcd34d;
+      --color-amber-400:  #fbbf24;
+      --color-void-950:   #02030a;
+      --color-void-900:   #05070f;
+      --color-void-800:   #0a0e1c;
+      --font-mono:  'Space Mono', monospace;
+      --font-sans:  'Inter', 'Noto Serif KR', sans-serif;
+    }
+  </style>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #02030a;
+      color: #d4e0f5;
+      font-family: 'Inter', 'Noto Serif KR', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Neural network background */
+    .neural-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 65% 55% at 12% 28%, rgba(96,165,250,0.09) 0%, transparent 58%),
+        radial-gradient(ellipse 55% 65% at 88% 72%, rgba(167,139,250,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 5%,  rgba(190,242,100,0.05) 0%, transparent 48%);
+      animation: neuralShift 18s ease-in-out infinite alternate;
+    }
+    @keyframes neuralShift {
+      0%   { opacity: 0.7; transform: scale(1); }
+      100% { opacity: 1;   transform: scale(1.04); }
+    }
+
+    /* Grid overlay */
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.03;
+      background-image:
+        linear-gradient(rgba(96,165,250,1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(96,165,250,1) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* Vignette */
+    .vignette {
+      position: fixed; inset: 0; z-index: 2; pointer-events: none;
+      background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 34%, rgba(2,3,10,0.9) 100%);
+    }
+
+    /* Top logic stripe */
+    .top-stripe {
+      position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 50;
+      background: linear-gradient(90deg, transparent, #60a5fa, #a78bfa, #bef264, #60a5fa, transparent);
+      background-size: 300% 100%;
+      animation: logicFlow 6s linear infinite;
+    }
+    @keyframes logicFlow {
+      0%   { background-position: -100% 50%; }
+      100% { background-position: 400% 50%; }
+    }
+
+    /* Particle layer — floating formulae */
+    #particle-layer {
+      position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden;
+    }
+    .particle {
+      position: absolute; opacity: 0;
+      animation: ideaDrift var(--dur,12s) var(--delay,0s) ease-in-out infinite;
+      font-family: 'Space Mono', monospace;
+    }
+    @keyframes ideaDrift {
+      0%   { transform: translateY(100vh) translateX(0) rotate(0deg) scale(0.6);   opacity: 0; }
+      8%   { opacity: 0.5; }
+      50%  { transform: translateY(48vh) translateX(var(--dx,20px)) rotate(8deg) scale(1); }
+      92%  { opacity: 0.2; }
+      100% { transform: translateY(-8vh) translateX(var(--dx2,-15px)) rotate(-4deg) scale(0.8); opacity: 0; }
+    }
+
+    /* Corner decor */
+    .corner-decor {
+      position: fixed; width: 72px; height: 72px; z-index: 4; pointer-events: none; opacity: 0.18;
+    }
+    .corner-tl { top: 10px; left: 10px; }
+    .corner-tr { top: 10px; right: 10px; transform: scaleX(-1); }
+    .corner-bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+    .corner-br { bottom: 10px; right: 10px; transform: scale(-1,-1); }
+
+    /* Main wrapper */
+    .main { position: relative; z-index: 10; max-width: 480px; margin: 0 auto; padding: 60px 16px 40px; }
+
+    /* Section card */
+    .section-card {
+      background: rgba(5,7,15,0.82);
+      border: 1px solid rgba(96,165,250,0.16);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 18px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 4px 38px rgba(0,0,0,0.65), inset 0 1px 0 rgba(96,165,250,0.08);
+    }
+
+    /* Avatar ring */
+    .avatar-ring {
+      width: 110px; height: 110px; border-radius: 50%; padding: 3px;
+      background: conic-gradient(#60a5fa, #a78bfa, #bef264, #fbbf24, #60a5fa);
+      animation: ringRotate 9s linear infinite;
+      margin: 0 auto 16px; position: relative;
+    }
+    @keyframes ringRotate { to { transform: rotate(360deg); } }
+    .avatar-ring img {
+      width: 100%; height: 100%; border-radius: 50%;
+      border: 3px solid #02030a; object-fit: cover;
+    }
+    .status-dot {
+      position: absolute; bottom: 5px; right: 5px;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: #a78bfa; border: 2px solid #02030a;
+      animation: dotThink 3.5s ease-in-out infinite;
+    }
+    @keyframes dotThink {
+      0%,100% { box-shadow: 0 0 0 0 rgba(167,139,250,0.55); }
+      50%      { box-shadow: 0 0 0 8px rgba(167,139,250,0); }
+    }
+
+    /* Shimmer text */
+    .shimmer-text {
+      background: linear-gradient(90deg, #60a5fa, #a78bfa, #bef264, #60a5fa, #fbbf24);
+      background-size: 300% 100%;
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: shimmer 5s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:0% 50%;} 100%{background-position:300% 50%;} }
+
+    /* Tag pills */
+    .tag {
+      display: inline-block; padding: 3px 11px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+      border: 1px solid; margin: 3px;
+    }
+
+    /* Type cards */
+    .type-card {
+      background: rgba(96,165,250,0.07);
+      border: 1px solid rgba(96,165,250,0.2);
+      border-radius: 12px; padding: 12px 6px; text-align: center; flex: 1;
+    }
+
+    /* Link buttons */
+    .link-btn {
+      display: flex; align-items: center; gap: 13px;
+      width: 100%; padding: 13px 16px; border-radius: 13px;
+      border: 1px solid rgba(96,165,250,0.18);
+      background: rgba(5,7,15,0.7);
+      color: #d4e0f5; text-decoration: none;
+      font-size: 14px; font-weight: 600;
+      transition: all 0.3s ease; backdrop-filter: blur(6px);
+      margin-bottom: 9px;
+    }
+    .link-btn:hover {
+      background: rgba(96,165,250,0.12);
+      border-color: rgba(96,165,250,0.45);
+      transform: translateX(4px);
+      box-shadow: 0 0 18px rgba(96,165,250,0.14);
+    }
+    .link-btn .icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+
+    /* Progress bars */
+    .progress-track {
+      background: rgba(255,255,255,0.07); border-radius: 999px; height: 7px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 999px; width: 0%;
+      transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* Theory meter */
+    .theory-bar {
+      display: flex; gap: 3px; margin-top: 6px;
+    }
+    .theory-seg {
+      flex: 1; height: 10px; border-radius: 2px;
+      background: rgba(96,165,250,0.1);
+      border: 1px solid rgba(96,165,250,0.16);
+      transition: all 0.42s ease;
+    }
+    .theory-seg.lit {
+      background: linear-gradient(90deg, #60a5fa, #a78bfa);
+      border-color: #60a5fa;
+      box-shadow: 0 0 5px rgba(96,165,250,0.5);
+    }
+
+    /* Idea cards */
+    .idea-card {
+      background: rgba(96,165,250,0.05);
+      border: 1px solid rgba(96,165,250,0.13);
+      border-radius: 13px; padding: 14px; text-align: center;
+      transition: all 0.3s;
+    }
+    .idea-card:hover {
+      border-color: rgba(167,139,250,0.4);
+      background: rgba(167,139,250,0.09);
+      transform: translateY(-2px);
+    }
+
+    /* Code block style */
+    .code-block {
+      background: rgba(10,14,28,0.95);
+      border: 1px solid rgba(96,165,250,0.18);
+      border-radius: 10px; padding: 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px; line-height: 1.85;
+      color: #93c5fd; overflow-x: auto;
+      margin-bottom: 10px;
+    }
+    .code-block .kw  { color: #a78bfa; }
+    .code-block .fn  { color: #bef264; }
+    .code-block .str { color: #fcd34d; }
+    .code-block .cm  { color: #475569; font-style: italic; }
+    .code-block .num { color: #f87171; }
+
+    /* Hypothesis list */
+    .hypothesis-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid rgba(96,165,250,0.08);
+      font-size: 13px; color: #94a3b8;
+    }
+    .hypothesis-item:last-child { border-bottom: none; }
+    .hyp-badge {
+      font-family: 'Space Mono', monospace; font-size: 10px;
+      padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+      margin-top: 1px; letter-spacing: 0.06em;
+    }
+
+    /* Carousel */
+    .carousel-wrapper { position: relative; overflow: hidden; border-radius: 13px; }
+    .carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .carousel-slide { min-width: 100%; position: relative; }
+    .carousel-slide img { width: 100%; height: 210px; object-fit: cover; display: block; }
+    .carousel-caption {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 14px;
+      background: linear-gradient(transparent, rgba(2,3,10,0.9));
+      font-size: 12px; color: #60a5fa;
+      font-family: 'Space Mono', monospace;
+    }
+    .carousel-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(2,3,10,0.65); border: 1px solid rgba(96,165,250,0.32);
+      color: #60a5fa; width: 34px; height: 34px; border-radius: 50%;
+      cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; backdrop-filter: blur(4px);
+    }
+    .carousel-btn:hover { background: rgba(96,165,250,0.2); }
+    .carousel-prev { left: 8px; }
+    .carousel-next { right: 8px; }
+    .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+    .carousel-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(96,165,250,0.28); cursor: pointer; transition: all 0.2s;
+    }
+    .carousel-dot.active { background: #60a5fa; transform: scale(1.35); }
+
+    /* Music player */
+    .vinyl {
+      width: 78px; height: 78px; border-radius: 50%; flex-shrink: 0;
+      background: conic-gradient(
+        #04060e 0deg, #080d1e 60deg, #04060e 120deg,
+        #0d112a 180deg, #04060e 240deg, #080d1e 300deg, #04060e 360deg
+      );
+      position: relative; cursor: pointer;
+      border: 3px solid rgba(96,165,250,0.3);
+    }
+    .vinyl::after {
+      content: ''; position: absolute; inset: 30%;
+      border-radius: 50%; background: #60a5fa;
+      box-shadow: 0 0 10px rgba(96,165,250,0.65);
+    }
+    .vinyl.playing { animation: vinylSpin 7s linear infinite; }
+    @keyframes vinylSpin { to { transform: rotate(360deg); } }
+    .track-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
+      cursor: pointer; transition: background 0.2s; font-size: 13px;
+    }
+    .track-item:hover { background: rgba(96,165,250,0.09); }
+    .track-item.active { background: rgba(96,165,250,0.15); color: #60a5fa; }
+
+    /* Project cards */
+    .project-card {
+      background: rgba(5,7,15,0.88);
+      border: 1px solid rgba(96,165,250,0.12);
+      border-radius: 13px; padding: 15px;
+      transition: all 0.3s; cursor: pointer;
+    }
+    .project-card:hover {
+      border-color: rgba(167,139,250,0.42);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 26px rgba(96,165,250,0.1);
+    }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 22px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 1px;
+      background: linear-gradient(180deg, #60a5fa, #a78bfa, transparent);
+    }
+    .timeline-item { position: relative; margin-bottom: 20px; }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -19px; top: 5px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #60a5fa; border: 2px solid #a78bfa;
+      box-shadow: 0 0 7px rgba(96,165,250,0.6);
+    }
+
+    /* FAQ */
+    details { border-bottom: 1px solid rgba(96,165,250,0.11); }
+    details summary {
+      padding: 13px 0; cursor: pointer; font-weight: 600; font-size: 14px;
+      list-style: none; display: flex; justify-content: space-between; align-items: center;
+      color: #93c5fd;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::after { content: '+'; color: #60a5fa; font-size: 18px; }
+    details[open] summary::after { content: '−'; }
+    details p { padding: 0 0 13px; font-size: 13px; color: #64748b; line-height: 1.78; }
+
+    /* Forms */
+    .form-input {
+      width: 100%; background: rgba(5,7,15,0.88);
+      border: 1px solid rgba(96,165,250,0.2);
+      color: #d4e0f5; border-radius: 10px; padding: 11px 13px;
+      font-size: 14px; outline: none; transition: border-color 0.2s;
+      margin-bottom: 10px;
+    }
+    .form-input:focus { border-color: rgba(96,165,250,0.55); }
+    .form-input option { background: #0a0e1c; }
+    .btn-submit {
+      width: 100%; padding: 13px; border-radius: 11px; border: none; cursor: pointer;
+      font-weight: 700; font-size: 14px; letter-spacing: 0.08em;
+      background: linear-gradient(135deg, #3b82f6, #a78bfa);
+      color: #02030a; transition: all 0.3s;
+      font-family: 'Space Mono', monospace;
+    }
+    .btn-submit:hover { opacity: 0.87; transform: translateY(-1px); box-shadow: 0 5px 18px rgba(96,165,250,0.25); }
+
+    /* Reveal */
+    .reveal { opacity: 0; transform: translateY(24px); transition: all 0.7s cubic-bezier(0.4,0,0.2,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Divider */
+    .logic-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96,165,250,0.45), transparent);
+      margin: 8px 0 16px;
+    }
+
+    /* Scroll-to-top */
+    .scroll-top {
+      position: fixed; bottom: 20px; right: 20px; z-index: 100;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.36);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .scroll-top.show { opacity: 1; }
+
+    /* Sec label */
+    .sec-label {
+      font-size: 10px; color: #334155; letter-spacing: 0.24em;
+      text-transform: uppercase; margin-bottom: 14px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Terminal cursor blink */
+    .cursor {
+      display: inline-block; width: 8px; height: 14px;
+      background: #60a5fa; vertical-align: middle; margin-left: 2px;
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+    /* Thought bubble */
+    .thought-bubble {
+      background: rgba(10,14,28,0.9);
+      border: 1px solid rgba(167,139,250,0.25);
+      border-radius: 12px; padding: 14px 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px; color: #c4b5fd;
+      line-height: 1.8; margin-bottom: 10px;
+      position: relative;
+    }
+    .thought-bubble::before {
+      content: '> '; color: #60a5fa;
+    }
+  </style>
+</head>
+<body>
+  <div class="neural-bg"></div>
+  <div class="grid-overlay"></div>
+  <div class="vignette"></div>
+  <div class="top-stripe"></div>
+  <div id="particle-layer"></div>
+
+  <!-- Corner SVG — circuit marks -->
+  <svg class="corner-decor corner-tl" viewBox="0 0 72 72" fill="none">
+    <path d="M4 68 L4 4 L68 4" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M4 36 L16 36 M36 4 L36 16" stroke="#a78bfa" stroke-width="1" opacity="0.6"/>
+    <circle cx="4"  cy="4"  r="2.5" fill="#60a5fa"/>
+    <circle cx="36" cy="4"  r="1.5" fill="#a78bfa" opacity="0.6"/>
+    <circle cx="4"  cy="36" r="1.5" fill="#bef264" opacity="0.5"/>
+    <rect x="30" y="30" width="6" height="6" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+  </svg>
+  <svg class="corner-decor corner-tr" viewBox="0 0 72 72" fill="none">
+    <path d="M4 68 L4 4 L68 4" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M4 36 L16 36 M36 4 L36 16" stroke="#a78bfa" stroke-width="1" opacity="0.6"/>
+    <circle cx="4" cy="4" r="2.5" fill="#60a5fa"/>
+    <rect x="30" y="30" width="6" height="6" stroke="#a78bfa" stroke-width="1" opacity="0.4"/>
+  </svg>
+  <svg class="corner-decor corner-bl" viewBox="0 0 72 72" fill="none">
+    <path d="M4 68 L4 4 L68 4" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M4 36 L16 36" stroke="#bef264" stroke-width="1" opacity="0.5"/>
+    <circle cx="4" cy="4" r="2.5" fill="#60a5fa"/>
+  </svg>
+  <svg class="corner-decor corner-br" viewBox="0 0 72 72" fill="none">
+    <path d="M4 68 L4 4 L68 4" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="4" cy="4" r="2.5" fill="#60a5fa"/>
+    <rect x="30" y="30" width="6" height="6" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+  </svg>
+
+  <!-- Scroll to top -->
+  <div class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="#60a5fa">
+      <path d="M7 2l5 5H2z"/>
+    </svg>
+  </div>
+
+  <main class="main">
+
+    <!-- ① HERO -->
+    <section class="section-card reveal" style="text-align:center;">
+      <p style="font-size:10px;color:#334155;letter-spacing:0.28em;text-transform:uppercase;margin-bottom:14px;font-family:'Space Mono',monospace;">
+        // THE_LOGICIAN
+      </p>
+      <div class="avatar-ring">
+        <img
+          src="https://api.dicebear.com/9.x/shapes/svg?seed=intp&backgroundColor=05070f&color=60a5fa,a78bfa,bef264,fcd34d"
+          alt="INTP Avatar"
+        />
+        <div class="status-dot"></div>
+      </div>
+      <h1 class="shimmer-text" style="font-family:'Space Mono',monospace;font-size:40px;font-weight:700;letter-spacing:0.18em;">INTP</h1>
+      <p style="font-size:13px;color:#60a5fa;font-weight:600;margin-top:5px;letter-spacing:0.1em;font-family:'Space Mono',monospace;">intp.kr · 논리학자형<span class="cursor"></span></p>
+      <div class="logic-divider" style="margin:14px 0;"></div>
+      <p style="font-size:13px;color:#64748b;font-style:italic;line-height:1.85;margin-bottom:16px;font-family:'Space Mono',monospace;">
+        "세상은 아직 풀리지 않은<br/>
+        <em style="color:#93c5fd;">흥미로운 문제들로 가득 차 있다.</em>"
+      </p>
+      <div style="margin-bottom:16px;">
+        <span class="tag" style="border-color:rgba(96,165,250,0.42);color:#93c5fd;background:rgba(96,165,250,0.09);">#논리학자</span>
+        <span class="tag" style="border-color:rgba(167,139,250,0.4);color:#c4b5fd;background:rgba(167,139,250,0.08);">#이론가</span>
+        <span class="tag" style="border-color:rgba(190,242,100,0.38);color:#d9f99d;background:rgba(163,230,53,0.07);">#탐구자</span>
+        <span class="tag" style="border-color:rgba(252,211,77,0.36);color:#fde68a;background:rgba(251,191,36,0.07);">#독창성</span>
+      </div>
+
+      <!-- I·N·T·P type cards -->
+      <div style="display:flex;gap:8px;margin-bottom:18px;">
+        <div class="type-card">
+          <div style="font-size:22px;font-weight:700;color:#60a5fa;font-family:'Space Mono',monospace;">I</div>
+          <div style="font-size:10px;color:#334155;margin-top:3px;">Introverted<br/>내향형</div>
+        </div>
+        <div class="type-card" style="border-color:rgba(167,139,250,0.22);background:rgba(167,139,250,0.07);">
+          <div style="font-size:22px;font-weight:700;color:#a78bfa;font-family:'Space Mono',monospace;">N</div>
+          <div style="font-size:10px;color:#334155;margin-top:3px;">Intuitive<br/>직관형</div>
+        </div>
+        <div class="type-card" style="border-color:rgba(190,242,100,0.22);background:rgba(163,230,53,0.06);">
+          <div style="font-size:22px;font-weight:700;color:#bef264;font-family:'Space Mono',monospace;">T</div>
+          <div style="font-size:10px;color:#334155;margin-top:3px;">Thinking<br/>사고형</div>
+        </div>
+        <div class="type-card" style="border-color:rgba(252,211,77,0.22);background:rgba(251,191,36,0.06);">
+          <div style="font-size:22px;font-weight:700;color:#fcd34d;font-family:'Space Mono',monospace;">P</div>
+          <div style="font-size:10px;color:#334155;margin-top:3px;">Perceiving<br/>인식형</div>
+        </div>
+      </div>
+
+      <!-- Theory Meter -->
+      <div style="text-align:left;">
+        <p class="sec-label" style="margin-bottom:5px;">이론 탐구 깊이</p>
+        <div class="theory-bar" id="theoryMeter"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <span style="font-size:10px;color:#1e293b;font-family:'Space Mono',monospace;">shallow</span>
+          <span style="font-size:10px;color:#60a5fa;font-weight:700;font-family:'Space Mono',monospace;">∞ depth</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② RARITY + STAT -->
+    <section class="section-card reveal" style="border-color:rgba(167,139,250,0.2);">
+      <p class="sec-label">System.Stats</p>
+      <div style="display:flex;gap:9px;">
+        <div style="background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.18);border-radius:11px;padding:10px 12px;text-align:center;flex:1;">
+          <p style="font-size:20px;font-weight:700;color:#60a5fa;font-family:'Space Mono',monospace;">3–5%</p>
+          <p style="font-size:10px;color:#334155;margin-top:2px;">전 세계 인구</p>
+        </div>
+        <div style="background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.18);border-radius:11px;padding:10px 12px;text-align:center;flex:1;">
+          <p style="font-size:20px;font-weight:700;color:#a78bfa;font-family:'Space Mono',monospace;">#1</p>
+          <p style="font-size:10px;color:#334155;margin-top:2px;">독창적 사고</p>
+        </div>
+        <div style="background:rgba(190,242,100,0.06);border:1px solid rgba(190,242,100,0.18);border-radius:11px;padding:10px 12px;text-align:center;flex:1;">
+          <p style="font-size:20px;font-weight:700;color:#bef264;font-family:'Space Mono',monospace;">∞</p>
+          <p style="font-size:10px;color:#334155;margin-top:2px;">호기심</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ ANNOUNCEMENT -->
+    <section class="section-card reveal" style="border-color:rgba(96,165,250,0.28);background:rgba(96,165,250,0.05);">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-size:20px;flex-shrink:0;">🔭</span>
+        <div>
+          <p style="font-size:10px;color:#60a5fa;letter-spacing:0.2em;font-weight:700;font-family:'Space Mono',monospace;">// BROADCAST</p>
+          <p style="font-size:14px;color:#d4e0f5;margin-top:4px;">
+            새로운 사고 실험 시리즈 <strong style="color:#a78bfa;">Thought Lab v4.0</strong> 공개 — 세상의 작동 원리를 함께 파헤칩니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ SOCIAL LINKS -->
+    <section class="section-card reveal">
+      <p class="sec-label">Social.Links[]</p>
+      <a href="https://instagram.com/intp.kr" class="link-btn" target="_blank" rel="noopener">
+        <span class="icon" style="background:linear-gradient(135deg,#3b82f6,#a78bfa);">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+        </span>
+        <span>Instagram</span>
+        <span style="margin-left:auto;font-size:12px;color:#334155;">@intp.kr</span>
+      </a>
+      <a href="https://youtube.com/@intp.kr" class="link-btn" target="_blank" rel="noopener">
+        <span class="icon" style="background:#dc2626;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
+            <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </span>
+        <span>YouTube</span>
+        <span style="margin-left:auto;font-size:12px;color:#334155;">@intp.kr</span>
+      </a>
+      <a href="https://x.com/intp_kr" class="link-btn" target="_blank" rel="noopener">
+        <span class="icon" style="background:#0f172a;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="white">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </span>
+        <span>X / Twitter</span>
+        <span style="margin-left:auto;font-size:12px;color:#334155;">@intp_kr</span>
+      </a>
+      <a href="https://github.com/intp-kr" class="link-btn" target="_blank" rel="noopener">
+        <span class="icon" style="background:#0d1117;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
+            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+          </svg>
+        </span>
+        <span>GitHub</span>
+        <span style="margin-left:auto;font-size:12px;color:#334155;">github.com/intp-kr</span>
+      </a>
+      <a href="mailto:hello@intp.kr" class="link-btn">
+        <span class="icon" style="background:linear-gradient(135deg,#60a5fa,#bef264);">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+        </span>
+        <span>Email</span>
+        <span style="margin-left:auto;font-size:12px;color:#334155;">hello@intp.kr</span>
+      </a>
+    </section>
+
+    <!-- ⑤ LOGICIAN TRAITS -->
+    <section class="section-card reveal">
+      <p class="sec-label">Logician.Traits{}</p>
+      <div style="display:flex;flex-direction:column;gap:15px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:13px;font-weight:600;color:#93c5fd;">🧠 논리적 분석 (Logical Analysis)</span>
+            <span style="font-size:13px;font-weight:700;color:#60a5fa;" data-target="99">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);" data-width="99"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:13px;font-weight:600;color:#c4b5fd;">💡 독창적 사고 (Original Thinking)</span>
+            <span style="font-size:13px;font-weight:700;color:#a78bfa;" data-target="97">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa);" data-width="97"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:13px;font-weight:600;color:#d9f99d;">🔬 탐구 능력 (Curiosity)</span>
+            <span style="font-size:13px;font-weight:700;color:#bef264;" data-target="98">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="background:linear-gradient(90deg,#84cc16,#bef264);" data-width="98"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:13px;font-weight:600;color:#fde68a;">🌐 패턴 인식 (Pattern Recognition)</span>
+            <span style="font-size:13px;font-weight:700;color:#fcd34d;" data-target="95">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="background:linear-gradient(90deg,#f59e0b,#fcd34d);" data-width="95"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑥ IDEA GRID -->
+    <section class="section-card reveal">
+      <p class="sec-label">Cognitive.Architecture{}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="idea-card">
+          <div style="font-size:24px;margin-bottom:8px;">🔭</div>
+          <p style="font-size:12px;font-weight:700;color:#93c5fd;">Deep Dive</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">한 주제에 끝없이 파고드는 집중력</p>
+        </div>
+        <div class="idea-card">
+          <div style="font-size:24px;margin-bottom:8px;">🕸️</div>
+          <p style="font-size:12px;font-weight:700;color:#c4b5fd;">Web Thinking</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">모든 것을 연결하는 거미줄 사고</p>
+        </div>
+        <div class="idea-card">
+          <div style="font-size:24px;margin-bottom:8px;">⚗️</div>
+          <p style="font-size:12px;font-weight:700;color:#d9f99d;">Theory Forge</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">새로운 이론과 모델을 만드는 능력</p>
+        </div>
+        <div class="idea-card">
+          <div style="font-size:24px;margin-bottom:8px;">🎲</div>
+          <p style="font-size:12px;font-weight:700;color:#fde68a;">Chaos Order</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">무질서 속에서 규칙을 발견하는 직관</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑦ CODE BLOCK — INTP SELF DESCRIBE -->
+    <section class="section-card reveal">
+      <p class="sec-label">self.describe()</p>
+      <div class="code-block">
+        <span class="kw">const</span> <span class="fn">intp</span> = {<br/>
+        &nbsp;&nbsp;type: <span class="str">"논리학자"</span>,<br/>
+        &nbsp;&nbsp;passion: <span class="str">"이론 탐구"</span>,<br/>
+        &nbsp;&nbsp;trait: [<span class="str">"논리"</span>, <span class="str">"창의"</span>, <span class="str">"독립"</span>],<br/>
+        &nbsp;&nbsp;rarity: <span class="num">0.04</span>, <span class="cm">// 전 세계 3~5%</span><br/>
+        &nbsp;&nbsp;mode: <span class="str">"분석 중..."</span>,<br/>
+        &nbsp;&nbsp;<span class="fn">think</span>: () =&gt; <span class="str">"왜 그럴까?"</span>,<br/>
+        &nbsp;&nbsp;<span class="fn">solve</span>: (problem) =&gt; {<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">newTheory</span>(problem);<br/>
+        &nbsp;&nbsp;}<br/>
+        };
+      </div>
+    </section>
+
+    <!-- ⑧ THOUGHT BUBBLES / MAXIMS -->
+    <section class="section-card reveal" style="border-color:rgba(167,139,250,0.18);">
+      <p class="sec-label">thought.log[]</p>
+      <div>
+        <div class="thought-bubble">
+          왜 당연하다고 여기는 것들을 아무도 의심하지 않는가? 모든 전제는 검증되어야 한다.
+        </div>
+        <div class="thought-bubble" style="border-color:rgba(190,242,100,0.22);color:#d9f99d;">
+          <span style="color:#bef264;">&gt; </span>완벽한 이론은 없다. 하지만 더 나은 근사치는 언제나 만들 수 있다.
+        </div>
+        <div class="thought-bubble" style="border-color:rgba(252,211,77,0.2);color:#fde68a;">
+          <span style="color:#fcd34d;">&gt; </span>사회적 규칙보다 논리적 일관성이 더 중요하다. 단, 타인의 감정도 데이터다.
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑨ HYPOTHESIS LIST -->
+    <section class="section-card reveal">
+      <p class="sec-label">hypothesis.queue[]</p>
+      <div>
+        <div class="hypothesis-item">
+          <span class="hyp-badge" style="background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);">검증됨</span>
+          <span>의식은 정보 처리의 창발적 속성일 수 있다.</span>
+        </div>
+        <div class="hypothesis-item">
+          <span class="hyp-badge" style="background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);">탐구 중</span>
+          <span>언어가 사고를 제한하는 방식은 어디까지인가?</span>
+        </div>
+        <div class="hypothesis-item">
+          <span class="hyp-badge" style="background:rgba(190,242,100,0.12);color:#bef264;border:1px solid rgba(190,242,100,0.25);">미해결</span>
+          <span>완벽히 합리적인 의사결정이 가능한 조건이란 무엇인가?</span>
+        </div>
+        <div class="hypothesis-item">
+          <span class="hyp-badge" style="background:rgba(252,211,77,0.12);color:#fcd34d;border:1px solid rgba(252,211,77,0.25);">보류</span>
+          <span>자유 의지는 결정론과 공존할 수 있는가?</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑩ FEATURED VIDEO -->
+    <section class="section-card reveal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;">
+        <p class="sec-label" style="margin-bottom:0;">Featured.Video</p>
+        <span style="font-size:11px;color:#a78bfa;font-family:'Space Mono',monospace;">▶ 47.3K</span>
+      </div>
+      <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(96,165,250,0.18);">
+        <iframe
+          width="100%" height="215"
+          src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+          title="INTP Featured Video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          style="display:block;">
+        </iframe>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;">
+        <p style="font-size:13px;color:#93c5fd;font-weight:600;font-family:'Space Mono',monospace;font-size:12px;">INTP 두뇌 완전 분석 — 논리학자의 사고 구조</p>
+        <span style="font-size:11px;color:#bef264;">7.1K 좋아요</span>
+      </div>
+    </section>
+
+    <!-- ⑪ VIDEO PLAYLIST -->
+    <section class="section-card reveal">
+      <p class="sec-label">Playlist[]</p>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <a href="https://youtube.com/@intp.kr" target="_blank" rel="noopener"
+           style="display:flex;gap:10px;align-items:center;text-decoration:none;padding:8px;border-radius:9px;border:1px solid rgba(96,165,250,0.11);transition:all 0.2s;"
+           onmouseover="this.style.background='rgba(96,165,250,0.08)'"
+           onmouseout="this.style.background='transparent'">
+          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg" alt="v1" style="width:78px;height:50px;border-radius:6px;object-fit:cover;" />
+          <div>
+            <p style="font-size:13px;color:#d4e0f5;font-weight:600;line-height:1.4;">INTP가 생각에 빠지는 이유 — 내면 세계의 구조</p>
+            <p style="font-size:11px;color:#334155;margin-top:2px;font-family:'Space Mono',monospace;">16:42 · 31K views</p>
+          </div>
+        </a>
+        <a href="https://youtube.com/@intp.kr" target="_blank" rel="noopener"
+           style="display:flex;gap:10px;align-items:center;text-decoration:none;padding:8px;border-radius:9px;border:1px solid rgba(96,165,250,0.11);transition:all 0.2s;"
+           onmouseover="this.style.background='rgba(96,165,250,0.08)'"
+           onmouseout="this.style.background='transparent'">
+          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg" alt="v2" style="width:78px;height:50px;border-radius:6px;object-fit:cover;" />
+          <div>
+            <p style="font-size:13px;color:#d4e0f5;font-weight:600;line-height:1.4;">논리학자형의 사회생활 — 감정보다 논리가 앞서는 사람</p>
+            <p style="font-size:11px;color:#334155;margin-top:2px;font-family:'Space Mono',monospace;">12:18 · 24K views</p>
+          </div>
+        </a>
+        <a href="https://youtube.com/@intp.kr" target="_blank" rel="noopener"
+           style="display:flex;gap:10px;align-items:center;text-decoration:none;padding:8px;border-radius:9px;border:1px solid rgba(96,165,250,0.11);transition:all 0.2s;"
+           onmouseover="this.style.background='rgba(96,165,250,0.08)'"
+           onmouseout="this.style.background='transparent'">
+          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg" alt="v3" style="width:78px;height:50px;border-radius:6px;object-fit:cover;" />
+          <div>
+            <p style="font-size:13px;color:#d4e0f5;font-weight:600;line-height:1.4;">INTP vs INTJ — 이론가와 건축가의 결정적 차이</p>
+            <p style="font-size:11px;color:#334155;margin-top:2px;font-family:'Space Mono',monospace;">14:55 · 39K views</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ⑫ IMAGE CAROUSEL -->
+    <section class="section-card reveal" style="padding:24px 16px;">
+      <p class="sec-label" style="padding:0 8px;">Gallery[]</p>
+      <div class="carousel-wrapper">
+        <div class="carousel-track" id="carouselTrack">
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=480&q=80" alt="Math" />
+            <div class="carousel-caption">// 수식 — 세상을 기술하는 언어</div>
+          </div>
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=480&q=80" alt="Lab" />
+            <div class="carousel-caption">// 실험실 — 가설을 현실로 검증하는 공간</div>
+          </div>
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=480&q=80" alt="Circuit" />
+            <div class="carousel-caption">// 회로 — 논리의 물리적 구현</div>
+          </div>
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=480&q=80" alt="Galaxy" />
+            <div class="carousel-caption">// 우주 — 가장 거대한 미해결 문제</div>
+          </div>
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=480&q=80" alt="Code" />
+            <div class="carousel-caption">// 코드 — 생각을 실체로 변환하는 도구</div>
+          </div>
+        </div>
+        <button class="carousel-btn carousel-prev" id="carouselPrev">‹</button>
+        <button class="carousel-btn carousel-next" id="carouselNext">›</button>
+      </div>
+      <div class="carousel-dots" id="carouselDots">
+        <div class="carousel-dot active" data-index="0"></div>
+        <div class="carousel-dot" data-index="1"></div>
+        <div class="carousel-dot" data-index="2"></div>
+        <div class="carousel-dot" data-index="3"></div>
+        <div class="carousel-dot" data-index="4"></div>
+      </div>
+    </section>
+
+    <!-- ⑬ SPOTLIGHT -->
+    <section class="section-card reveal" style="padding:0;overflow:hidden;border-radius:16px;">
+      <div style="position:relative;">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=480&q=80" alt="Spotlight" style="width:100%;height:196px;object-fit:cover;display:block;" />
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(2,3,10,0.93) 100%);display:flex;align-items:flex-end;padding:18px;">
+          <div>
+            <p style="font-size:10px;color:#60a5fa;letter-spacing:0.2em;font-weight:700;font-family:'Space Mono',monospace;">// SPOTLIGHT</p>
+            <p style="font-size:15px;color:#fff;font-weight:700;margin-top:4px;">INTP — 세상의 작동 원리를 해독하는 사람</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑭ MUSIC PLAYER -->
+    <section class="section-card reveal">
+      <p class="sec-label">Audio.Stream()</p>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div class="vinyl" id="vinyl" onclick="toggleMusic()"></div>
+        <div style="flex:1;">
+          <p style="font-size:14px;font-weight:700;color:#93c5fd;font-family:'Space Mono',monospace;" id="trackTitle">Logic Drift</p>
+          <p style="font-size:12px;color:#334155;font-family:'Space Mono',monospace;" id="trackArtist">INTP Neural Collective</p>
+          <div style="margin-top:8px;">
+            <div class="progress-track">
+              <div class="progress-fill" id="musicProgress" style="background:linear-gradient(90deg,#3b82f6,#a78bfa);width:0%;transition:width 0.1s linear;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:10px;color:#334155;font-family:'Space Mono',monospace;" id="currentTime">0:00</span>
+              <span style="font-size:10px;color:#334155;font-family:'Space Mono',monospace;">5:22</span>
+            </div>
+          </div>
+        </div>
+        <button onclick="toggleMusic()" id="playBtn"
+          style="background:none;border:1px solid rgba(96,165,250,0.36);color:#60a5fa;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;">▶</button>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="track-item active" onclick="selectTrack(0,'Logic Drift','INTP Neural Collective')">
+          <span style="font-size:13px;">🧠</span><span style="flex:1;">Logic Drift</span><span style="font-size:11px;color:#334155;font-family:'Space Mono',monospace;">5:22</span>
+        </div>
+        <div class="track-item" onclick="selectTrack(1,'Abstract Loop','Theory Engine')">
+          <span style="font-size:13px;">⚗️</span><span style="flex:1;">Abstract Loop</span><span style="font-size:11px;color:#334155;font-family:'Space Mono',monospace;">4:47</span>
+        </div>
+        <div class="track-item" onclick="selectTrack(2,'Paradox Wave','Void Signal')">
+          <span style="font-size:13px;">🌌</span><span style="flex:1;">Paradox Wave</span><span style="font-size:11px;color:#334155;font-family:'Space Mono',monospace;">6:01</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑮ PROJECTS -->
+    <section class="section-card reveal">
+      <p class="sec-label">Projects.map()</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="project-card">
+          <div style="font-size:22px;margin-bottom:8px;">🔭</div>
+          <p style="font-size:13px;font-weight:700;color:#93c5fd;">Thought Lab</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">사고 실험 아카이브 플랫폼</p>
+          <span style="display:inline-block;margin-top:8px;font-size:10px;color:#bef264;border:1px solid rgba(190,242,100,0.3);padding:2px 8px;border-radius:999px;font-family:'Space Mono',monospace;">active</span>
+        </div>
+        <div class="project-card">
+          <div style="font-size:22px;margin-bottom:8px;">⚗️</div>
+          <p style="font-size:13px;font-weight:700;color:#93c5fd;">Theory Vault</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">미완성 이론 공개 저장소</p>
+          <span style="display:inline-block;margin-top:8px;font-size:10px;color:#a78bfa;border:1px solid rgba(167,139,250,0.3);padding:2px 8px;border-radius:999px;font-family:'Space Mono',monospace;">beta</span>
+        </div>
+        <div class="project-card">
+          <div style="font-size:22px;margin-bottom:8px;">🕸️</div>
+          <p style="font-size:13px;font-weight:700;color:#93c5fd;">Idea Graph</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">개념 연결 시각화 도구</p>
+          <span style="display:inline-block;margin-top:8px;font-size:10px;color:#fcd34d;border:1px solid rgba(252,211,77,0.3);padding:2px 8px;border-radius:999px;font-family:'Space Mono',monospace;">new</span>
+        </div>
+        <div class="project-card">
+          <div style="font-size:22px;margin-bottom:8px;">🎲</div>
+          <p style="font-size:13px;font-weight:700;color:#93c5fd;">Chaos Map</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;line-height:1.5;">복잡계 패턴 분석 툴킷</p>
+          <span style="display:inline-block;margin-top:8px;font-size:10px;color:#60a5fa;border:1px solid rgba(96,165,250,0.3);padding:2px 8px;border-radius:999px;font-family:'Space Mono',monospace;">open</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑯ TIMELINE -->
+    <section class="section-card reveal">
+      <p class="sec-label">Version.Log[]</p>
+      <div class="timeline">
+        <div class="timeline-item">
+          <p style="font-size:10px;color:#60a5fa;font-family:'Space Mono',monospace;letter-spacing:0.1em;">v1.0 — 2024.Q1</p>
+          <p style="font-size:13px;color:#d4e0f5;font-weight:600;margin-top:2px;">Thought Lab 알파 출시</p>
+          <p style="font-size:12px;color:#334155;margin-top:3px;line-height:1.65;">철학적 사고 실험과 논리 퍼즐을 공유하는 플랫폼. 오픈 첫 달 3,200명 방문.</p>
+        </div>
+        <div class="timeline-item">
+          <p style="font-size:10px;color:#a78bfa;font-family:'Space Mono',monospace;letter-spacing:0.1em;">v2.0 — 2024.Q4</p>
+          <p style="font-size:13px;color:#d4e0f5;font-weight:600;margin-top:2px;">Theory Vault 베타 공개</p>
+          <p style="font-size:12px;color:#334155;margin-top:3px;line-height:1.65;">완성되지 않은 이론을 오픈소스로 공유. 커뮤니티가 함께 발전시키는 집단 지성 실험.</p>
+        </div>
+        <div class="timeline-item" style="margin-bottom:0;">
+          <p style="font-size:10px;color:#bef264;font-family:'Space Mono',monospace;letter-spacing:0.1em;">v3.0 — 2025.Q2</p>
+          <p style="font-size:13px;color:#d4e0f5;font-weight:600;margin-top:2px;">Idea Graph 출시 예정</p>
+          <p style="font-size:12px;color:#334155;margin-top:3px;line-height:1.65;">개념들 사이의 연결을 시각화하는 인터랙티브 그래프 도구. AI 기반 패턴 탐지 탑재.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑰ RECENT POSTS -->
+    <section class="section-card reveal">
+      <p class="sec-label">Recent.Posts[]</p>
+      <div style="display:flex;flex-direction:column;gap:13px;">
+        <div style="border-bottom:1px solid rgba(96,165,250,0.1);padding-bottom:13px;">
+          <div style="display:flex;gap:5px;margin-bottom:6px;">
+            <span class="tag" style="border-color:rgba(96,165,250,0.4);color:#93c5fd;background:rgba(96,165,250,0.09);font-size:10px;">#논리</span>
+            <span class="tag" style="border-color:rgba(167,139,250,0.38);color:#c4b5fd;background:rgba(167,139,250,0.08);font-size:10px;">#이론</span>
+          </div>
+          <p style="font-size:14px;font-weight:600;color:#d4e0f5;line-height:1.5;">INTP가 완성하지 못하는 이유 — 완벽주의와 무한 탐구의 역설</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;font-family:'Space Mono',monospace;">2025.12.16 · 9분 읽기</p>
+        </div>
+        <div style="border-bottom:1px solid rgba(96,165,250,0.1);padding-bottom:13px;">
+          <div style="display:flex;gap:5px;margin-bottom:6px;">
+            <span class="tag" style="border-color:rgba(190,242,100,0.36);color:#d9f99d;background:rgba(163,230,53,0.07);font-size:10px;">#철학</span>
+            <span class="tag" style="border-color:rgba(252,211,77,0.34);color:#fde68a;background:rgba(251,191,36,0.07);font-size:10px;">#탐구</span>
+          </div>
+          <p style="font-size:14px;font-weight:600;color:#d4e0f5;line-height:1.5;">논리학자형의 감정 — 느끼지 못하는 게 아니라 분석하는 것</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;font-family:'Space Mono',monospace;">2025.12.01 · 7분 읽기</p>
+        </div>
+        <div>
+          <div style="display:flex;gap:5px;margin-bottom:6px;">
+            <span class="tag" style="border-color:rgba(96,165,250,0.4);color:#93c5fd;background:rgba(96,165,250,0.09);font-size:10px;">#MBTI</span>
+            <span class="tag" style="border-color:rgba(167,139,250,0.38);color:#c4b5fd;background:rgba(167,139,250,0.08);font-size:10px;">#자기이해</span>
+          </div>
+          <p style="font-size:14px;font-weight:600;color:#d4e0f5;line-height:1.5;">INTP로 산다는 것 — 생각의 미로에서 길을 잃는 아름다움</p>
+          <p style="font-size:11px;color:#334155;margin-top:4px;font-family:'Space Mono',monospace;">2025.11.14 · 6분 읽기</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑱ FAQ -->
+    <section class="section-card reveal">
+      <p class="sec-label">FAQ.resolve()</p>
+      <details>
+        <summary>INTP는 어떤 성격 유형인가요?</summary>
+        <p>INTP는 Myers-Briggs 유형 중 "논리학자형" 또는 "이론가형"으로 불립니다. 내향적(I), 직관적(N), 사고형(T), 인식형(P) 특성을 지니며, 탁월한 논리적 분석력과 독창적인 사고로 세상의 작동 원리를 탐구하는 데 열정을 쏟습니다. 전 세계 인구의 약 3~5%를 차지하는 희귀한 유형입니다.</p>
+      </details>
+      <details>
+        <summary>INTP의 핵심 강점은 무엇인가요?</summary>
+        <p>INTP는 독보적인 논리적 분석 능력과 패턴 인식 능력을 보유합니다. 기존의 틀을 의심하고 새로운 이론과 모델을 구성하는 독창적인 사고력이 뛰어납니다. 또한 복잡한 개념들 사이의 연결 고리를 발견하는 직관과, 한 주제를 무한히 깊게 파고드는 탐구 집중력이 특출납니다.</p>
+      </details>
+      <details>
+        <summary>intp.kr에서 무엇을 찾을 수 있나요?</summary>
+        <p>intp.kr은 INTP 성격 유형에 대한 심층 분석, 사고 실험, 그리고 논리학자형 인간이 세상을 탐구하는 방식을 공유하는 플랫폼입니다. 미완성 이론 아카이브, 철학적 질문 토론, 그리고 INTP들이 모여 서로의 아이디어를 자유롭게 교환하는 개방적인 지성 공간을 제공합니다.</p>
+      </details>
+    </section>
+
+    <!-- ⑲ NEWSLETTER -->
+    <section class="section-card reveal" style="border-color:rgba(190,242,100,0.18);background:rgba(163,230,53,0.04);">
+      <p class="sec-label">Subscribe.to()</p>
+      <p style="font-size:14px;color:#d4e0f5;margin-bottom:15px;line-height:1.7;">논리학자의 사고 실험을 매주 받아보세요. 이론, 철학, 그리고 세상을 다르게 보는 방법.</p>
+      <div style="display:flex;gap:8px;">
+        <input type="email" id="newsletterEmail" class="form-input" placeholder="your@email.com" style="margin-bottom:0;flex:1;font-family:'Space Mono',monospace;" />
+        <button onclick="handleNewsletter()" class="btn-submit" style="width:auto;padding:11px 16px;white-space:nowrap;">구독</button>
+      </div>
+      <p id="newsletterMsg" style="font-size:12px;margin-top:7px;color:#bef264;display:none;font-family:'Space Mono',monospace;">// 구독 완료 — 탐구를 함께 시작합니다.</p>
+    </section>
+
+    <!-- ⑳ CONTACT -->
+    <section class="section-card reveal">
+      <p class="sec-label">Contact.send()</p>
+      <input type="text"  id="contactName"    class="form-input" placeholder="이름 (Name)" />
+      <input type="email" id="contactEmail"   class="form-input" placeholder="이메일 (Email)" />
+      <select             id="contactTopic"   class="form-input">
+        <option value="">문의 유형 선택</option>
+        <option value="theory">이론 토론 제안</option>
+        <option value="collab">프로젝트 협업</option>
+        <option value="debate">지적 토론 요청</option>
+        <option value="media">인터뷰 / 강연</option>
+        <option value="etc">기타 문의</option>
+      </select>
+      <textarea id="contactMessage" class="form-input" rows="4" placeholder="궁금한 것, 토론하고 싶은 것을 자유롭게 적어주세요…" style="resize:none;font-family:'Space Mono',monospace;font-size:13px;"></textarea>
+      <button onclick="handleContact()" class="btn-submit">메시지 전송 //</button>
+      <p id="contactMsg" style="font-size:12px;margin-top:8px;color:#bef264;text-align:center;display:none;font-family:'Space Mono',monospace;">// 수신 완료 — 논리적으로 검토 후 회신드립니다.</p>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="reveal" style="text-align:center;padding:18px 0 40px;">
+      <div class="logic-divider" style="margin-bottom:18px;"></div>
+      <div style="margin-bottom:13px;">
+        <span class="tag" style="border-color:rgba(96,165,250,0.42);color:#93c5fd;background:rgba(96,165,250,0.09);">#INTP</span>
+        <span class="tag" style="border-color:rgba(167,139,250,0.4);color:#c4b5fd;background:rgba(167,139,250,0.08);">#논리학자형</span>
+        <span class="tag" style="border-color:rgba(190,242,100,0.36);color:#d9f99d;background:rgba(163,230,53,0.07);">#이론가</span>
+        <span class="tag" style="border-color:rgba(252,211,77,0.34);color:#fde68a;background:rgba(251,191,36,0.07);">#MBTI</span>
+        <span class="tag" style="border-color:rgba(96,165,250,0.3);color:#93c5fd;background:rgba(96,165,250,0.07);">#탐구자</span>
+      </div>
+      <p style="font-size:12px;color:#334155;margin-bottom:8px;font-style:italic;font-family:'Space Mono',monospace;">// "답이 없는 질문이 가장 흥미롭다."</p>
+      <a href="https://intp.kr" style="font-size:15px;color:#60a5fa;font-weight:700;text-decoration:none;letter-spacing:0.12em;font-family:'Space Mono',monospace;">intp.kr</a>
+      <p style="font-size:10px;color:#0d1117;margin-top:10px;font-family:'Space Mono',monospace;">© 2025 intp.kr · Built for logicians who question everything</p>
+    </footer>
+
+  </main>
+
+  <script>
+    // ── Floating Formula Particles ─────────────────────────────────
+    (function createParticles() {
+      const layer   = document.getElementById('particle-layer');
+      const symbols = ['∀','∃','∴','∵','⊕','⊗','∩','∪','≡','≈','∞','∂','∇','λ','π','σ','∑','∫','√','⊂'];
+      const colors  = ['#60a5fa','#a78bfa','#bef264','#fcd34d','#93c5fd','#c4b5fd'];
+      for (let i = 0; i < 44; i++) {
+        const p     = document.createElement('div');
+        p.className = 'particle';
+        const size  = Math.random() * 10 + 8;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const sym   = symbols[Math.floor(Math.random() * symbols.length)];
+        const dx    = (Math.random() - 0.5) * 70;
+        const dx2   = (Math.random() - 0.5) * 50;
+        p.textContent = sym;
+        p.style.cssText = `
+          left:${Math.random() * 100}%;
+          bottom:0;
+          font-size:${size}px;
+          color:${color};
+          --dur:${10 + Math.random() * 14}s;
+          --delay:${Math.random() * 14}s;
+          --dx:${dx}px;
+          --dx2:${dx2}px;
+          text-shadow:0 0 ${size}px ${color}55;
+        `;
+        layer.appendChild(p);
+      }
+    })();
+
+    // ── Theory Meter ───────────────────────────────────────────────
+    (function buildTheoryMeter() {
+      const meter = document.getElementById('theoryMeter');
+      for (let i = 0; i < 18; i++) {
+        const s     = document.createElement('div');
+        s.className = 'theory-seg';
+        s.dataset.idx = i;
+        meter.appendChild(s);
+      }
+    })();
+
+    // ── Scroll Reveal & Animations ─────────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('visible');
+
+        e.target.querySelectorAll('.progress-fill[data-width]').forEach(bar => {
+          setTimeout(() => { bar.style.width = bar.dataset.width + '%'; }, 200);
+        });
+
+        e.target.querySelectorAll('[data-target]').forEach(el => {
+          const target = parseInt(el.dataset.target);
+          let cur = 0;
+          const step = () => {
+            cur += 2;
+            if (cur >= target) { el.textContent = target + '%'; return; }
+            el.textContent = cur + '%';
+            setTimeout(step, 18);
+          };
+          setTimeout(step, 200);
+        });
+
+        if (e.target.querySelector('#theoryMeter')) {
+          document.querySelectorAll('.theory-seg').forEach((s, i) => {
+            setTimeout(() => s.classList.add('lit'), 100 + i * 90);
+          });
+        }
+      });
+    }, { threshold: 0.13 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── Carousel ───────────────────────────────────────────────────
+    let carouselIndex = 0;
+    const TOTAL = 5;
+    const track = document.getElementById('carouselTrack');
+    const dots  = document.querySelectorAll('.carousel-dot');
+
+    function goToSlide(n) {
+      carouselIndex = (n + TOTAL) % TOTAL;
+      track.style.transform = `translateX(-${carouselIndex * 100}%)`;
+      dots.forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
+    }
+
+    document.getElementById('carouselPrev').addEventListener('click', () => goToSlide(carouselIndex - 1));
+    document.getElementById('carouselNext').addEventListener('click', () => goToSlide(carouselIndex + 1));
+    dots.forEach(d => d.addEventListener('click', () => goToSlide(+d.dataset.index)));
+
+    let touchStartX = 0;
+    track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) goToSlide(carouselIndex + (dx < 0 ? 1 : -1));
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft')  goToSlide(carouselIndex - 1);
+      if (e.key === 'ArrowRight') goToSlide(carouselIndex + 1);
+    });
+
+    let carouselTimer = setInterval(() => goToSlide(carouselIndex + 1), 6000);
+    track.parentElement.addEventListener('mouseenter', () => clearInterval(carouselTimer));
+    track.parentElement.addEventListener('mouseleave', () => {
+      clearInterval(carouselTimer);
+      carouselTimer = setInterval(() => goToSlide(carouselIndex + 1), 6000);
+    });
+
+    // ── Music Player ───────────────────────────────────────────────
+    let isPlaying    = false;
+    let musicInterval = null;
+    let musicProgress = 0;
+
+    function toggleMusic() {
+      isPlaying = !isPlaying;
+      const vinyl = document.getElementById('vinyl');
+      const btn   = document.getElementById('playBtn');
+      if (isPlaying) {
+        vinyl.classList.add('playing');
+        btn.textContent = '⏸';
+        musicInterval = setInterval(() => {
+          musicProgress = (musicProgress + 0.031) % 100;
+          document.getElementById('musicProgress').style.width = musicProgress + '%';
+          const totalSec = 322;
+          const cur = Math.floor(musicProgress / 100 * totalSec);
+          document.getElementById('currentTime').textContent =
+            Math.floor(cur / 60) + ':' + String(cur % 60).padStart(2, '0');
+        }, 100);
+      } else {
+        vinyl.classList.remove('playing');
+        btn.textContent = '▶';
+        clearInterval(musicInterval);
+      }
+    }
+
+    function selectTrack(idx, title, artist) {
+      musicProgress = 0;
+      document.getElementById('trackTitle').textContent  = title;
+      document.getElementById('trackArtist').textContent = artist;
+      document.getElementById('musicProgress').style.width = '0%';
+      document.getElementById('currentTime').textContent  = '0:00';
+      document.querySelectorAll('.track-item').forEach((item, i) => {
+        item.classList.toggle('active', i === idx);
+      });
+      if (isPlaying) { clearInterval(musicInterval); isPlaying = false; }
+      toggleMusic();
+    }
+
+    // ── Scroll-to-top ──────────────────────────────────────────────
+    const scrollTopBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('show', window.scrollY > 380);
+    });
+
+    // ── Newsletter ─────────────────────────────────────────────────
+    function handleNewsletter() {
+      const email = document.getElementById('newsletterEmail').value.trim();
+      const msg   = document.getElementById('newsletterMsg');
+      if (!email || !email.includes('@')) {
+        msg.style.color   = '#f87171';
+        msg.textContent   = '// ERROR: 올바른 이메일 주소를 입력해주세요.';
+        msg.style.display = 'block';
+        return;
+      }
+      msg.style.color   = '#bef264';
+      msg.textContent   = '// 구독 완료 — 탐구를 함께 시작합니다.';
+      msg.style.display = 'block';
+      document.getElementById('newsletterEmail').value = '';
+    }
+
+    // ── Contact Form ───────────────────────────────────────────────
+    function handleContact() {
+      const name    = document.getElementById('contactName').value.trim();
+      const email   = document.getElementById('contactEmail').value.trim();
+      const message = document.getElementById('contactMessage').value.trim();
+      const msg     = document.getElementById('contactMsg');
+      if (!name || !email || !message) {
+        msg.style.color   = '#f87171';
+        msg.textContent   = '// ERROR: 이름, 이메일, 메시지를 모두 입력해주세요.';
+        msg.style.display = 'block';
+        return;
+      }
+      if (!email.includes('@')) {
+        msg.style.color   = '#f87171';
+        msg.textContent   = '// ERROR: 올바른 이메일 주소를 입력해주세요.';
+        msg.style.display = 'block';
+        return;
+      }
+      msg.style.color   = '#bef264';
+      msg.textContent   = '// 수신 완료 — 논리적으로 검토 후 회신드립니다.';
+      msg.style.display = 'block';
+      ['contactName','contactEmail','contactTopic','contactMessage'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+  </script>
+</body>
+</html>
